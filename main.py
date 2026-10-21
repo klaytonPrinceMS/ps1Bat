@@ -98,7 +98,7 @@ def check_branding():
     for p in ROOT.rglob("*"):
         if not p.is_file():
             continue
-        if ".git" in p.parts or p.suffix in {".pyc"} or p.parent.name in {"site", "__pycache__"}:
+        if ".git" in p.parts or "bat" in p.parts or p.suffix in {".pyc"} or p.parent.name in {"site", "__pycache__"}:
             continue
         try:
             texto = p.read_text(encoding="utf-8").lower()

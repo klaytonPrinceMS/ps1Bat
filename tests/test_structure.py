@@ -11,7 +11,7 @@ MENUS = ["Menu-Reparo", "Menu-Discos", "Menu-Drivers", "Menu-Impressao",
          "Menu-Energia", "Menu-Memoria", "Menu-Rede", "Menu-Limpeza",
          "Menu-Seguranca", "Menu-Diagnostico", "Menu-Video", "Menu-Identidade",
          "Menu-Stress", "Menu-SegInfo", "Menu-Registro", "Menu-Update",
-         "Menu-Winget"]
+         "Menu-Winget", "Menu-Utilidades"]
 
 
 def test_funcoes_existem():
@@ -35,3 +35,13 @@ def test_identificadores_ascii():
     assert not estranhas, f"funcoes com acento: {estranhas}"
     com_acento = re.findall(r"\$[\w]*[áéíóúâêôãõçà]", texto)
     assert not com_acento, f"variaveis com acento: {com_acento}"
+
+
+def test_splash_so_na_tela_inicial():
+    texto = (ROOT / "SOS-Manutencao.ps1").read_text(encoding="utf-8")
+    assert "function Show-Splash" in texto
+    assert texto.count("Show-Splash") == 2, "splash deve existir 1x (def + chamada na entrada)"
+    marca = "VHVHHHAHHHHMMV"
+    assert marca in texto, "arte da caveira sumiu"
+    cab = texto.split("function Cab", 1)[1].split("\nfunction ", 1)[0]
+    assert marca not in cab, "caveira nao pode aparecer no Cab (todos os menus)"

@@ -23,6 +23,7 @@
     15. Ajustes de Desempenho            (Registro do Windows)
     16. Atualização do Windows           (PSWindowsUpdate)
     17. Winget                           (executa em contexto de usuario comum)
+    18. Utilidades Rápidas               (ping, velocidade, msinfo32, msconfig)
 
   SEGURANÇA: Autentica com senha de administrador local ao iniciar.
              Todas as acoes ficam gravadas em log.
@@ -45,6 +46,12 @@ $APP = @{
     Org     = "T! SOS Sistemas"
     Log     = "$env:TEMP\SOS_Manutencao.log"
     MaxAuth = 3
+}
+
+# ── CONTATO (editável - exibido na tela inicial, abaixo da caveira) ──────────
+$Contato = @{
+    Fone  = ""
+    Email = ""
 }
 
 $C = @{
@@ -109,6 +116,77 @@ function Confirmar {
     if ($descricao) { Desc $descricao }
     $r = Read-Host "  ENTER = executar | qualquer outra tecla = cancelar"
     return ($r -eq "")
+}
+
+# ── TELA INICIAL (caveira do script clássico KlaytonBuenoPrince.bat) ─────────
+# Exibida uma única vez na entrada pelo Show-Splash. Não usar no Cab.
+$script:Splash = @'
+                        ...----....
+                    ..-:"''         ''"-..
+                 .-'                      '-.
+               .'              .     .       '.
+             .'   .          .    .      .    .''.
+           .'  .    .       .   .   .     .   . ..:.
+         .' .   . .  .       .   .   ..  .   . ....::.
+        ..   .   .      .  .    .     .  ..  . ....:IA.
+      .:  .   .    .    .  .  .    .. .  .. .. ....:IA.
+      .: .   .   ..   .    .     . . .. . ... ....:.:VHA.
+      '..  .  .. .   .       .  . .. . .. . .....:.::IHHB.
+     .:. .  . .  . .   .  .  . . . ...:.:... .......:HIHMM.
+    .:.... .   . ."::"'.. .   .  . .:.:.:II;,. .. ..:IHIMMA
+    ':.:..  ..::IHHHHHI::. . .  ...:.::::.,,,. . ....VIMMHM
+   .:::I. .M Klayton .III::. .:...,:IIHHHHHHMMMHHL:. . VMMMM
+  .:.:V.:IVH Bueno HMMMMM::..:" .:HIHHHHHHHHHHHHHMHHA. .VMMM.
+  :..V.:IVHH Prince HHHHGB... . .:VPHHMHMHMFASHHHMHMMHI.:VMMI
+  ::V..:VIHHHHHHMMMHHHHHH. .   .I":IIMHHRSGSEGBDHMMHHHAPI:WMM
+  ::". .:.HHHHHHHHMMHHHHHI.  . .:..I:MHMHMHMMMMMJHMHMM:':H:WM
+  :: . :.::IIHHHHHHMMHHHHV  .ABA.:.:IMHHMHMHMMHMHMMH:'. .IHWW
+  '.  ..:..:.:IHHHHHMMHV" .AVMHMA.:.'VHMMMMHHHHHV:' .  :IHWV
+   :.  .:...:".:.:TPP"   .AVMMHMMA.:. "VMMHHHP.:... .. :IVAI
+  .:.   '... .:"'   .   ..HMMMHMMMA::. ."VHHI:::....  .:IHW'
+  ...  .  . ..:IIPPIH: ..HMMMI.MMMV:I:.  .:ILLH:.. ...:I:IM
+: .   .'"' .:.V". .. .  :HMMM:IMMMI::I. ..:HHIIPPHI::'.P:HM.
+:.  .  .  .. ..:.. .    :AMMM IMMMM..:...:IV":T::I::.".:IHIMA
+'V:.. .. . .. .  .  .   'VMMV..VMMV :....:V:.:..:....::IHHHMH
+  "IHH:.II:.. .:. .  . . . " :HB"" . . ..PI:.::.:::..:IHHMMV"
+   :IP""HHII:.  .  .    . . .'V:. . . ..:IH:.:.::IHIHHMMMMM"
+   :V:. VIMA:I..  .     .  . .. . .  .:.I:I:..:IHHHHMMHHMMM
+   :"VI:.VWMA::. .:      .   .. .:. ..:.I::.:IVHHHMMMHMMMMI
+   :."VIIHHMMA:.  .   .   .:  .:.. . .:.II:I:AMMMMMMHMMMMMI
+   :..VIHIHMMMI...::.,:.,:!"I:!"I!"I!"V:AI:VAMMMMMMHMMMMMM'
+   ':.:HIHIMHHA:"!!"I.:AXXXVVXXXXXXXA:."HPHIMMMMHHMHMMMMMV
+   ':.:HIHIMHHA:"!!"I.:AXXXVVXXXXXXXA:."HPHIMMMMHHMHMMMMMV
+     V:H:I:MA:W'I :AXXXIXII:IIIISSSSSSXXA.I.VMMMHMHMMMMMM
+       'I::IVA ASSSSXSSSSBBSBMBSSSSSSBBMMMBS.VVMMHIMM'"'
+        I:: VPAIMSSSSSSSSSBSSSMMBSSSBBMMMMXXI:MMHIMMI
+       .I::. "H:XIIXBBMMMMMMMMMMMMMMMMMBXIXXMMPHIIMM'
+       :::I.  ':XSS SEM O SIGILO XXIIIXXSMMAMI:.IMM
+       :::I:.  .VSSSS TEMOS A MORTE SSSBMMB:MI:..:MM
+       ::.I:.  ':"SSSSSSSISISSXIIXSSSSBMMB:AHI:..MMM.
+       ::.I:. . ..:"BBSSSSSSSSSSSSBBBMMMB:AHHI::.HMMI
+       :..::.  . ..::":BBBBBSSBBBMMMB:MMMMHHII::IHHMI
+       ':.I:... ....:IHHHHHMMMMMMMMMMMMMMMHHIIIIHMMV"
+         "V:. ..:...:.IHHHMMMMMMMMMMMMMMMMHHHMHHMHP'
+          ':. .:::.:.::III::IHHHHMMMMMHMHMMHHHHM"
+            "::....::.:::..:..::IIIIIHHHHMMMHHMV"
+              "::.::.. .. .  ...:::IIHHMMMMHMV"
+                "V::... . .I::IHHMMV"'
+                  '"VHVHHHAHHHHMMV:"'
+'@
+
+function Show-Splash {
+    Clear-Host
+    Write-Host $script:Splash -ForegroundColor Red
+    Write-Host ""
+    Write-Host "  $($APP.Nome)" -ForegroundColor $C.T
+    Write-Host "  $($APP.Org)" -ForegroundColor $C.T
+    $agora = Get-Date
+    Write-Host "  Data: $($agora.ToString('dd/MM/yyyy'))  Hora: $($agora.ToString('HH:mm'))" -ForegroundColor $C.H
+    if ($Contato.Fone)  { Write-Host "  Fone: $($Contato.Fone)" -ForegroundColor $C.I }
+    if ($Contato.Email) { Write-Host "  E-mail: $($Contato.Email)" -ForegroundColor $C.I }
+    Write-Host ""
+    Write-Host "  Pressione ENTER para continuar..." -ForegroundColor $C.I
+    $null = Read-Host
 }
 
 # ── MOTOR DE EXECUÇÃO CENTRAL ─────────────────────────────────────────────────
@@ -1242,6 +1320,94 @@ function Menu-Winget {
 }
 
 # =============================================================================
+# TESTE DE VELOCIDADE NATIVO (download + upload via Cloudflare, sem navegador)
+# =============================================================================
+function Teste-Velocidade {
+    L; Cab "TESTE DE VELOCIDADE - INTERNET"
+    Write-Host "  Servidor: Cloudflare (speed.cloudflare.com)" -ForegroundColor $C.H
+    Write-Host ""
+    Write-Host "  Medindo latência (ping 1.1.1.1, 4 pacotes)..." -ForegroundColor $C.I
+    try {
+        $p = Test-Connection -ComputerName 1.1.1.1 -Count 4 -ErrorAction Stop
+        $ok = @($p | Where-Object { $_.StatusCode -eq 0 })
+        $lat = [math]::Round(($ok | Measure-Object ResponseTime -Average).Average, 1)
+        Write-Host "  Latência média: $lat ms (perda: $($p.Count - $ok.Count)/$($p.Count))" -ForegroundColor $C.M
+    } catch {
+        Write-Host "  [ERRO] Sem resposta. Verifique a conexão com a internet." -ForegroundColor $C.E
+        Log "Teste de velocidade: sem conectividade" "AVISO"; P; return
+    }
+    Write-Host ""
+    try {
+        Add-Type -AssemblyName System.Net.Http
+        $cli = New-Object Net.Http.HttpClient
+        $cli.Timeout = [TimeSpan]::FromSeconds(120)
+        Write-Host "  Baixando 25 MB (teste de download)..." -ForegroundColor $C.I
+        $sw = [Diagnostics.Stopwatch]::StartNew()
+        $stream = $cli.GetStreamAsync("https://speed.cloudflare.com/__down?bytes=25000000").GetAwaiter().GetResult()
+        $buf = New-Object byte[] 65536
+        $total = 0; $marco = 0
+        do {
+            $n = $stream.Read($buf, 0, $buf.Length)
+            $total += $n
+            if ($total - $marco -ge 5MB) { $marco = $total; Write-Host "    $([math]::Round($total/1MB,1)) MB..." -ForegroundColor $C.H }
+        } while ($n -gt 0)
+        $sw.Stop(); $stream.Close()
+        $down = [math]::Round($total * 8 / $sw.Elapsed.TotalSeconds / 1MB, 1)
+        Write-Host "  Download: $down Mbps ($([math]::Round($total/1MB,1)) MB em $([math]::Round($sw.Elapsed.TotalSeconds,1)) s)" -ForegroundColor $C.M
+        Write-Host ""
+        Write-Host "  Enviando 5 MB (teste de upload)..." -ForegroundColor $C.I
+        $up = New-Object byte[] (5MB); (New-Object Random).NextBytes($up)
+        $swUp = [Diagnostics.Stopwatch]::StartNew()
+        $resp = $cli.PostAsync("https://speed.cloudflare.com/__up", (New-Object Net.Http.ByteArrayContent(,$up))).GetAwaiter().GetResult()
+        $swUp.Stop(); $resp.Dispose(); $cli.Dispose()
+        $upMbps = [math]::Round(5 * 8 / $swUp.Elapsed.TotalSeconds, 1)
+        Write-Host "  Upload: $upMbps Mbps (5 MB em $([math]::Round($swUp.Elapsed.TotalSeconds,1)) s)" -ForegroundColor $C.M
+        Log "Teste de velocidade: down ${down} Mbps / up ${upMbps} Mbps / lat ${lat} ms"
+    } catch {
+        Write-Host "  [ERRO] Falha no teste: $($_.Exception.Message)" -ForegroundColor $C.E
+        Log "Teste de velocidade: erro - $($_.Exception.Message)" "AVISO"
+    }
+    P
+}
+
+# =============================================================================
+# MENU 18: UTILIDADES RÁPIDAS (trazidas do script clássico KlaytonBuenoPrince.bat)
+# =============================================================================
+function Menu-Utilidades {
+    do {
+        Cab "18. UTILIDADES RÁPIDAS"
+        Write-Host "  Itens não cobertos pelos outros menus, herdados do" -ForegroundColor $C.H
+        Write-Host "  script clássico KlaytonBuenoPrince.bat." -ForegroundColor $C.H
+        Write-Host ""
+        Write-Host "   1. Ping (20 pacotes no destino)" -ForegroundColor $C.M
+        Write-Host "   2. Teste de velocidade (nativo, sem navegador)" -ForegroundColor $C.M
+        Write-Host "   3. Informações do sistema (msinfo32)" -ForegroundColor $C.M
+        Write-Host "   4. Mouse (main.cpl)" -ForegroundColor $C.M
+        Write-Host "   5. Configuração do sistema (msconfig)" -ForegroundColor $C.M
+        Write-Host "   6. Programas e Recursos (appwiz.cpl)" -ForegroundColor $C.M
+        Write-Host "   7. Calculadora" -ForegroundColor $C.M
+        Write-Host "   8. Editor do Registro (regedit)" -ForegroundColor $C.M
+        Write-Host "   0. Voltar" -ForegroundColor $C.I
+        switch (Read-Host "`n  Opção") {
+            "1" {
+                $dest = Read-Host "  Destino (Enter = 8.8.8.8)"
+                if ([string]::IsNullOrWhiteSpace($dest)) { $dest = "8.8.8.8" }
+                Run "Ping em $dest (20 pacotes)..." "Envia 20 pacotes ICMP ao destino e exibe tempos de resposta e perdas. Útil para checar a conectividade básica antes de diagnósticos mais profundos." @("ping -n 20 $dest") -Win
+            }
+            "2" { Teste-Velocidade }
+            "3" { Start-Process msinfo32.exe; Write-Host "  Abrindo Informações do Sistema..." -ForegroundColor $C.A; P }
+            "4" { Start-Process main.cpl; Write-Host "  Abrindo configurações do mouse..." -ForegroundColor $C.A; P }
+            "5" { Start-Process msconfig.exe; Write-Host "  Abrindo Configuração do Sistema..." -ForegroundColor $C.A; P }
+            "6" { Start-Process appwiz.cpl; Write-Host "  Abrindo Programas e Recursos..." -ForegroundColor $C.A; P }
+            "7" { Start-Process calc.exe; Write-Host "  Abrindo Calculadora..." -ForegroundColor $C.A; P }
+            "8" { Run "Abrindo Editor do Registro..." "Abre o regedit. Navegue com cuidado: alterações incorretas podem impedir o Windows de iniciar. Prefira o Menu 15 para ajustes guiados e seguros." @("regedit.exe") -Win }
+            "0"  { return }
+            default { Write-Host "  Opção inválida." -ForegroundColor $C.E; Start-Sleep 1 }
+        }
+    } while ($true)
+}
+
+# =============================================================================
 # MENU PRINCIPAL
 # =============================================================================
 function Menu-Principal {
@@ -1273,6 +1439,8 @@ function Menu-Principal {
         Write-Host "  13. Testes de Stress                 (CPU multinucleo)" -ForegroundColor $C.M
         Write-Host "  16. Atualização do Windows           (PSWindowsUpdate)" -ForegroundColor $C.M
         Write-Host "  17. Winget                           (usuario comum)" -ForegroundColor $C.M
+        Write-Host "  -- UTILIDADES ------------------------------------------" -ForegroundColor $C.H
+        Write-Host "  18. Utilidades Rápidas              (ping, velocidade, msinfo32)" -ForegroundColor $C.M
         Write-Host ""
         Write-Host "   0. Sair" -ForegroundColor $C.E
         Write-Host ""
@@ -1300,6 +1468,7 @@ function Menu-Principal {
             "15" { Menu-Registro }
             "16" { Menu-Update }
             "17" { Menu-Winget }
+            "18" { Menu-Utilidades }
             "0"  {
                 Write-Host "`n  Encerrando T! SOS Sistemas Ferramenta Técnica..." -ForegroundColor $C.A
                 Log "Sessão encerrada pelo usuario."

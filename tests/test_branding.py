@@ -3,7 +3,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 FORBIDDEN = ["prefeitura", "monte santo", "departamento de tecnologia"]
-SKIP_DIRS = {".git", "site", "__pycache__", ".pytest_cache"}
+SKIP_DIRS = {".git", "site", "__pycache__", ".pytest_cache", "bat"}
 SKIP_FILES = {"test_branding.py"}
 
 

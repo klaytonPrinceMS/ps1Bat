@@ -1,7 +1,7 @@
 # T! SOS Sistemas — Ferramenta Técnica de Manutenção
 
-> **EN:** Interactive Windows maintenance toolkit (PowerShell 5.1) — a single-script menu tool with 17 maintenance, diagnostic and security modules.
-> **PT:** Ferramenta interativa de manutenção para Windows (PowerShell 5.1) — script único com menu de 17 módulos de manutenção, diagnóstico e segurança.
+> **EN:** Interactive Windows maintenance toolkit (PowerShell 5.1) — a single-script menu tool with 18 maintenance, diagnostic and security modules.
+> **PT:** Ferramenta interativa de manutenção para Windows (PowerShell 5.1) — script único com menu de 18 módulos de manutenção, diagnóstico e segurança.
 
 Versão atual: **v2.1.261021**.
 
@@ -46,6 +46,7 @@ Na inicialização, a ordem é fixa:
 | 15 | Ajustes de Desempenho | Registro do Windows |
 | 16 | Atualização do Windows | módulo `PSWindowsUpdate` |
 | 17 | Winget | gerenciador de pacotes (**roda em contexto não-elevado**) |
+| 18 | Utilidades Rápidas | ping, velocidade (nativo), msinfo32, msconfig, calc, regedit |
 
 Detalhes em [`docs/menus.md`](docs/menus.md) — ou rode localmente (ver abaixo).
 

@@ -126,3 +126,12 @@ lista/instala atualizações (com ou sem reboot automático), `gpupdate /force`.
 Versão, `upgrade`, `upgrade --all`, `search`, `list`; abre a Microsoft
 Store para instalar o App Installer. **Sempre executa não-elevado
 (`-SemAdmin`) em nova janela CMD.**
+
+## 18. Utilidades Rápidas (script clássico)
+
+Itens herdados do `KlaytonBuenoPrince.bat` não cobertos pelos outros menus:
+ping (20 pacotes, destino editável), teste de velocidade nativo em
+PowerShell (latência + download 25 MB + upload 5 MB via Cloudflare),
+`msinfo32`, mouse (`main.cpl`), `msconfig`, `appwiz.cpl`, calculadora e
+`regedit` (com confirmação). Sites mortos do script original (velocímetro,
+direta.com.br, Facebook) e a limpeza de desktop foram descartados.
