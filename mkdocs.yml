@@ -1,0 +1,12 @@
+site_name: T! SOS Sistemas - Ferramenta Técnica de Manutenção
+site_description: Documentação da ferramenta técnica de manutenção do T! SOS Sistemas
+site_author: T! SOS Sistemas
+
+theme:
+  name: readthedocs
+
+nav:
+  - Início: index.md
+  - Uso: uso.md
+  - Menus: menus.md
+  - Desenvolvimento: desenvolvimento.md

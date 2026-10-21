@@ -1,0 +1,35 @@
+# Windows
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Logs de execucao (LOG = %TEMP%\SOS_Manutencao.log)
+*.log
+
+# MkDocs
+site/
+.cache/
+
+# Python (ambiente da documentacao e testes)
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+.hypothesis/
+.coverage
+.coverage.*
+*.egg-info/
+dist/
+build/
+
+# Editores
+.vscode/
+.idea/
+*.swp
+*~
