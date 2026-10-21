@@ -24,6 +24,7 @@
     16. Atualização do Windows           (PSWindowsUpdate)
     17. Winget                           (executa em contexto de usuario comum)
     18. Utilidades Rápidas               (ping, velocidade, msinfo32, msconfig)
+    19. Menu de Contexto                 (clássico Win11, atalhos T! SOS)
 
   SEGURANÇA: Autentica com senha de administrador local ao iniciar.
              Todas as acoes ficam gravadas em log.
@@ -48,10 +49,10 @@ $APP = @{
     MaxAuth = 3
 }
 
-# ── CONTATO (editável - exibido na tela inicial, abaixo da caveira) ──────────
+# ── CONTATO (do InstaladorProgramasKBP.bat: variáveis feito e contato) ─────────
 $Contato = @{
-    Fone  = ""
-    Email = ""
+    Feito = "Software by: KBP"
+    Email = "tisossistemas@gmail.com"
 }
 
 $C = @{
@@ -182,7 +183,7 @@ function Show-Splash {
     Write-Host "  $($APP.Org)" -ForegroundColor $C.T
     $agora = Get-Date
     Write-Host "  Data: $($agora.ToString('dd/MM/yyyy'))  Hora: $($agora.ToString('HH:mm'))" -ForegroundColor $C.H
-    if ($Contato.Fone)  { Write-Host "  Fone: $($Contato.Fone)" -ForegroundColor $C.I }
+    if ($Contato.Feito) { Write-Host "  $($Contato.Feito)" -ForegroundColor $C.I }
     if ($Contato.Email) { Write-Host "  E-mail: $($Contato.Email)" -ForegroundColor $C.I }
     Write-Host ""
     Write-Host "  Pressione ENTER para continuar..." -ForegroundColor $C.I
@@ -1408,6 +1409,32 @@ function Menu-Utilidades {
 }
 
 # =============================================================================
+# MENU 19: MENU DE CONTEXTO (clássico do Win11 + atalhos T! SOS no desktop)
+# =============================================================================
+function Menu-Contexto {
+    do {
+        Cab "19. MENU DE CONTEXTO"
+        Write-Host "  Gerencia o menu de botão direito da área de trabalho." -ForegroundColor $C.H
+        Write-Host ""
+        Write-Host "  -- Menu clássico do Windows 11 -------------------------" -ForegroundColor $C.H
+        Write-Host "   1. Ativar menu clássico (restaura o antigo)" -ForegroundColor $C.M
+        Write-Host "   2. Desativar menu clássico (volta ao moderno)" -ForegroundColor $C.M
+        Write-Host "  -- Atalhos T! SOS no menu ------------------------------" -ForegroundColor $C.H
+        Write-Host "   3. Adicionar atalhos (Chrome, Firefox, travas, Explorer)" -ForegroundColor $C.M
+        Write-Host "   4. Remover atalhos T! SOS" -ForegroundColor $C.M
+        Write-Host "   0. Voltar" -ForegroundColor $C.I
+        switch (Read-Host "`n  Opção") {
+            "1" { Run "Ativando menu clássico..." "Cria a chave InprocServer32 vazia que restaura o menu de contexto clássico no Windows 11. O Explorer sera reiniciado para aplicar de imediato." @('REG ADD "HKCU\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32" /ve /f', 'taskkill /f /im explorer.exe', 'start explorer.exe') -Win }
+            "2" { Run "Desativando menu clássico..." "Remove a chave InprocServer32 e volta ao menu de contexto moderno do Windows 11. O Explorer sera reiniciado para aplicar de imediato." @('REG DELETE "HKCU\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}" /f', 'taskkill /f /im explorer.exe', 'start explorer.exe') -Win }
+            "3" { Run "Adicionando atalhos T! SOS..." "Cria 6 atalhos no menu de botão direito do desktop: contato T! SOS, Google Chrome, Firefox, encerrar processos travados, reiniciar o Explorer (corrige barra sumida) e abrir pastas temporárias. Requer que Chrome/Firefox estejam instalados para esses dois funcionarem." @('New-Item -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\googleChrome -Force | Out-Null', 'Set-ItemProperty -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\googleChrome -Name icon -Value "taskmgr.exe,-30651"', 'Set-ItemProperty -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\googleChrome -Name MUIVerb -Value "T! SOS - Google Chrome"', 'Set-ItemProperty -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\googleChrome -Name Position -Value "Top"', 'New-Item -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\googleChrome\command -Force | Out-Null', 'Set-ItemProperty -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\googleChrome\command -Name "(default)" -Value "cmd.exe /C start chrome"', 'New-Item -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\FireFox -Force | Out-Null', 'Set-ItemProperty -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\FireFox -Name icon -Value "taskmgr.exe,-30651"', 'Set-ItemProperty -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\FireFox -Name MUIVerb -Value "T! SOS - Firefox"', 'Set-ItemProperty -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\FireFox -Name Position -Value "Top"', 'New-Item -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\FireFox\command -Force | Out-Null', 'Set-ItemProperty -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\FireFox\command -Name "(default)" -Value "cmd.exe /C start firefox"', 'New-Item -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\encerrarProcessosTravados -Force | Out-Null', 'Set-ItemProperty -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\encerrarProcessosTravados -Name icon -Value "taskmgr.exe,-30651"', 'Set-ItemProperty -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\encerrarProcessosTravados -Name MUIVerb -Value "T! SOS - Encerrar processos travados"', 'Set-ItemProperty -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\encerrarProcessosTravados -Name Position -Value "Top"', 'New-Item -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\encerrarProcessosTravados\command -Force | Out-Null', 'Set-ItemProperty -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\encerrarProcessosTravados\command -Name "(default)" -Value "cmd.exe /C taskkill.exe /f /fi \"STATUS eq NOT RESPONDING\""', 'New-Item -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\reiniciarSO -Force | Out-Null', 'Set-ItemProperty -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\reiniciarSO -Name icon -Value "taskmgr.exe,-30651"', 'Set-ItemProperty -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\reiniciarSO -Name MUIVerb -Value "T! SOS - Reiniciar Explorer (corrige barra sumida)"', 'Set-ItemProperty -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\reiniciarSO -Name Position -Value "Top"', 'New-Item -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\reiniciarSO\command -Force | Out-Null', 'Set-ItemProperty -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\reiniciarSO\command -Name "(default)" -Value "cmd.exe /C taskkill /f /im explorer.exe & start explorer.exe"', 'New-Item -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\KBP -Force | Out-Null', 'Set-ItemProperty -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\KBP -Name icon -Value "taskmgr.exe,-30651"', 'Set-ItemProperty -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\KBP -Name MUIVerb -Value "T! SOS Sistemas 359-8713-5649"', 'Set-ItemProperty -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\KBP -Name Position -Value "Top"', 'New-Item -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\KBP\command -Force | Out-Null', 'Set-ItemProperty -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\KBP\command -Name "(default)" -Value "cmd.exe /C echo 35988183288"', 'New-Item -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\limparPastaPrefeth -Force | Out-Null', 'Set-ItemProperty -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\limparPastaPrefeth -Name icon -Value "taskmgr.exe,-30651"', 'Set-ItemProperty -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\limparPastaPrefeth -Name MUIVerb -Value "T! SOS - Abrir pastas temporárias"', 'Set-ItemProperty -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\limparPastaPrefeth -Name Position -Value "Top"', 'New-Item -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\limparPastaPrefeth\command -Force | Out-Null', 'Set-ItemProperty -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\limparPastaPrefeth\command -Name "(default)" -Value "cmd.exe /C start %windir%\prefetch & start %temp% & start temp"') -PS -Win }
+            "4" { Run "Removendo atalhos T! SOS..." "Apaga os 6 atalhos criados pela opção 3. Não mexe no menu clássico/moderno (opções 1 e 2)." @('REG DELETE "HKCR\DesktopBackground\Shell\googleChrome" /f', 'REG DELETE "HKCR\DesktopBackground\Shell\FireFox" /f', 'REG DELETE "HKCR\DesktopBackground\Shell\encerrarProcessosTravados" /f', 'REG DELETE "HKCR\DesktopBackground\Shell\reiniciarSO" /f', 'REG DELETE "HKCR\DesktopBackground\Shell\KBP" /f', 'REG DELETE "HKCR\DesktopBackground\Shell\limparPastaPrefeth" /f') -Win }
+            "0"  { return }
+            default { Write-Host "  Opção inválida." -ForegroundColor $C.E; Start-Sleep 1 }
+        }
+    } while ($true)
+}
+
+# =============================================================================
 # MENU PRINCIPAL
 # =============================================================================
 function Menu-Principal {
@@ -1441,6 +1468,7 @@ function Menu-Principal {
         Write-Host "  17. Winget                           (usuario comum)" -ForegroundColor $C.M
         Write-Host "  -- UTILIDADES ------------------------------------------" -ForegroundColor $C.H
         Write-Host "  18. Utilidades Rápidas              (ping, velocidade, msinfo32)" -ForegroundColor $C.M
+        Write-Host "  19. Menu de Contexto               (clássico Win11 + atalhos)" -ForegroundColor $C.M
         Write-Host ""
         Write-Host "   0. Sair" -ForegroundColor $C.E
         Write-Host ""
@@ -1469,6 +1497,7 @@ function Menu-Principal {
             "16" { Menu-Update }
             "17" { Menu-Winget }
             "18" { Menu-Utilidades }
+            "19" { Menu-Contexto }
             "0"  {
                 Write-Host "`n  Encerrando T! SOS Sistemas Ferramenta Técnica..." -ForegroundColor $C.A
                 Log "Sessão encerrada pelo usuario."

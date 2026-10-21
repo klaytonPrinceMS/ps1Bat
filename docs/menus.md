@@ -135,3 +135,12 @@ PowerShell (latência + download 25 MB + upload 5 MB via Cloudflare),
 `msinfo32`, mouse (`main.cpl`), `msconfig`, `appwiz.cpl`, calculadora e
 `regedit` (com confirmação). Sites mortos do script original (velocímetro,
 direta.com.br, Facebook) e a limpeza de desktop foram descartados.
+
+## 19. Menu de Contexto (script clássico)
+
+Gerencia o menu de botão direito do desktop, herdado dos três `.bat` de
+contexto (`menuContexto`, `menuContexto - Copia`, `menuContexto klayton`):
+ativa/desativa o menu clássico do Windows 11 (com reinício do Explorer) e
+adiciona/remove 6 atalhos — contato T! SOS (telefone do `.bat` original),
+Chrome, Firefox, encerrar processos travados, reiniciar o Explorer e abrir
+pastas temporárias. Todos os rótulos `DTI - ...` viraram `T! SOS - ...`.

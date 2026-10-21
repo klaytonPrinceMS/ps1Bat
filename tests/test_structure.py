@@ -11,7 +11,7 @@ MENUS = ["Menu-Reparo", "Menu-Discos", "Menu-Drivers", "Menu-Impressao",
          "Menu-Energia", "Menu-Memoria", "Menu-Rede", "Menu-Limpeza",
          "Menu-Seguranca", "Menu-Diagnostico", "Menu-Video", "Menu-Identidade",
          "Menu-Stress", "Menu-SegInfo", "Menu-Registro", "Menu-Update",
-         "Menu-Winget", "Menu-Utilidades"]
+         "Menu-Winget", "Menu-Utilidades", "Menu-Contexto"]
 
 
 def test_funcoes_existem():
@@ -45,3 +45,11 @@ def test_splash_so_na_tela_inicial():
     assert marca in texto, "arte da caveira sumiu"
     cab = texto.split("function Cab", 1)[1].split("\nfunction ", 1)[0]
     assert marca not in cab, "caveira nao pode aparecer no Cab (todos os menus)"
+
+
+def test_menu_contexto_marca():
+    texto = (ROOT / "SOS-Manutencao.ps1").read_text(encoding="utf-8")
+    bloco = texto.split("function Menu-Contexto", 1)[1].split("\nfunction ", 1)[0]
+    assert "T! SOS - " in bloco, "atalhos sem marca T! SOS"
+    assert "KBP" in bloco, "entrada de contato KBP ausente"
+    assert '"DTI - ' not in bloco, "restou rotulo DTI no menu de contexto"
