@@ -2,6 +2,8 @@
 
 > **EN:** Interactive Windows maintenance toolkit (PowerShell 5.1) — a single-script menu tool with 20 maintenance, diagnostic and security modules.
 > **PT:** Ferramenta interativa de manutenção para Windows (PowerShell 5.1) — script único com menu de 20 módulos de manutenção, diagnóstico e segurança.
+> **EN:** Every menu accepts multi-select: type `2,3,10`, ranges like `1-3`, `TODOS`, or press ENTER to run all options in sequence (`0` goes back).
+> **PT:** Todos os menus aceitam seleção múltipla: digite `2,3,10`, intervalos como `1-3`, `TODOS` ou pressione ENTER para executar todas as opções em sequência (`0` volta).
 
 Versão atual: **v2.1.261021**.
 

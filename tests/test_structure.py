@@ -68,3 +68,50 @@ def test_menu_contexto_marca():
     assert "T! SOS - " in bloco, "atalhos sem marca T! SOS"
     assert "KBP" in bloco, "entrada de contato KBP ausente"
     assert '"DTI - ' not in bloco, "restou rotulo DTI no menu de contexto"
+
+
+def test_multiselecao_todos_os_menus():
+    import re
+    texto = (ROOT / "SOS-Manutencao.ps1").read_text(encoding="utf-8")
+    assert "function Expandir-Selecao" in texto, "helper de multi-selecao ausente"
+    n = texto.count("Expandir-Selecao (Read-Host")
+    assert n >= 21, f"esperava >=21 menus convertidos, achei {n}"
+    assert "switch (Read-Host" not in texto, "ainda ha switch single-select"
+    assert '$op   = Read-Host "  Opção"' in texto, "Menu-ExecPolicy (escolha unica) nao deve mudar"
+
+
+def test_multiselecao_comportamento_no_powershell():
+    import re
+    import subprocess
+    texto = (ROOT / "SOS-Manutencao.ps1").read_text(encoding="utf-8")
+    m = re.search(r"function Expandir-Selecao \{.*?\n\}", texto, re.S)
+    assert m, "nao achei o corpo do helper"
+    helper = m.group(0)
+    prova = helper + "\n" + "\n".join([
+        "$C = @{ E = 'x' }",
+        "$V10 = @('1','2','3','4','5','6','7','8','9','10')",
+        "'R1=' + ((Expandir-Selecao '2,3,10' $V10) -join ',')",
+        "'R2=' + ((Expandir-Selecao '' $V10) -join ',')",
+        "'R3=' + ((Expandir-Selecao 'TODOS' $V10) -join ',')",
+        "'R4=' + ((Expandir-Selecao '1-3' $V10) -join ',')",
+        "'R5=' + ((Expandir-Selecao '0' $V10) -join ',')",
+        "'R6=' + ((Expandir-Selecao 'abc' $V10) -join ',')",
+        "'R7=' + ((Expandir-Selecao '3,3,2' $V10) -join ',')",
+        "$saida = foreach ($x in (Expandir-Selecao '1,3' $V10)) { switch ($x) { '1' { 'um' } '3' { 'tres' } } }",
+        "'R8=' + ($saida -join ',')",
+    ])
+    r = subprocess.run(
+        ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", prova],
+        capture_output=True, text=True, timeout=120,
+    )
+    assert r.returncode == 0, f"powershell falhou: {r.stderr[:500]}"
+    linhas = [l for l in r.stdout.replace("\r", "").split("\n") if l.startswith("R")]
+    obt = dict(l.split("=", 1) for l in linhas if "=" in l)
+    assert obt.get("R1") == "2,3,10", f"lista simples quebrou: {obt}"
+    assert obt.get("R2") == "1,2,3,4,5,6,7,8,9,10", f"ENTER=todas quebrou: {obt}"
+    assert obt.get("R3") == "1,2,3,4,5,6,7,8,9,10", f"TODOS quebrou: {obt}"
+    assert obt.get("R4") == "1,2,3", f"intervalo quebrou: {obt}"
+    assert obt.get("R5") == "0", f"voltar quebrou: {obt}"
+    assert obt.get("R6") == "", f"invalido devia dar vazio: {obt}"
+    assert obt.get("R7") == "3,2", f"ordem/dedup quebrou: {obt}"
+    assert obt.get("R8") == "um,tres", f"switch sobre array nao despachou: {obt}"

@@ -75,7 +75,7 @@ def test_registro_lote_cobre_todos_os_ajustes():
 def test_chkdsk_leitura_sem_correcao():
     texto = (ROOT / "SOS-Manutencao.ps1").read_text(encoding="utf-8")
     menu = texto.split("function Menu-Discos", 1)[1].split("function Menu-Drivers", 1)[0]
-    idx = menu.index('"12"')
+    idx = menu.index('"12" {')
     trecho = menu[idx:idx + 500]
     assert "chkdsk" in trecho.lower(), "opcao 12 sem chkdsk"
     assert "/f" not in trecho and "/r" not in trecho, "chkdsk leitura nao pode corrigir"
@@ -143,3 +143,11 @@ def test_novas_opcoes_diagnostico():
     assert '"17"' in diag and "tasklist /fi" in diag, "opcao 17 tasklist ausente"
     energia = texto.split("function Menu-Energia", 1)[1].split("function Menu-Memoria", 1)[0]
     assert '"9"' in energia and "Win32_Battery" in energia, "opcao 9 bateria ausente"
+
+
+def test_relogio_ampm_identidade():
+    texto = (ROOT / "SOS-Manutencao.ps1").read_text(encoding="utf-8")
+    ident = texto.split("function Menu-Identidade", 1)[1].split("function Menu-Stress", 1)[0]
+    assert "Relogio" in ident, "opcao relogio ausente no menu 16"
+    assert "sTimeFormat" in ident and "s1159" in ident and "s2359" in ident
+    assert "Control Panel\\International" in ident or "Control Panel/International" in ident

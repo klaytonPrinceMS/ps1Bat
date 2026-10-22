@@ -2,6 +2,8 @@
 
 > **EN:** Quick reference for the 17 `Menu-Principal` menus. Every option runs through the `Run` helper and is written to the log.
 > **PT:** Referência rápida dos 17 menus do `Menu-Principal`. Toda opção executa via função auxiliar `Run` e é registrada no log.
+> **EN:** Every menu accepts multi-select: type `2,3,10`, ranges like `1-3`, `TODOS`, or press ENTER to run all options in sequence (`0` goes back).
+> **PT:** Todos os menus aceitam seleção múltipla: digite `2,3,10`, intervalos como `1-3`, `TODOS` ou pressione ENTER para executar todas as opções em sequência (`0` volta).
 
 ## 1. Reparo e Integridade do Sistema (DISM, SFC)
 
@@ -131,7 +133,8 @@ Dica: reset de GPU sem reiniciar com `Ctrl + Win + Shift + B`.
 Renomear computador (validação `^[A-Za-z0-9\-]{1,15}$`, exige reboot),
 alterar nome completo de uma conta local (pergunta o login e o novo nome),
 alterar exibição do usuário atual, IP estático, exibir computador/usuário/
-domínio/IP, `control userpasswords2`.
+domínio/IP, `control userpasswords2`, relógio AM/PM (`sTimeFormat`,
+`s1159`/`s2359` em `HKCU:\Control Panel\International`).
 
 ## 17. Menu de Contexto (script clássico)
 

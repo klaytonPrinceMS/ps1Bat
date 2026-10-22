@@ -26,7 +26,7 @@
     14. Placa de Vídeo e Monitor         (dxdiag, DCOM, GPU reset)
     15. Testes                           (CPU, velocidade, monitor)
     SISTEMA E CONFIGURAÇÃO:
-    16. Identidade do Sistema            (renomear PC, usuario, IP estático)
+    16. Identidade do Sistema            (renomear PC, usuario, IP estático, relogio AM/PM)
     17. Menu de Contexto                 (clássico Win11, atalhos T! SOS)
     18. Utilidades Rápidas               (ping, msinfo32, msconfig, calc)
     19. Winget                           (executa em contexto de usuário comum)
@@ -116,6 +116,34 @@ function Confirmar {
     if ($descricao) { Desc $descricao }
     $r = Read-Host "  ENTER = executar | qualquer outra tecla = cancelar"
     return ($r -eq "")
+}
+
+function Expandir-Selecao {
+    param([string]$Entrada, [string[]]$Validas)
+    $e = if ($null -eq $Entrada) { "" } else { "$Entrada".Trim() }
+    if ($e -match '^\s*0\s*$') { return @("0") }
+    if ([string]::IsNullOrWhiteSpace($e)) { return @($Validas | Where-Object { $_ -ne "0" }) }
+    if ($e -match '^(?i)(todos|todas|all|tudo|\*)$') { return @($Validas | Where-Object { $_ -ne "0" }) }
+    $lista = @()
+    foreach ($t in ($e -split '[,;\s]+')) {
+        if ([string]::IsNullOrWhiteSpace($t)) { continue }
+        if ($t -match '^(\d+)-(\d+)$') {
+            $a = [int]$Matches[1]
+            $b = [int]$Matches[2]
+            if ($a -gt $b) { $tmp = $a; $a = $b; $b = $tmp }
+            foreach ($n in $a..$b) {
+                $s = "$n"
+                if (($Validas -contains $s) -and ($lista -notcontains $s) -and ($s -ne "0")) { $lista += $s }
+            }
+        } elseif ($t -match '^\d+$') {
+            $s = "$([int]$t)"
+            if (($Validas -contains $s) -and ($lista -notcontains $s) -and ($s -ne "0")) { $lista += $s }
+        } elseif ($Validas -contains $t) {
+            if ($lista -notcontains $t) { $lista += $t }
+        }
+    }
+    if ($lista.Count -eq 0) { Write-Host "  Opção inválida." -ForegroundColor $C.E; Start-Sleep 1 }
+    return $lista
 }
 
 # ── TELA INICIAL (caveira do script clássico KlaytonBuenoPrince.bat) ─────────
@@ -408,7 +436,7 @@ function Menu-Reparo {
         Write-Host "  5. SFC + DISM sequencial (reparo completo - recomendado)" -ForegroundColor $C.A
         Write-Host "  5. Teste" -ForegroundColor $C.M
         Write-Host "  0. Voltar" -ForegroundColor $C.I
-        switch (Read-Host "`n  Opção") {
+        switch (Expandir-Selecao (Read-Host "`n  Opção [2,3,10 | TODOS | ENTER=todas | 0 volta]") @("1","2","3","4","5")) {
             "1" { Run "DISM: Verificando status da imagem..." "Verifica se a imagem do Windows tem problemas, SEM fazer reparos. Resultado: Healthy = OK; Repairable = execute a opção 2; Non repairable = reinstalacao necessaria." @("DISM /Online /Cleanup-Image /CheckHealth") -Win }
             "2" { Run "DISM: Reparando imagem..." "Repara a imagem do Windows baixando arquivos integros do Windows Update. Demora 10-20 min e requer internet. Use quando SFC ou CheckHealth indicarem problemas." @("DISM /Online /Cleanup-Image /RestoreHealth") -Win }
             "3" { Run "DISM: Limpando componentes obsoletos..." "Remove versões antigas de pacotes ja substituidos por atualizações. Libera espaço no disco do sistema sem afetar o funcionamento." @("DISM /Online /Cleanup-Image /StartComponentCleanup") -Win }
@@ -439,7 +467,7 @@ function Menu-Discos {
         Write-Host " 11. Espaço livre em todos os discos lógicos" -ForegroundColor $C.M
         Write-Host " 12. CHKDSK rápido - somente leitura (sem reiniciar)" -ForegroundColor $C.M
         Write-Host "  0. Voltar" -ForegroundColor $C.I
-        switch (Read-Host "`n  Opção") {
+        switch (Expandir-Selecao (Read-Host "`n  Opção [2,3,10 | TODOS | ENTER=todas | 0 volta]") @("1","2","3","4","5","6","7","8","9","10","11","12")) {
             "1"  { Run "Verificando SMART (previsão de falha)..." "Lê os dados S.M.A.R.T. dos discos. Se PredictFailure = True, o disco esta prestes a falhar: faça backup imediatamente e substitua o hardware. Valor esperado: PredictFailure = False." @("Get-CimInstance -ClassName MSStorageDriver_FailurePredictStatus -Namespace root\wmi | Select-Object InstanceName, PredictFailure, Reason | Format-Table -AutoSize") -PS -Win }
             "2"  { Run "Contadores de confiabilidade dos discos..." "Exibe contadores de erros de leitura, escrita e desgaste de cada disco. Valores ideais são próximos de zero. WearLevel alto em SSDs indica desgaste acumulado." @("Get-PhysicalDisk | Get-StorageReliabilityCounter | Format-List *") -PS -Win }
             "3"  { Run "Informações dos discos físicos..." "Lista cada disco com seu status de saúde e status operacional. HealthStatus = Healthy e o esperado. Warning ou Unhealthy requerem atenção imediata." @("Get-PhysicalDisk | Select-Object DeviceId, FriendlyName, HealthStatus, OperationalStatus | Format-Table -AutoSize") -PS -Win }
@@ -487,7 +515,7 @@ function Menu-Drivers {
         Write-Host "  6. Remover driver (informar oemXX.inf)" -ForegroundColor $C.M
         Write-Host "  7. Verificação do Driver Verifier (verifier /query)" -ForegroundColor $C.M
         Write-Host "  0. Voltar" -ForegroundColor $C.I
-        switch (Read-Host "`n  Opção") {
+        switch (Expandir-Selecao (Read-Host "`n  Opção [2,3,10 | TODOS | ENTER=todas | 0 volta]") @("1","2","3","4","5","6","7")) {
             "1" { Run "Listando drivers instalados..." "Exibe todos os pacotes de drivers instalados no repositório do sistema, com nome do driver, versão, data e fornecedor. Útil para auditar ou localizar drivers a remover." @("pnputil /enum-drivers") -Win }
             "2" { Run "Dispositivos com problemas..." "Lista dispositivos cujo código de erro no WMI e diferente de zero. Código 0 = OK. Qualquer outro valor indica problema: driver corrompido, conflito de recursos ou hardware com defeito." @('Get-WmiObject -Class Win32_PnPEntity | Where-Object { $_.ConfigManagerErrorCode -ne 0 } | Select-Object Name, DeviceID, ConfigManagerErrorCode | Format-Table -AutoSize') -PS -Win }
             "3" { Run "Monitores e displays conectados..." "Lista todos os dispositivos de exibição reconhecidos pelo sistema via Plug and Play. Use quando um monitor não esta sendo detectado." @("pnputil /enum-devices /class Display") -Win }
@@ -527,7 +555,7 @@ function Menu-Impressao {
         Write-Host "  8. Limpar fila de impressão (trabalhos travados)" -ForegroundColor $C.M
         Write-Host "  9. Abrir painel de impressoras" -ForegroundColor $C.M
         Write-Host "  0. Voltar" -ForegroundColor $C.I
-        switch (Read-Host "`n  Opção") {
+        switch (Expandir-Selecao (Read-Host "`n  Opção [2,3,10 | TODOS | ENTER=todas | 0 volta]") @("1","2","3","4","5","6","7","8","9")) {
             "1" { Run "Reset completo do Spooler..." "Para o servico de spooler, apaga todos os trabalhos pendentes da fila e reinicia o servico. Resolve a maioria dos problemas de impressão travada, filas que não esvaziam e spooler corrompido." @("net stop spooler", "del /Q /F /S `"%systemroot%\System32\Spool\Printers\*.*`"", "net start spooler") -Win }
             "2" { Run "Abrindo gerenciador de drivers de impressora..." "Abre a interface printui para gerenciar e remover pacotes de drivers de impressora do sistema. Use quando um driver corrompido impede o funcionamento correto." @("printui.exe /s /t2") -Win }
             "3" {
@@ -580,7 +608,7 @@ function Menu-Energia {
         Write-Host "  8. Listar planos de energia disponíveis" -ForegroundColor $C.M
         Write-Host "  9. Saúde da bateria (Win32_Battery, notebooks)" -ForegroundColor $C.M
         Write-Host "  0. Voltar" -ForegroundColor $C.I
-        switch (Read-Host "`n  Opção") {
+        switch (Expandir-Selecao (Read-Host "`n  Opção [2,3,10 | TODOS | ENTER=todas | 0 volta]") @("1","2","3","4","5","6","7","8","9")) {
             "1" { Run "Gerando relatório de bateria..." "Gera relatório HTML com histórico da bateria: capacidade original vs atual, ciclos de carga e estimativas de duração. O relatório abre automaticamente no navegador." @("powercfg /batteryreport /output `"$env:TEMP\battery_report.html`"", "start `"$env:TEMP\battery_report.html`"") -Win }
             "2" { Run "Analisando eficiência energetica (60s)..." "Monitora o sistema por 60 segundos e gera relatório HTML com problemas de eficiência detectados: dispositivos impedindo o sleep, configurações incorretas e processos mal configurados." @("powercfg /energy /output `"$env:TEMP\energy_report.html`"", "start `"$env:TEMP\energy_report.html`"") -Win }
             "3" { Run "Gerando relatório de sleep/soneca..." "Analisa o histórico de consumo durante os periodos de hibernação e sleep. Identifica o que acorda o computador indevidamente ou impede a entrada em modo de economia." @("powercfg /sleepstudy /output `"$env:TEMP\sleep_report.html`"", "start `"$env:TEMP\sleep_report.html`"") -Win }
@@ -608,7 +636,7 @@ function Menu-Memoria {
         Write-Host "  4. Total de RAM instalada e uso atual" -ForegroundColor $C.M
         Write-Host "  5. Abrir configuração de memória virtual (pagefile)" -ForegroundColor $C.M
         Write-Host "  0. Voltar" -ForegroundColor $C.I
-        switch (Read-Host "`n  Opção") {
+        switch (Expandir-Selecao (Read-Host "`n  Opção [2,3,10 | TODOS | ENTER=todas | 0 volta]") @("1","2","3","4","5")) {
             "1" { Run "Agendando diagnóstico de memória..." "Agenda o Diagnóstico de Memória do Windows (mdsched.exe) para ser executado ANTES do sistema carregar no próximo boot. Detecta erros nos pentes de RAM. Útil quando ha BSOD frequentes." @("mdsched.exe") -Win }
             "2" { Run "Informações dos módulos de RAM..." "Exibe capacidade, velocidade em MHz, fabricante e localização (slot) de cada módulo de memória instalado. Útil para identificar módulos com defeito ou verificar se os slots estao corretos." @("wmic memorychip get capacity,speed,devicelocator,manufacturer,partnumber") -Win }
             "3" { Run "Teste de desempenho da RAM (WinSAT)..." "Executa o benchmark de memória RAM do Windows Assessment Tool e exibe a pontuação de desempenho. Pode levar alguns minutos." @("winsat mem") -Win }
@@ -650,7 +678,7 @@ function Menu-Rede {
         Write-Host "  9. Configurar IP estático (Ethernet)" -ForegroundColor $C.M
         Write-Host " 10. Abrir gerenciador de adaptadores de rede" -ForegroundColor $C.M
         Write-Host "  0. Voltar" -ForegroundColor $C.I
-        switch (Read-Host "`n  Opção") {
+        switch (Expandir-Selecao (Read-Host "`n  Opção [2,3,10 | TODOS | ENTER=todas | 0 volta]") @("1","2","3","4","5","6","7","8","9","10")) {
             "1"  { Run "Resetando pilha TCP/IP..." "Reseta toda a pilha de rede TCP/IP ao estado padrão de instalação. Resolve problemas de conectividade por configurações corrompidas. REQUER REINICIALIZAÇÃO para ter efeito total." @("netsh int ip reset", "netsh int ipv4 reset", "netsh int ipv6 reset") -Win }
             "2"  { Run "Resetando Winsock..." "Reseta o catalogo Winsock ao estado padrão. Resolve casos onde programas não conseguem acessar a rede mesmo com conexão ativa (ex: navegador sem internet mesmo com ping funcionando). REQUER REINICIALIZAÇÃO." @("netsh winsock reset catalog") -Win }
             "3"  { Run "Limpando cache DNS..." "Remove todas as entradas DNS em cache no computador local, forcando nova resolucao no servidor DNS para cada domínio. Resolve problemas de acesso a sites após mudanca de IP ou DNS no servidor." @("ipconfig /flushdns", "ipconfig /registerdns") -Win }
@@ -716,7 +744,7 @@ function Menu-Limpeza {
         Write-Host "  5. Limpar cache do Windows Update" -ForegroundColor $C.M
         Write-Host "  6. Abrir pasta %TEMP% para inspecao manual" -ForegroundColor $C.M
         Write-Host "  0. Voltar" -ForegroundColor $C.I
-        switch (Read-Host "`n  Opção") {
+        switch (Expandir-Selecao (Read-Host "`n  Opção [2,3,10 | TODOS | ENTER=todas | 0 volta]") @("1","2","3","4","5","6")) {
             "1" { Run "Limpando Temp do usuario..." "Remove todos os arquivos temporarios gerados pelo usuario atual em %TEMP%. Arquivos em uso são ignorados. Não afeta documentos pessoais. Pode liberar centenas de MB." @('Get-ChildItem -Path $env:TEMP -Recurse -ErrorAction SilentlyContinue | Remove-Item -Force -Recurse -ErrorAction SilentlyContinue; Write-Host "Limpeza concluida!"') -PS -Win }
             "2" { Run "Limpando Temp do sistema..." "Remove arquivos temporarios de C:\Windows\Temp, usados pelo sistema e por servicos. Requer privilégios de administrador. Arquivos em uso são ignorados." @('Get-ChildItem -Path "C:\Windows\Temp" -Recurse -ErrorAction SilentlyContinue | Remove-Item -Force -Recurse -ErrorAction SilentlyContinue; Write-Host "Limpeza do sistema concluida!"') -PS -Win }
             "3" { Run "Limpeza completa de temporarios..." "Remove Temp do usuario, Temp do sistema e Prefetch. O Prefetch será regenerado automaticamente pelo Windows nas proximas execucoes. Pode liberar varios GB." @('Remove-Item "$env:TEMP\*" -Recurse -Force -EA SilentlyContinue; Remove-Item "C:\Windows\Temp\*" -Recurse -Force -EA SilentlyContinue; Remove-Item "C:\Windows\Prefetch\*" -Recurse -Force -EA SilentlyContinue; Write-Host "Limpeza completa concluida!"') -PS -Win }
@@ -747,7 +775,7 @@ function Menu-Seguranca {
         Write-Host " 10. Desativar proteção de escrita em drives externos" -ForegroundColor $C.M
         Write-Host " 11. Verificar malware (Windows MRT)" -ForegroundColor $C.M
         Write-Host "  0. Voltar" -ForegroundColor $C.I
-        switch (Read-Host "`n  Opção") {
+        switch (Expandir-Selecao (Read-Host "`n  Opção [2,3,10 | TODOS | ENTER=todas | 0 volta]") @("1","2","3","4","5","6","7","8","9","10","11")) {
             "1"  {
                 $p = Read-Host "  Caminho da pasta (ex: C:\Users\usuario\Documentos)"
                 if ($p) { Run "Resetando permissões de '$p'..." "Reseta todas as ACLs (permissões de acesso) da pasta e seu conteúdo para heranca padrão do Windows. Resolve erros 'Acesso Negado' causados por permissões corrompidas ou herdadas incorretamente." @("icacls `"$p`" /reset /t /c /l") -Win }
@@ -830,7 +858,7 @@ function Menu-Diagnostico {
         Write-Host "  16. Relatório de desempenho (perfmon)" -ForegroundColor $C.M
         Write-Host " 17. Serviços por processo (tasklist /svc)" -ForegroundColor $C.M
         Write-Host "   0. Voltar" -ForegroundColor $C.I
-        switch (Read-Host "`n  Opção") {
+        switch (Expandir-Selecao (Read-Host "`n  Opção [2,3,10 | TODOS | ENTER=todas | 0 volta]") @("1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17")) {
             "1"  {
                 Write-Host "`n  Top 10 processos por CPU:" -ForegroundColor $C.A
                 Get-Process | Sort-Object CPU -Descending | Select-Object -First 10 `
@@ -870,7 +898,7 @@ function Menu-Diagnostico {
                 Write-Host "  1. CPU       2. RAM       3. Disco C:  4. 3D/DirectX"
                 Write-Host "  5. DWM/Interface         6. Recursos do SO"
                 Write-Host "  0. Voltar"
-                switch (Read-Host "`n  Opção") {
+                switch (Expandir-Selecao (Read-Host "`n  Opção [2,3,10 | TODOS | ENTER=todas | 0 volta]") @("1","2","3","4","5","6")) {
                     "1" { Run "WinSAT CPU..." "Mede o desempenho do processador em operacoes matematicas e de compressao." @("winsat cpu") -Win }
                     "2" { Run "WinSAT RAM..." "Mede a largura de banda e latência da memória RAM." @("winsat mem") -Win }
                     "3" { Run "WinSAT Disco..." "Mede leitura/escrita sequencial e aleatoria do disco C:." @("winsat disk -drive c -ran -write -seq") -Win }
@@ -915,7 +943,7 @@ function Menu-Video {
         Write-Host "  [DICA] Para resetar GPU sem reiniciar: Ctrl + Win + Shift + B" -ForegroundColor $C.D
         Write-Host ""
         Write-Host "  0. Voltar" -ForegroundColor $C.I
-        switch (Read-Host "  Opção") {
+        switch (Expandir-Selecao (Read-Host "  Opção [2,3,10 | TODOS | ENTER=todas | 0 volta]") @("1","2","3","4","5","6","7","8","9","10")) {
             "1"  { Run "Informações da placa de vídeo..." "Exibe nome da GPU, resolucao atual, memória de vídeo e status do adaptador grafico. Útil para identificar o modelo exato da placa e verificar se o driver esta funcionando." @("wmic path win32_VideoController get name,currenthorizontalresolution,currentverticalresolution,adapterram,status") -Win }
             "2"  { Start-Process dxdiag; Write-Host "  Abrindo diagnóstico DirectX..." -ForegroundColor $C.A; P }
             "3"  { Run "Benchmark 3D DirectX..." "Avalia o desempenho 3D usando DirectX. Também usado para verificar se a tela pisca durante carga 3D, o que indica problema com driver ou hardware de vídeo." @("winsat d3d -totalindices 10") -Win }
@@ -956,8 +984,9 @@ function Menu-Identidade {
         Write-Host "  4. Configurar IP estático (Ethernet)" -ForegroundColor $C.M
         Write-Host "  5. Exibir nome do computador e usuario logado" -ForegroundColor $C.M
         Write-Host "  6. Abrir painel de usuarios do sistema" -ForegroundColor $C.M
+        Write-Host "  7. Relogio (personalizar texto AM/PM)" -ForegroundColor $C.M
         Write-Host "  0. Voltar" -ForegroundColor $C.I
-        switch (Read-Host "`n  Opção") {
+        switch (Expandir-Selecao (Read-Host "`n  Opção [2,3,10 | TODOS | ENTER=todas | 0 volta]") @("1","2","3","4","5","6","7")) {
             "1" {
                 Write-Host "  Computador atual: $env:COMPUTERNAME" -ForegroundColor $C.I
                 $novo = Read-Host "  Novo nome (max 15 chars, sem espacos ou caracteres especiais)"
@@ -988,6 +1017,14 @@ function Menu-Identidade {
                 P
             }
             "6" { Start-Process "control userpasswords2"; Write-Host "  Abrindo gerenciamento de usuarios..." -ForegroundColor $C.A; P }
+            "7" {
+                $am = Read-Host "  Texto para AM (manha)"
+                $pm = Read-Host "  Texto para PM (tarde)"
+                $am = ($am -replace "'","").Trim()
+                $pm = ($pm -replace "'","").Trim()
+                if ($am -and $pm) { Run "Aplicando textos AM/PM no relogio..." "Personaliza o relogio do Windows (HKCU:\Control Panel\International): define formato h:mm tt e troca os textos AM pelo primeiro valor e PM pelo segundo valor informados." @("Set-ItemProperty -Path 'HKCU:\Control Panel\International' -Name 'sTimeFormat' -Value 'h:mm tt'", "Set-ItemProperty -Path 'HKCU:\Control Panel\International' -Name 's1159' -Value '$am'", "Set-ItemProperty -Path 'HKCU:\Control Panel\International' -Name 's2359' -Value '$pm'") -PS -Win }
+                else { P }
+            }
             "0" { return }
             default { Write-Host "  Opção inválida." -ForegroundColor $C.E; Start-Sleep 1 }
         }
@@ -1009,7 +1046,7 @@ function Menu-Stress {
         Write-Host "  4. Teste de monitor [CUIDADO: pisca a tela repetidamente]" -ForegroundColor $C.A
         Write-Host "  5. Teste de velocidade (ping, download e upload)" -ForegroundColor $C.M
         Write-Host "  0. Voltar" -ForegroundColor $C.I
-        switch (Read-Host "`n  Opção") {
+        switch (Expandir-Selecao (Read-Host "`n  Opção [2,3,10 | TODOS | ENTER=todas | 0 volta]") @("1","2","3","4","5")) {
             "1" { Teste-CPU-PS }
             "2" { Teste-CPU-CMD }
             "3" {
@@ -1233,7 +1270,7 @@ function Menu-SegInfo {
         Write-Host "  17. MRT - verificação completa com remoção" -ForegroundColor $C.M
         Write-Host "  18. MRT - verificação completa (só relata)" -ForegroundColor $C.M
         Write-Host "  0. Voltar" -ForegroundColor $C.I
-        switch (Read-Host "`n  Opção") {
+        switch (Expandir-Selecao (Read-Host "`n  Opção [2,3,10 | TODOS | ENTER=todas | 0 volta]") @("1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18")) {
             "1"  { Verificar-Processos-Suspeitos }
             "2"  { Run "Tentativas de logon com falha (ID 4625)..." "Busca os últimos 50 eventos de falha de autenticação. Muitas falhas seguidas do mesmo IP ou conta indicam ataque de força bruta ou password spraying. Investigue se houver padrão." @('Get-WinEvent -FilterHashtable @{LogName="Security"; Id=4625} -MaxEvents 50 -EA SilentlyContinue | Select-Object @{N="Data";E={$_.TimeCreated}},@{N="Conta";E={$_.Properties[5].Value}},@{N="IP_Origem";E={$_.Properties[18].Value}} | Format-Table -AutoSize') -PS -Win }
             "3"  { Run "Criação de contas de usuario (ID 4720)..." "Verifica os últimos 20 eventos de criação de conta local. Contas criadas sem autorização podem indicar comprometimento do sistema ou acesso não autorizado com privilégios elevados." @('Get-WinEvent -FilterHashtable @{LogName="Security"; Id=4720} -MaxEvents 20 -EA SilentlyContinue | Select-Object @{N="Data";E={$_.TimeCreated}},@{N="Nova_Conta";E={$_.Properties[0].Value}},@{N="Criado_Por";E={$_.Properties[4].Value}} | Format-Table -AutoSize') -PS -Win }
@@ -1288,7 +1325,7 @@ function Menu-Registro {
         Write-Host "  15. APLICAR TODOS os ajustes (executa do 1 ao 13)" -ForegroundColor $C.A
         Write-Host "  16. RESTAURAR TODOS (desfaz do 1 ao 13, volta ao padrão)" -ForegroundColor $C.M
         Write-Host "   0. Voltar" -ForegroundColor $C.I
-        switch (Read-Host "`n  Opção") {
+        switch (Expandir-Selecao (Read-Host "`n  Opção [2,3,10 | TODOS | ENTER=todas | 0 volta]") @("1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16")) {
             "1"  { Run "Ajustando para melhor desempenho visual..." "Altera o VisualFXSetting para 2 (melhor desempenho). Equivale a ir em Propriedades do Sistema > Avancado > Desempenho > Ajustar para melhor desempenho. Desativa sombras, animações e transparências." @('REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" /v VisualFXSetting /t REG_DWORD /d 2 /f', 'REG ADD "HKLM\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" /v VisualFXSetting /t REG_DWORD /d 2 /f') -Win }
             "2"  { Run "Desativando animações de janelas..." "Desativa a animação de minimizar e maximizar janelas. As janelas passam a aparecer e sumir instantaneamente. Melhora a percepcao de velocidade do sistema, especialmente em máquinas mais lentas." @('REG ADD "HKCU\Control Panel\Desktop\WindowMetrics" /v MinAnimate /t REG_DWORD /d 0 /f') -Win }
             "3"  { Run "Desativando Aero Shake..." "Desativa o gesto de sacudir uma janela para minimizar todas as outras. Previne minimizacoes acidentais ao mover janelas rapidamente." @('REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v DisallowShaking /t REG_DWORD /d 1 /f') -Win }
@@ -1345,7 +1382,7 @@ function Menu-Update {
         Write-Host "  5. Instalar atualizações (sem reinicialização automatica)" -ForegroundColor $C.M
         Write-Host "  6. Forçar atualização de políticas de grupo (gpupdate)" -ForegroundColor $C.M
         Write-Host "  0. Voltar" -ForegroundColor $C.I
-        switch (Read-Host "`n  Opção") {
+        switch (Expandir-Selecao (Read-Host "`n  Opção [2,3,10 | TODOS | ENTER=todas | 0 volta]") @("1","2","3","4","5","6")) {
             "1" {
                 Write-Host "`n  Execution Policy atual por escopo:" -ForegroundColor $C.A
                 Get-ExecutionPolicy -List | Format-Table -AutoSize
@@ -1378,7 +1415,7 @@ function Menu-Winget {
         Write-Host "  5. Listar todos os aplicativos instalados via Winget" -ForegroundColor $C.M
         Write-Host "  6. Abrir Microsoft Store para instalar o Winget" -ForegroundColor $C.M
         Write-Host "  0. Voltar" -ForegroundColor $C.I
-        switch (Read-Host "`n  Opção") {
+        switch (Expandir-Selecao (Read-Host "`n  Opção [2,3,10 | TODOS | ENTER=todas | 0 volta]") @("1","2","3","4","5","6")) {
             "1" { Run "Verificando versão do Winget..." "Exibe a versão atual do Winget (Windows Package Manager) instalada no sistema. Se o comando não for reconhecido, instale o App Installer pela Microsoft Store (opção 6)." @("winget --version") -SemAdmin }
             "2" { Run "Listando aplicativos atualizáveis..." "Consulta o repositório do Winget e lista todos os aplicativos instalados que possuem uma versão mais recente disponível, com nome, versão atual e versão nova." @("winget upgrade") -SemAdmin }
             "3" { Run "Atualizando todos os aplicativos..." "Atualiza automaticamente todos os aplicativos que possuem nova versão disponível no repositório do Winget. O processo e interativo: pode pedir confirmação para cada app." @("winget upgrade --all --accept-package-agreements --accept-source-agreements") -SemAdmin }
@@ -1478,7 +1515,7 @@ function Menu-Utilidades {
         Write-Host "   6. Calculadora" -ForegroundColor $C.M
         Write-Host "   7. Editor do Registro (regedit)" -ForegroundColor $C.M
         Write-Host "   0. Voltar" -ForegroundColor $C.I
-        switch (Read-Host "`n  Opção") {
+        switch (Expandir-Selecao (Read-Host "`n  Opção [2,3,10 | TODOS | ENTER=todas | 0 volta]") @("1","2","3","4","5","6","7")) {
             "1" {
                 $dest = Read-Host "  Destino (Enter = 8.8.8.8)"
                 if ([string]::IsNullOrWhiteSpace($dest)) { $dest = "8.8.8.8" }
@@ -1511,7 +1548,7 @@ function Menu-Contexto {
         Write-Host "   3. Adicionar atalhos (Chrome, Firefox, travas, Explorer)" -ForegroundColor $C.M
         Write-Host "   4. Remover atalhos T! SOS" -ForegroundColor $C.M
         Write-Host "   0. Voltar" -ForegroundColor $C.I
-        switch (Read-Host "`n  Opção") {
+        switch (Expandir-Selecao (Read-Host "`n  Opção [2,3,10 | TODOS | ENTER=todas | 0 volta]") @("1","2","3","4")) {
             "1" { Run "Ativando menu clássico..." "Cria a chave InprocServer32 vazia que restaura o menu de contexto clássico no Windows 11. O Explorer sera reiniciado para aplicar de imediato." @('REG ADD "HKCU\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32" /ve /f', 'taskkill /f /im explorer.exe', 'start explorer.exe') -Win }
             "2" { Run "Desativando menu clássico..." "Remove a chave InprocServer32 e volta ao menu de contexto moderno do Windows 11. O Explorer sera reiniciado para aplicar de imediato." @('REG DELETE "HKCU\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}" /f', 'taskkill /f /im explorer.exe', 'start explorer.exe') -Win }
             "3" { Run "Adicionando atalhos T! SOS..." "Cria 6 atalhos no menu de botão direito do desktop: contato T! SOS, Google Chrome, Firefox, encerrar processos travados, reiniciar o Explorer (corrige barra sumida) e abrir pastas temporárias. Requer que Chrome/Firefox estejam instalados para esses dois funcionarem." @('New-Item -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\googleChrome -Force | Out-Null', 'Set-ItemProperty -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\googleChrome -Name icon -Value "taskmgr.exe,-30651"', 'Set-ItemProperty -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\googleChrome -Name MUIVerb -Value "T! SOS - Google Chrome"', 'Set-ItemProperty -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\googleChrome -Name Position -Value "Top"', 'New-Item -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\googleChrome\command -Force | Out-Null', 'Set-ItemProperty -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\googleChrome\command -Name "(default)" -Value "cmd.exe /C start chrome"', 'New-Item -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\FireFox -Force | Out-Null', 'Set-ItemProperty -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\FireFox -Name icon -Value "taskmgr.exe,-30651"', 'Set-ItemProperty -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\FireFox -Name MUIVerb -Value "T! SOS - Firefox"', 'Set-ItemProperty -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\FireFox -Name Position -Value "Top"', 'New-Item -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\FireFox\command -Force | Out-Null', 'Set-ItemProperty -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\FireFox\command -Name "(default)" -Value "cmd.exe /C start firefox"', 'New-Item -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\encerrarProcessosTravados -Force | Out-Null', 'Set-ItemProperty -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\encerrarProcessosTravados -Name icon -Value "taskmgr.exe,-30651"', 'Set-ItemProperty -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\encerrarProcessosTravados -Name MUIVerb -Value "T! SOS - Encerrar processos travados"', 'Set-ItemProperty -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\encerrarProcessosTravados -Name Position -Value "Top"', 'New-Item -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\encerrarProcessosTravados\command -Force | Out-Null', 'Set-ItemProperty -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\encerrarProcessosTravados\command -Name "(default)" -Value "cmd.exe /C taskkill.exe /f /fi \"STATUS eq NOT RESPONDING\""', 'New-Item -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\reiniciarSO -Force | Out-Null', 'Set-ItemProperty -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\reiniciarSO -Name icon -Value "taskmgr.exe,-30651"', 'Set-ItemProperty -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\reiniciarSO -Name MUIVerb -Value "T! SOS - Reiniciar Explorer (corrige barra sumida)"', 'Set-ItemProperty -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\reiniciarSO -Name Position -Value "Top"', 'New-Item -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\reiniciarSO\command -Force | Out-Null', 'Set-ItemProperty -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\reiniciarSO\command -Name "(default)" -Value "cmd.exe /C taskkill /f /im explorer.exe & start explorer.exe"', 'New-Item -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\KBP -Force | Out-Null', 'Set-ItemProperty -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\KBP -Name icon -Value "taskmgr.exe,-30651"', 'Set-ItemProperty -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\KBP -Name MUIVerb -Value "T! SOS Sistemas"', 'Set-ItemProperty -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\KBP -Name Position -Value "Top"', 'New-Item -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\KBP\command -Force | Out-Null', 'Set-ItemProperty -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\KBP\command -Name "(default)" -Value "cmd.exe /C start mailto:tisossistemas@gmail.com"', 'New-Item -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\limparPastaPrefeth -Force | Out-Null', 'Set-ItemProperty -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\limparPastaPrefeth -Name icon -Value "taskmgr.exe,-30651"', 'Set-ItemProperty -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\limparPastaPrefeth -Name MUIVerb -Value "T! SOS - Abrir pastas temporárias"', 'Set-ItemProperty -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\limparPastaPrefeth -Name Position -Value "Top"', 'New-Item -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\limparPastaPrefeth\command -Force | Out-Null', 'Set-ItemProperty -Path Registry::HKEY_CLASSES_ROOT\DesktopBackground\Shell\limparPastaPrefeth\command -Name "(default)" -Value "cmd.exe /C start %windir%\prefetch & start %temp% & start temp"') -PS -Win }
@@ -1606,7 +1643,7 @@ function Menu-Instalacao {
         Write-Host "   2. Perfil Usuário Avançado (redes e diagnóstico)" -ForegroundColor $C.M
         Write-Host "   3. Perfil Desenvolvimento (VS Code, Git, Python, Node)" -ForegroundColor $C.M
         Write-Host "   0. Voltar" -ForegroundColor $C.I
-        switch (Read-Host "`n  Opção") {
+        switch (Expandir-Selecao (Read-Host "`n  Opção [1,3 | TODOS | ENTER=todos | 0 volta]") @("1","2","3")) {
             "1" { Instalar-Perfil "PERFIL USUÁRIO COMUM" "Essenciais do dia a dia. Requer Winget (menu 19, opção 6 para instalar)." $AppsComum }
             "2" { Instalar-Perfil "PERFIL USUÁRIO AVANÇADO" "Diagnóstico de rede e resposta a incidentes. Requer Winget (menu 19, opção 6 para instalar)." $AppsAvancado }
             "3" { Instalar-Perfil "PERFIL DESENVOLVIMENTO" "VS Code, Git, Python, Node e Java. Requer Winget (menu 19, opção 6 para instalar)." $AppsDev }
@@ -1654,7 +1691,7 @@ function Menu-Principal {
         Write-Host ""
         Write-Host "   0. Sair" -ForegroundColor $C.E
         Write-Host ""
-        switch (Read-Host "  Opção") {
+        switch (Expandir-Selecao (Read-Host "  Opção [2,3,10 | TODOS | ENTER=todos | 0 sair]") @("1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","teste")) {
 
 
         
