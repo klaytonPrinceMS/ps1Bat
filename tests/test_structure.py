@@ -50,14 +50,14 @@ def test_janela_fixa_na_entrada():
         "sem trava dos botoes maximizar/minimizar"
 
 
-def test_splash_so_na_tela_inicial():
+def test_splash_so_na_autenticacao():
     import re
     texto = (ROOT / "SOS-Manutencao.ps1").read_text(encoding="utf-8")
-    assert "function Show-Splash" in texto
-    chamadas = re.findall(r"(?m)^Show-Splash\s*(#|$)", texto)
-    assert len(chamadas) == 1, "Show-Splash deve ser CHAMADA 1x na entrada (def nao conta)"
+    assert "function Show-Splash" not in texto, "splash voltou a ser tela separada"
     marca = "VHVHHHAHHHHMMV"
     assert marca in texto, "arte da caveira sumiu"
+    aut = texto.split("function Autenticar", 1)[1].split("\nfunction ", 1)[0]
+    assert "$script:Splash" in aut, "caveira deve aparecer na tela de autenticacao"
     cab = texto.split("function Cab", 1)[1].split("\nfunction ", 1)[0]
     assert marca not in cab, "caveira nao pode aparecer no Cab (todos os menus)"
 

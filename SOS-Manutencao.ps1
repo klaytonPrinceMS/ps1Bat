@@ -168,18 +168,6 @@ $script:Splash = @'
                   '"VHVHHHAHHHHMMV:"'
 '@
 
-function Show-Splash {
-    Clear-Host
-    Write-Host $script:Splash -ForegroundColor Red
-    Write-Host ""
-    Write-Host "  $($APP.Nome)" -ForegroundColor $C.T
-    $agora = Get-Date
-    Write-Host "  Data: $($agora.ToString('dd/MM/yyyy'))  Hora: $($agora.ToString('HH:mm'))" -ForegroundColor $C.H
-    Write-Host ""
-    Write-Host "  Pressione ENTER para continuar..." -ForegroundColor $C.I
-    $null = Read-Host
-}
-
 # ── MOTOR DE EXECUÇÃO CENTRAL ─────────────────────────────────────────────────
 function Run {
     [CmdletBinding()]
@@ -272,6 +260,10 @@ function Get-StatusAdmin {
 
 function Autenticar {
     Cab
+    Write-Host $script:Splash -ForegroundColor Red
+    Write-Host ""
+    $agora = Get-Date
+    Write-Host "  Data: $($agora.ToString('dd/MM/yyyy'))  Hora: $($agora.ToString('HH:mm'))" -ForegroundColor $C.H
     Write-Host "  !!! AUTENTICAÇÃO DE SEGURANÇA OBRIGATÓRIA !!!" -ForegroundColor $C.A
     Write-Host ""
     Write-Host "  Por segurança, confirme a senha de administrador deste" -ForegroundColor $C.I
@@ -1581,6 +1573,5 @@ function Menu-Principal {
 # =============================================================================
 Fixar-Janela       # 0. Dimensiona a janela em pixels e trava botoes max/min
 Garantir-Admin    # 1. Garante execução como Administrador (eleva via UAC se necessário)
-Show-Splash       # 2. Tela inicial com a caveira (exibida uma única vez)
-Autenticar        # 3. Autentica com senha local do administrador (segurança obrigatória)
-Menu-Principal    # 4. Exibe o menu principal
+Autenticar        # 2. Autentica com senha (caveira + segurança obrigatória)
+Menu-Principal    # 3. Exibe o menu principal

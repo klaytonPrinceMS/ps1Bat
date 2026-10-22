@@ -16,10 +16,9 @@ powershell -NoProfile -ExecutionPolicy Bypass -File SOS-Manutencao.ps1
 1. `Fixar-Janela` dimensiona a janela em pixels (94% x 90% da área útil do
    monitor, pela fonte atual) e trava os botões maximizar/minimizar.
 2. `Garantir-Admin` eleva via UAC se necessário.
-3. `Show-Splash` exibe a caveira uma única vez (tela inicial, com data/hora e contato).
-4. `Autenticar` valida a senha do administrador local (máx. 3 tentativas,
-   via `PrincipalContext` contra o SAM local).
-5. `Menu-Principal` exibe as opções 1–19.
+3. `Autenticar` exibe a caveira com data/hora e valida a senha do administrador
+   local (máx. 3 tentativas, via `PrincipalContext` contra o SAM local).
+4. `Menu-Principal` exibe as opções 1–19.
 
 Todas as ações privilegiadas são registradas em
 `%TEMP%\SOS_Manutencao.log` (função `Log`).
