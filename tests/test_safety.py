@@ -89,17 +89,6 @@ def test_sem_scareware():
     assert "somente leitura" in texto
 
 
-def test_velocidade_no_menu_testes():
-    texto = (ROOT / "SOS-Manutencao.ps1").read_text(encoding="utf-8")
-    testes = texto.split("function Menu-Stress", 1)[1].split("function Teste-CPU-PS", 1)[0]
-    assert '"5" { Teste-Velocidade }' in testes, "opcao 5 de velocidade fora do menu Testes"
-    bloco = texto.split("function Teste-Velocidade", 1)[1].split("\nfunction ", 1)[0]
-    assert "1.1.1.1" in bloco and "8.8.8.8" in bloco, "latencia deve cobrir 2 servidores"
-    assert "-Count 10" in bloco, "latencia deve usar 10 pacotes por servidor"
-    utils = texto.split("function Menu-Utilidades", 1)[1].split("function Menu-Contexto", 1)[0]
-    assert "Teste-Velocidade" not in utils, "velocidade saiu dos Utilidades"
-
-
 def test_defender_scans_reais():
     texto = (ROOT / "SOS-Manutencao.ps1").read_text(encoding="utf-8")
     menu = texto.split("function Menu-SegInfo", 1)[1].split("function Menu-Registro", 1)[0]
@@ -121,3 +110,25 @@ def test_velocidade_no_menu_testes():
     assert "-Count 10" in bloco, "latencia deve usar 10 pacotes por servidor"
     utils = texto.split("function Menu-Utilidades", 1)[1].split("function Menu-Contexto", 1)[0]
     assert "Teste-Velocidade" not in utils, "velocidade saiu dos Utilidades"
+
+
+def test_perfis_instalacao_winget():
+    texto = (ROOT / "SOS-Manutencao.ps1").read_text(encoding="utf-8")
+    ids = ["Google.Chrome", "Mozilla.Firefox", "Foxit.FoxitReader",
+           "TheDocumentFoundation.LibreOffice", "VideoLAN.VLC",
+           "CodecGuide.K-LiteCodecPack.Mega", "RARLab.WinRAR", "7zip.7zip",
+           "TeamViewer.TeamViewer", "AnyDesk.AnyDesk", "OBSProject.OBSStudio",
+           "Oracle.JavaRuntimeEnvironment", "Microsoft.DotNet.DesktopRuntime.8",
+           "Microsoft.VCRedist.2015+.x64", "Microsoft.VCRedist.2015+.x86",
+           "EZBSystems.UltraISO", "Microsoft.Teams", "GIMP.GIMP",
+           "Insecure.Nmap", "WiresharkFoundation.Wireshark", "Maltego.Maltego",
+           "PuTTY.PuTTY", "Famatech.AdvancedIPScanner",
+           "Microsoft.Sysinternals.ProcessExplorer",
+           "Microsoft.Sysinternals.Autoruns", "Microsoft.VisualStudioCode",
+           "Git.Git", "GitHub.GitHubDesktop", "Python.Python.3.13",
+           "OpenJS.NodeJS.LTS", "Notepad++.Notepad++",
+           "EclipseAdoptium.Temurin.8.JDK"]
+    for i in ids:
+        assert i in texto, f"ID ausente: {i}"
+    assert texto.index("AnyDesk.AnyDesk") < texto.index("$AppsAvancado"), "AnyDesk e do perfil comum"
+    assert texto.count("Instalar-Perfil") >= 4, "helper + 3 chamadas de perfil"

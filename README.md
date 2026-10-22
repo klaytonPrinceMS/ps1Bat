@@ -1,7 +1,7 @@
 # T! SOS Sistemas — Ferramenta Técnica de Manutenção
 
-> **EN:** Interactive Windows maintenance toolkit (PowerShell 5.1) — a single-script menu tool with 19 maintenance, diagnostic and security modules.
-> **PT:** Ferramenta interativa de manutenção para Windows (PowerShell 5.1) — script único com menu de 19 módulos de manutenção, diagnóstico e segurança.
+> **EN:** Interactive Windows maintenance toolkit (PowerShell 5.1) — a single-script menu tool with 20 maintenance, diagnostic and security modules.
+> **PT:** Ferramenta interativa de manutenção para Windows (PowerShell 5.1) — script único com menu de 20 módulos de manutenção, diagnóstico e segurança.
 
 Versão atual: **v2.1.261021**.
 
@@ -48,6 +48,7 @@ Na inicialização, a ordem é fixa:
 | 17 | Menu de Contexto | clássico Win11, atalhos T! SOS no desktop |
 | 18 | Utilidades Rápidas | ping, msinfo32, msconfig, calc, regedit |
 | 19 | Winget | gerenciador de pacotes (**roda em contexto não-elevado**) |
+| 20 | Instalação de Programas | Winget: comum, avançado, desenvolvimento |
 
 Detalhes em [`docs/menus.md`](docs/menus.md) — ou rode localmente (ver abaixo).
 

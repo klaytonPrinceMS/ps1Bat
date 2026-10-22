@@ -150,10 +150,17 @@ direta.com.br, Facebook) e a limpeza de desktop foram descartados.
 Versão, `upgrade`, `upgrade --all`, `search`, `list`; abre a Microsoft
 Store para instalar o App Installer. **Sempre executa não-elevado
 (`-SemAdmin`) em nova janela CMD.**
-Substitui os instaladores silenciosos legados (`u_padrao.bat`,
-`u_hacker.bat`, chamados via `menu2.bat`): pacotes congelados em
-2015–2016 (JRE 8u66, IE10, Office 2007, QuickTime, Skype) com
-vulnerabilidades conhecidas e arquivos instaladores ausentes no projeto.
-Ferramentas de pentest (`u_hacker.bat`: Nmap, Wireshark, Maltego) ficam
-de fora da ferramenta corporativa por política de segurança.
+Substitui os instaladores silenciosos legados (pacotes congelados em
+2015–2016 com vulnerabilidades conhecidas e arquivos ausentes no projeto);
+as antigas ferramentas de diagnóstico de rede agora têm perfil próprio abaixo.
+
+## 20. Instalação de Programas (Winget, 3 perfis)
+
+Perfis prontos de instalação via Winget: **usuário comum** (navegador,
+PDF, escritório, multimídia, runtimes), **usuário avançado** (diagnóstico
+de rede e resposta a incidentes) e **desenvolvimento** (VS Code, Git,
+Python, Node, Java). ENTER instala tudo do perfil; ou digite os números
+separados por vírgula (ex: `3,4,13`). A instalação roda em nova janela,
+em contexto de usuário comum (sem elevação). Requer Winget (menu 19,
+opção 6).
 

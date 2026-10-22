@@ -18,7 +18,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File SOS-Manutencao.ps1
 2. `Garantir-Admin` eleva via UAC se necessário.
 3. `Autenticar` exibe a caveira com data/hora e valida a senha do administrador
    local (máx. 3 tentativas, via `PrincipalContext` contra o SAM local).
-4. `Menu-Principal` exibe as opções 1–19.
+4. `Menu-Principal` exibe as opções 1–20.
 
 Todas as ações privilegiadas são registradas em
 `%TEMP%\SOS_Manutencao.log` (função `Log`).

@@ -11,7 +11,7 @@ MENUS = ["Menu-Reparo", "Menu-Discos", "Menu-Drivers", "Menu-Impressao",
          "Menu-Energia", "Menu-Memoria", "Menu-Rede", "Menu-Limpeza",
          "Menu-Seguranca", "Menu-Diagnostico", "Menu-Video", "Menu-Identidade",
          "Menu-Stress", "Menu-SegInfo", "Menu-Registro", "Menu-Update",
-         "Menu-Winget", "Menu-Utilidades", "Menu-Contexto"]
+         "Menu-Winget", "Menu-Utilidades", "Menu-Contexto", "Menu-Instalacao"]
 
 
 def test_funcoes_existem():

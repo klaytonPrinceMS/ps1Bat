@@ -20,7 +20,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 SCRIPT = ROOT / "SOS-Manutencao.ps1"
 VERSION_RE = re.compile(r"v2\.1\.(\d{6})")
-FORBIDDEN = ["prefeitura", "monte santo", "departamento de tecnologia"]
+FORBIDDEN = ["prefeitura", "monte santo", "departamento de tecnologia", "hacker"]
 # (arquivo, padrao, descricao) — inventario de operacoes perigosas esperado.
 DANGER = [
     ("SOS-Manutencao.ps1", r"Taskkill /f /im explorer\.exe", "mata o explorer (teste de monitor)"),
@@ -98,7 +98,7 @@ def check_branding():
     for p in ROOT.rglob("*"):
         if not p.is_file():
             continue
-        if ".git" in p.parts or "bat" in p.parts or p.suffix in {".pyc"} or p.parent.name in {"site", "__pycache__"}:
+        if ".git" in p.parts or "bat" in p.parts or ".venv" in p.parts or p.suffix in {".pyc"} or p.parent.name in {"site", "__pycache__"}:
             continue
         try:
             texto = p.read_text(encoding="utf-8").lower()

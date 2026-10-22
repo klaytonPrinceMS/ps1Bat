@@ -30,6 +30,7 @@
     17. Menu de Contexto                 (clássico Win11, atalhos T! SOS)
     18. Utilidades Rápidas               (ping, msinfo32, msconfig, calc)
     19. Winget                           (executa em contexto de usuário comum)
+    20. Instalação de Programas          (Winget: comum, avançado e dev)
 
   SEGURANÇA: Autentica com senha de administrador local ao iniciar.
              Todas as ações ficam gravadas em log.
@@ -1512,6 +1513,100 @@ function Menu-Contexto {
 }
 
 # =============================================================================
+# INSTALADOR DE PERFIL (lista marcável + lote Winget não-elevado)
+# =============================================================================
+function Instalar-Perfil {
+    param([string]$Titulo, [string]$Descricao, [array]$Apps)
+    do {
+        L; Cab $Titulo
+        Write-Host "  $Descricao" -ForegroundColor $C.H
+        Write-Host ""
+        for ($i = 0; $i -lt $Apps.Count; $i++) {
+            Write-Host ("  {0,2}. {1}" -f ($i + 1), $Apps[$i].Nome) -ForegroundColor $C.M
+        }
+        Write-Host ""
+        Write-Host "  ENTER instala TODAS | ex: 3,4,13 instala só essas | 0 volta" -ForegroundColor $C.A
+        $op = Read-Host "`n  Opção"
+        if ([string]::IsNullOrWhiteSpace($op)) {
+            $sel = 1..$Apps.Count
+        } elseif ($op -match '^\s*0\s*$') {
+            return
+        } else {
+            $sel = @()
+            foreach ($t in ($op -split '[,;\s]+')) {
+                if ($t -match '^\d+$' -and [int]$t -ge 1 -and [int]$t -le $Apps.Count -and $sel -notcontains [int]$t) { $sel += [int]$t }
+            }
+            if ($sel.Count -eq 0) { Write-Host "  Nenhum número válido. ENTER = todas, ex: 3,4,13." -ForegroundColor $C.E; Start-Sleep 1; continue }
+        }
+        $cmds = @($sel | Sort-Object -Unique | ForEach-Object { "winget install --id $($Apps[$_ - 1].Id) -e --silent --accept-package-agreements --accept-source-agreements" })
+        Run "Instalando $($sel.Count) aplicativo(s) do perfil..." "Instala via Winget em nova janela, em contexto de usuário comum (sem elevação). Requer Winget instalado (menu 19, opção 6). Acompanhe a nova janela até o fim." $cmds -SemAdmin
+        return
+    } while ($true)
+}
+
+# =============================================================================
+# MENU 20: INSTALAÇÃO DE PROGRAMAS (WINGET - PERFIS PADRÃO E AVANÇADO)
+# =============================================================================
+function Menu-Instalacao {
+    $AppsComum = @(
+        @{ Id = "Google.Chrome"; Nome = "Google Chrome (navegador)" },
+        @{ Id = "Mozilla.Firefox"; Nome = "Mozilla Firefox (navegador)" },
+        @{ Id = "Foxit.FoxitReader"; Nome = "Foxit Reader (PDF)" },
+        @{ Id = "TheDocumentFoundation.LibreOffice"; Nome = "LibreOffice (escritório)" },
+        @{ Id = "Notepad++.Notepad++"; Nome = "Notepad++ (editor de texto)" },
+        @{ Id = "VideoLAN.VLC"; Nome = "VLC (vídeos)" },
+        @{ Id = "GIMP.GIMP"; Nome = "GIMP (imagens)" },
+        @{ Id = "7zip.7zip"; Nome = "7-Zip (compactador)" },
+        @{ Id = "RARLab.WinRAR"; Nome = "WinRAR (compactador)" },
+        @{ Id = "TeamViewer.TeamViewer"; Nome = "TeamViewer (acesso remoto)" },
+        @{ Id = "AnyDesk.AnyDesk"; Nome = "AnyDesk (acesso remoto)" },
+        @{ Id = "OBSProject.OBSStudio"; Nome = "OBS Studio (grava a tela)" },
+        @{ Id = "Oracle.JavaRuntimeEnvironment"; Nome = "Java Runtime (programas Java)" },
+        @{ Id = "Microsoft.DotNet.DesktopRuntime.8"; Nome = ".NET Desktop Runtime 8" },
+        @{ Id = "Microsoft.VCRedist.2015+.x64"; Nome = "Visual C++ 2015+ x64" },
+        @{ Id = "Microsoft.VCRedist.2015+.x86"; Nome = "Visual C++ 2015+ x86" },
+        @{ Id = "CodecGuide.K-LiteCodecPack.Mega"; Nome = "K-Lite Mega (codecs)" },
+        @{ Id = "EZBSystems.UltraISO"; Nome = "UltraISO (imagens ISO)" },
+        @{ Id = "Microsoft.Teams"; Nome = "Microsoft Teams (reuniões)" }
+    )
+    $AppsAvancado = @(
+        @{ Id = "Insecure.Nmap"; Nome = "Nmap (mapeamento de rede)" },
+        @{ Id = "WiresharkFoundation.Wireshark"; Nome = "Wireshark (análise de pacotes)" },
+        @{ Id = "Maltego.Maltego"; Nome = "Maltego (relações e OSINT)" },
+        @{ Id = "PuTTY.PuTTY"; Nome = "PuTTY (SSH e serial)" },
+        @{ Id = "Famatech.AdvancedIPScanner"; Nome = "Advanced IP Scanner (varredura LAN)" },
+        @{ Id = "Microsoft.Sysinternals.ProcessExplorer"; Nome = "Process Explorer (processos)" },
+        @{ Id = "Microsoft.Sysinternals.Autoruns"; Nome = "Autoruns (inicialização)" }
+    )
+    $AppsDev = @(
+        @{ Id = "Microsoft.VisualStudioCode"; Nome = "VS Code (editor de código)" },
+        @{ Id = "Git.Git"; Nome = "Git (versionamento)" },
+        @{ Id = "GitHub.GitHubDesktop"; Nome = "GitHub Desktop (Git visual)" },
+        @{ Id = "Python.Python.3.13"; Nome = "Python 3.13 (linguagem)" },
+        @{ Id = "OpenJS.NodeJS.LTS"; Nome = "Node.js LTS (JavaScript)" },
+        @{ Id = "Notepad++.Notepad++"; Nome = "Notepad++ (editor de texto)" },
+        @{ Id = "EclipseAdoptium.Temurin.8.JDK"; Nome = "Java JDK 8 (Temurin)" }
+    )
+    do {
+        Cab "20. INSTALAÇÃO DE PROGRAMAS"
+        Write-Host "  Perfis prontos via Winget. Escolha um perfil," -ForegroundColor $C.H
+        Write-Host "  marque os aplicativos e instale tudo de uma vez." -ForegroundColor $C.H
+        Write-Host ""
+        Write-Host "   1. Perfil Usuário Comum (essenciais do dia a dia)" -ForegroundColor $C.M
+        Write-Host "   2. Perfil Usuário Avançado (redes e diagnóstico)" -ForegroundColor $C.M
+        Write-Host "   3. Perfil Desenvolvimento (VS Code, Git, Python, Node)" -ForegroundColor $C.M
+        Write-Host "   0. Voltar" -ForegroundColor $C.I
+        switch (Read-Host "`n  Opção") {
+            "1" { Instalar-Perfil "PERFIL USUÁRIO COMUM" "Essenciais do dia a dia. Requer Winget (menu 19, opção 6 para instalar)." $AppsComum }
+            "2" { Instalar-Perfil "PERFIL USUÁRIO AVANÇADO" "Diagnóstico de rede e resposta a incidentes. Requer Winget (menu 19, opção 6 para instalar)." $AppsAvancado }
+            "3" { Instalar-Perfil "PERFIL DESENVOLVIMENTO" "VS Code, Git, Python, Node e Java. Requer Winget (menu 19, opção 6 para instalar)." $AppsDev }
+            "0" { return }
+            default { Write-Host "  Opção inválida." -ForegroundColor $C.E; Start-Sleep 1 }
+        }
+    } while ($true)
+}
+
+# =============================================================================
 # MENU PRINCIPAL
 # =============================================================================
 function Menu-Principal {
@@ -1545,6 +1640,7 @@ function Menu-Principal {
         Write-Host "  17. Menu de Contexto                 (clássico Win11, atalhos)" -ForegroundColor $C.M
         Write-Host "  18. Utilidades Rápidas               (ping, msinfo32, msconfig, calc)" -ForegroundColor $C.M
         Write-Host "  19. Winget                           (usuário comum)" -ForegroundColor $C.M
+        Write-Host "  20. Instalação de Programas          (Winget, perfis)" -ForegroundColor $C.M
         Write-Host ""
         Write-Host "   0. Sair" -ForegroundColor $C.E
         Write-Host ""
@@ -1574,6 +1670,7 @@ function Menu-Principal {
             "17" { Menu-Contexto }
             "18" { Menu-Utilidades }
             "19" { Menu-Winget }
+        "20" { Menu-Instalacao }
             "0"  {
                 Write-Host "`n  Encerrando T! SOS Sistemas Ferramenta Técnica..." -ForegroundColor $C.A
                 Log "Sessão encerrada pelo usuario."
