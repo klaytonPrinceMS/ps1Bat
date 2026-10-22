@@ -5,26 +5,31 @@
   T! SOS Sistemas
   Autores: Anderson / Prince, K.B
 
-  FUNCIONALIDADES:
+  FUNCIONALIDADES (por grupo):
+    MANUTENÇÃO:
     1.  Reparo e Integridade do Sistema  (DISM, SFC)
     2.  Discos e Armazenamento           (SMART, CHKDSK, Optimize, TRIM)
     3.  Drivers                          (PnPUtil)
     4.  Impressão e Spooler
-    5.  Energia e Desempenho             (powercfg)
-    6.  Memória RAM                      (mdsched, WinSAT, wmic)
-    7.  Rede e DNS                       (TCP/IP reset, flush, tracert, IP estático)
-    8.  Limpeza e Manutenção             (temp, cleanmgr, cache WU)
-    9.  Segurança e Permissões           (ICACLS, takeown, USB, Firewall, ExecPolicy)
-    10. Diagnóstico Avancado             (processos, eventos, WinSAT, hardware, wmic)
-    11. Placa de Vídeo e Monitor         (dxdiag, DCOM, GPU reset)
-    12. Identidade do Sistema            (renomear PC, usuario, IP estático)
-    13. Testes de Stress                 (CPU multinucleo)
-    14. Segurança da Informação          (auditoria, Defender, MRT, RDP)
-    15. Ajustes de Desempenho            (Registro do Windows)
-    16. Atualização do Windows           (PSWindowsUpdate)
-    17. Winget                           (executa em contexto de usuario comum)
-    18. Utilidades Rápidas               (ping, velocidade, msinfo32, msconfig)
-    19. Menu de Contexto                 (clássico Win11, atalhos T! SOS)
+    5.  Limpeza e Manutenção             (temp, cleanmgr, cache WU)
+    6.  Energia e Desempenho             (powercfg)
+    7.  Memória RAM                      (mdsched, WinSAT, wmic)
+    8.  Atualização do Windows           (PSWindowsUpdate)
+    9.  Ajustes de Desempenho            (Registro do Windows)
+    REDE:
+    10. Rede e DNS                       (TCP/IP reset, flush, tracert, IP estático)
+    SEGURANÇA:
+    11. Segurança e Permissões           (ICACLS, takeown, USB, Firewall, ExecPolicy)
+    12. Segurança da Informação          (auditoria, Defender, MRT, RDP)
+    DIAGNÓSTICO E TESTES:
+    13. Diagnóstico Avançado             (processos, eventos, WinSAT, hardware, wmic)
+    14. Placa de Vídeo e Monitor         (dxdiag, DCOM, GPU reset)
+    15. Testes                           (CPU, velocidade, monitor)
+    SISTEMA E CONFIGURAÇÃO:
+    16. Identidade do Sistema            (renomear PC, usuario, IP estático)
+    17. Menu de Contexto                 (clássico Win11, atalhos T! SOS)
+    18. Utilidades Rápidas               (ping, msinfo32, msconfig, calc)
+    19. Winget                           (executa em contexto de usuário comum)
 
   SEGURANÇA: Autentica com senha de administrador local ao iniciar.
              Todas as ações ficam gravadas em log.
@@ -557,11 +562,11 @@ function Menu-Impressao {
 }
 
 # =============================================================================
-# MENU 5: ENERGIA E DESEMPENHO
+# MENU 6: ENERGIA E DESEMPENHO
 # =============================================================================
 function Menu-Energia {
     do {
-        Cab "5. ENERGIA E DESEMPENHO"
+        Cab "6. ENERGIA E DESEMPENHO"
         Write-Host "  1. Relatório de bateria (laptops)" -ForegroundColor $C.M
         Write-Host "  2. Relatório de eficiência energetica (60s)" -ForegroundColor $C.M
         Write-Host "  3. Relatório de consumo em sleep/soneca" -ForegroundColor $C.M
@@ -587,11 +592,11 @@ function Menu-Energia {
 }
 
 # =============================================================================
-# MENU 6: MEMÓRIA RAM
+# MENU 7: MEMÓRIA RAM
 # =============================================================================
 function Menu-Memoria {
     do {
-        Cab "6. MEMÓRIA RAM"
+        Cab "7. MEMÓRIA RAM"
         Write-Host "  1. Agendar diagnóstico de memória (executa no próximo boot)" -ForegroundColor $C.M
         Write-Host "  2. Informações dos módulos de RAM (capacidade, velocidade)" -ForegroundColor $C.M
         Write-Host "  3. Teste de desempenho da RAM (WinSAT mem)" -ForegroundColor $C.M
@@ -624,11 +629,11 @@ function Menu-Memoria {
 }
 
 # =============================================================================
-# MENU 7: REDE E DNS
+# MENU 10: REDE E DNS
 # =============================================================================
 function Menu-Rede {
     do {
-        Cab "7. REDE E DNS"
+        Cab "10. REDE E DNS"
         Write-Host "  1. Reset pilha TCP/IP (resolve a maioria dos problemas)" -ForegroundColor $C.M
         Write-Host "  2. Reset Winsock (catalogo de rede corrompido)" -ForegroundColor $C.M
         Write-Host "  3. Flush DNS (limpar cache de resolucao DNS)" -ForegroundColor $C.M
@@ -694,11 +699,11 @@ function Configurar-IP-Estatico {
 }
 
 # =============================================================================
-# MENU 8: LIMPEZA E MANUTENÇÃO
+# MENU 5: LIMPEZA E MANUTENÇÃO
 # =============================================================================
 function Menu-Limpeza {
     do {
-        Cab "8. LIMPEZA E MANUTENÇÃO"
+        Cab "5. LIMPEZA E MANUTENÇÃO"
         Write-Host "  1. Limpar Temp do usuario (%TEMP%)" -ForegroundColor $C.M
         Write-Host "  2. Limpar Temp do sistema (C:\Windows\Temp)" -ForegroundColor $C.M
         Write-Host "  3. Limpeza completa (Temp usuario + sistema + Prefetch)" -ForegroundColor $C.M
@@ -720,11 +725,11 @@ function Menu-Limpeza {
 }
 
 # =============================================================================
-# MENU 9: SEGURANÇA E PERMISSÕES
+# MENU 11: SEGURANÇA E PERMISSÕES
 # =============================================================================
 function Menu-Seguranca {
     do {
-        Cab "9. SEGURANÇA E PERMISSÕES"
+        Cab "11. SEGURANÇA E PERMISSÕES"
         Write-Host "  1. Resetar permissões de pasta (ICACLS)" -ForegroundColor $C.M
         Write-Host "  2. Tomar posse de pasta (takeown)" -ForegroundColor $C.M
         Write-Host "  3. Bloquear portas USB (impede pen drives)" -ForegroundColor $C.M
@@ -794,11 +799,11 @@ function Menu-ExecPolicy {
 }
 
 # =============================================================================
-# MENU 10: DIAGNÓSTICO AVANCADO
+# MENU 13: DIAGNÓSTICO AVANCADO
 # =============================================================================
 function Menu-Diagnostico {
     do {
-        Cab "10. DIAGNÓSTICO AVANCADO"
+        Cab "13. DIAGNÓSTICO AVANCADO"
         Write-Host "  -- Processos e Servicos ----------------------------------" -ForegroundColor $C.H
         Write-Host "   1. Top 10 processos por uso de CPU" -ForegroundColor $C.M
         Write-Host "   2. Top 10 processos por uso de RAM" -ForegroundColor $C.M
@@ -880,11 +885,11 @@ function Menu-Diagnostico {
 }
 
 # =============================================================================
-# MENU 11: PLACA DE VÍDEO E MONITOR
+# MENU 14: PLACA DE VÍDEO E MONITOR
 # =============================================================================
 function Menu-Video {
     do {
-        Cab "11. PLACA DE VÍDEO E MONITOR"
+        Cab "14. PLACA DE VÍDEO E MONITOR"
         Write-Host "  1. Informações da placa de vídeo (WMI)" -ForegroundColor $C.M
         Write-Host "  2. Diagnóstico DirectX (dxdiag)" -ForegroundColor $C.M
         Write-Host "  3. Benchmark 3D / teste de tela piscando (winsat d3d)" -ForegroundColor $C.M
@@ -929,11 +934,11 @@ function Menu-Video {
 }
 
 # =============================================================================
-# MENU 12: IDENTIDADE DO SISTEMA
+# MENU 16: IDENTIDADE DO SISTEMA
 # =============================================================================
 function Menu-Identidade {
     do {
-        Cab "12. IDENTIDADE DO SISTEMA"
+        Cab "16. IDENTIDADE DO SISTEMA"
         Write-Host "  1. Renomear o computador" -ForegroundColor $C.M
         Write-Host "  2. Alterar nome completo de um usuario local" -ForegroundColor $C.M
         Write-Host "  3. Alterar nome de exibição do usuario atual" -ForegroundColor $C.M
@@ -979,11 +984,11 @@ function Menu-Identidade {
 }
 
 # =============================================================================
-# MENU 13: TESTES DE STRESS (CPU)
+# MENU 15: TESTES (CPU, velocidade, monitor)
 # =============================================================================
 function Menu-Stress {
     do {
-        Cab "13. TESTES DE STRESS"
+        Cab "15. TESTES"
         Write-Host "  !!! Use HWMonitor ou Core Temp para monitorar temperatura !!!" -ForegroundColor $C.A
         Write-Host "  !!! Se o PC desligar durante o teste: problema de refrigeração !!!" -ForegroundColor $C.A
         Write-Host ""
@@ -991,6 +996,7 @@ function Menu-Stress {
         Write-Host "  2. Stress CPU via CMD (loop de calculo simples)" -ForegroundColor $C.M
         Write-Host "  3. Ver pontuacoes WinSAT do hardware" -ForegroundColor $C.M
         Write-Host "  4. Teste de monitor [CUIDADO: pisca a tela repetidamente]" -ForegroundColor $C.A
+        Write-Host "  5. Teste de velocidade (ping, download e upload)" -ForegroundColor $C.M
         Write-Host "  0. Voltar" -ForegroundColor $C.I
         switch (Read-Host "`n  Opção") {
             "1" { Teste-CPU-PS }
@@ -998,7 +1004,7 @@ function Menu-Stress {
             "3" {
                 Write-Host ""
                 try { Get-CimInstance Win32_WinSAT | Select-Object CPUScore, MemoryScore, DiskScore, GraphicsScore | Format-Table -AutoSize }
-                catch { Write-Host "  Execute o WinSAT formal (Menu 10, opção 11) primeiro." -ForegroundColor $C.E }
+                catch { Write-Host "  Execute o WinSAT formal (Menu 13, opção 11) primeiro." -ForegroundColor $C.E }
                 P
             }
             "4" {
@@ -1009,13 +1015,14 @@ function Menu-Stress {
                 Write-Host ""
                 if (Confirmar "Confirma que entendeu o aviso e quer iniciar o teste de monitor piscante?") {
                     $bat = "$env:TEMP\sos_monitor_test.bat"
-                    "@echo off`r`n:loop`r`nTaskkill /f /im explorer.exe`r`nStart explorer.exe`r`nTimeout /t 5`r`nGoto loop" | Out-File $bat -Encoding ASCII
+                    [IO.File]::WriteAllText($bat, "@echo off`r`n:loop`r`nTaskkill /f /im explorer.exe`r`nStart explorer.exe`r`nTimeout /t 5`r`nGoto loop", (New-Object Text.UTF8Encoding $false))
                     Start-Process cmd.exe -ArgumentList "/k `"$bat`""
                     Write-Host "  Teste iniciado em nova janela. FECHE-A para parar." -ForegroundColor $C.A
                     Write-Host "  Se a barra de tarefas sumir: Ctrl+Shift+Esc > Arquivo > Executar nova tarefa > explorer.exe" -ForegroundColor $C.A
                 } else { Write-Host "  Cancelado." -ForegroundColor $C.M }
                 P
             }
+            "5" { Teste-Velocidade }
             "0" { return }
             default { Write-Host "  Opção inválida." -ForegroundColor $C.E; Start-Sleep 1 }
         }
@@ -1189,11 +1196,11 @@ function Verificar-Processos-Suspeitos {
 }
 
 # =============================================================================
-# MENU 14: SEGURANÇA DA INFORMAÇÃO
+# MENU 12: SEGURANÇA DA INFORMAÇÃO
 # =============================================================================
 function Menu-SegInfo {
     do {
-        Cab "14. SEGURANÇA DA INFORMAÇÃO - AUDITORIA E ANTIVÍRUS"
+        Cab "12. SEGURANÇA DA INFORMAÇÃO - AUDITORIA E ANTIVÍRUS"
         Write-Host "  -- Auditoria de eventos --------------------------------" -ForegroundColor $C.H
         Write-Host "  1. Processos suspeitos (sem path, alta CPU/handles)" -ForegroundColor $C.M
         Write-Host "  2. Tentativas de logon com falha (força bruta - ID 4625)" -ForegroundColor $C.M
@@ -1241,12 +1248,12 @@ function Menu-SegInfo {
 }
 
 # =============================================================================
-# MENU 15: AJUSTES DE DESEMPENHO (REGISTRO)
+# MENU 9: AJUSTES DE DESEMPENHO (REGISTRO)
 # =============================================================================
 function Menu-Registro {
     do {
-        Cab "15. AJUSTES DE DESEMPENHO NO REGISTRO"
-        Write-Host "  !!! Crie um ponto de restauração (Menu 9, op.8) antes de continuar !!!" -ForegroundColor $C.A
+        Cab "9. AJUSTES DE DESEMPENHO NO REGISTRO"
+        Write-Host "  !!! Crie um ponto de restauração (Menu 11, op.8) antes de continuar !!!" -ForegroundColor $C.A
         Write-Host ""
         Write-Host "  -- Visual e Animações ----------------------------------------" -ForegroundColor $C.H
         Write-Host "   1. Ajustar para melhor desempenho (desativa efeitos visuais)" -ForegroundColor $C.M
@@ -1306,8 +1313,8 @@ function Menu-Registro {
                 if ($ab -imatch '^s') { Start-Process regedit.exe }
                 P
             }
-            "15" { Run "Aplicando TODOS os ajustes (1-13)..." "Aplica de uma vez todos os ajustes das opções 1 a 13 deste menu (exatamente os mesmos comandos das opções individuais). Alguns efeitos exigem logoff ou reinicialização. Recomendado: crie um ponto de restauração antes (Menu 9, opção 8)." @('REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" /v VisualFXSetting /t REG_DWORD /d 2 /f', 'REG ADD "HKLM\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" /v VisualFXSetting /t REG_DWORD /d 2 /f', 'REG ADD "HKCU\Control Panel\Desktop\WindowMetrics" /v MinAnimate /t REG_DWORD /d 0 /f', 'REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v DisallowShaking /t REG_DWORD /d 1 /f', 'reg add "HKCU\Control Panel\Desktop" /v MenuShowDelay /t REG_SZ /d 20 /f', 'reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer" /v StartupDelayInMSec /t REG_DWORD /d 0 /f', 'REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management\PrefetchParameters" /v EnableSuperfetch /t REG_DWORD /d 0 /f', 'REG ADD "HKLM\SYSTEM\CurrentControlSet\Services\SysMain" /v Start /t REG_DWORD /d 4 /f', 'REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\Power\PowerThrottling" /v PowerThrottlingOff /t REG_DWORD /d 1 /f', 'REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v ClearPageFileAtShutdown /t REG_DWORD /d 0 /f', 'reg add "HKCU\Software\Policies\Microsoft\Windows\Explorer" /v DisableSearchBoxSuggestions /t REG_DWORD /d 1 /f', 'reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\SearchSettings" /v IsDynamicSearchBoxEnabled /t REG_DWORD /d 0 /f', 'REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v EnableBallooTips /t REG_DWORD /d 0 /F', 'REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\FocusAssist" /v Disabled /t REG_DWORD /d 1 /f', 'REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v SilentInstalledAppsEnabled /t REG_DWORD /d 0 /F', 'REG ADD "HKLM\SOFTWARE\Policies\Microsoft\Windows\DataCollection" /v AllowTelemetry /t REG_DWORD /d 0 /f') -Win }
-            "16" { Run "Restaurando TODOS os ajustes (1-13)..." "Desfaz todos os ajustes das opções 1 a 13, voltando cada valor ao padrão do Windows (remove os valores criados pelo menu e restaura os originais). Mensagens de erro 'não encontrado' são normais e podem ser ignoradas." @('REG DELETE "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" /v VisualFXSetting /f', 'REG DELETE "HKLM\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" /v VisualFXSetting /f', 'REG ADD "HKCU\Control Panel\Desktop\WindowMetrics" /v MinAnimate /t REG_DWORD /d 1 /f', 'REG DELETE "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v DisallowShaking /f', 'reg add "HKCU\Control Panel\Desktop" /v MenuShowDelay /t REG_SZ /d 400 /f', 'REG DELETE "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer" /v StartupDelayInMSec /f', 'REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management\PrefetchParameters" /v EnableSuperfetch /t REG_DWORD /d 3 /f', 'REG ADD "HKLM\SYSTEM\CurrentControlSet\Services\SysMain" /v Start /t REG_DWORD /d 2 /f', 'REG DELETE "HKLM\SYSTEM\CurrentControlSet\Control\Power\PowerThrottling" /v PowerThrottlingOff /f', 'REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v ClearPageFileAtShutdown /t REG_DWORD /d 0 /f', 'reg add "HKCU\Software\Policies\Microsoft\Windows\Explorer" /v DisableSearchBoxSuggestions /t REG_DWORD /d 0 /f', 'reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\SearchSettings" /v IsDynamicSearchBoxEnabled /t REG_DWORD /d 1 /f', 'REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v EnableBallooTips /t REG_DWORD /d 1 /f', 'REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\FocusAssist" /v Disabled /t REG_DWORD /d 0 /f', 'REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v SilentInstalledAppsEnabled /t REG_DWORD /d 1 /f', 'REG ADD "HKLM\SOFTWARE\Policies\Microsoft\Windows\DataCollection" /v AllowTelemetry /t REG_DWORD /d 1 /f') -Win }
+            "15" { Run "Aplicando TODOS os ajustes (1-13)..." "Aplica de uma vez todos os ajustes das opções 1 a 13 deste menu (exatamente os mesmos comandos das opções individuais). Alguns efeitos exigem logoff ou reinicialização. Recomendado: crie um ponto de restauração antes (Menu 11, opção 8)." @('REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" /v VisualFXSetting /t REG_DWORD /d 2 /f', 'REG ADD "HKLM\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" /v VisualFXSetting /t REG_DWORD /d 2 /f', 'REG ADD "HKCU\Control Panel\Desktop\WindowMetrics" /v MinAnimate /t REG_DWORD /d 0 /f', 'REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v DisallowShaking /t REG_DWORD /d 1 /f', 'reg add "HKCU\Control Panel\Desktop" /v MenuShowDelay /t REG_SZ /d 20 /f', 'reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer" /v StartupDelayInMSec /t REG_DWORD /d 0 /f', 'REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management\PrefetchParameters" /v EnableSuperfetch /t REG_DWORD /d 0 /f', 'REG ADD "HKLM\SYSTEM\CurrentControlSet\Services\SysMain" /v Start /t REG_DWORD /d 4 /f', 'REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\Power\PowerThrottling" /v PowerThrottlingOff /t REG_DWORD /d 1 /f', 'REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v ClearPageFileAtShutdown /t REG_DWORD /d 0 /f', 'reg add "HKCU\Software\Policies\Microsoft\Windows\Explorer" /v DisableSearchBoxSuggestions /t REG_DWORD /d 1 /f', 'reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\SearchSettings" /v IsDynamicSearchBoxEnabled /t REG_DWORD /d 0 /f', 'REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v EnableBallooTips /t REG_DWORD /d 0 /F', 'REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\FocusAssist" /v Disabled /t REG_DWORD /d 1 /f', 'REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v SilentInstalledAppsEnabled /t REG_DWORD /d 0 /F', 'REG ADD "HKLM\SOFTWARE\Policies\Microsoft\Windows\DataCollection" /v AllowTelemetry /t REG_DWORD /d 0 /f') -Win }
+            "16" { Run "Restaurando TODOS os ajustes (1-13)..." "Desfaz todos os ajustes das opções 1 a 13, voltando cada valor ao padrão do Windows (remove os valores criados pelo menu e restaura os originais). Recomendado: crie um ponto de restauração antes (Menu 11, opção 8)." @('REG DELETE "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" /v VisualFXSetting /f', 'REG DELETE "HKLM\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" /v VisualFXSetting /f', 'REG ADD "HKCU\Control Panel\Desktop\WindowMetrics" /v MinAnimate /t REG_DWORD /d 1 /f', 'REG DELETE "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v DisallowShaking /f', 'reg add "HKCU\Control Panel\Desktop" /v MenuShowDelay /t REG_SZ /d 400 /f', 'REG DELETE "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer" /v StartupDelayInMSec /f', 'REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management\PrefetchParameters" /v EnableSuperfetch /t REG_DWORD /d 3 /f', 'REG ADD "HKLM\SYSTEM\CurrentControlSet\Services\SysMain" /v Start /t REG_DWORD /d 2 /f', 'REG DELETE "HKLM\SYSTEM\CurrentControlSet\Control\Power\PowerThrottling" /v PowerThrottlingOff /f', 'REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v ClearPageFileAtShutdown /t REG_DWORD /d 0 /f', 'reg add "HKCU\Software\Policies\Microsoft\Windows\Explorer" /v DisableSearchBoxSuggestions /t REG_DWORD /d 0 /f', 'reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\SearchSettings" /v IsDynamicSearchBoxEnabled /t REG_DWORD /d 1 /f', 'REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v EnableBallooTips /t REG_DWORD /d 1 /f', 'REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\FocusAssist" /v Disabled /t REG_DWORD /d 0 /f', 'REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v SilentInstalledAppsEnabled /t REG_DWORD /d 1 /f', 'REG ADD "HKLM\SOFTWARE\Policies\Microsoft\Windows\DataCollection" /v AllowTelemetry /t REG_DWORD /d 1 /f') -Win }
             "0"  { return }
             default { Write-Host "  Opção inválida." -ForegroundColor $C.E; Start-Sleep 1 }
         }
@@ -1315,11 +1322,11 @@ function Menu-Registro {
 }
 
 # =============================================================================
-# MENU 16: ATUALIZAÇÃO DO WINDOWS
+# MENU 8: ATUALIZAÇÃO DO WINDOWS
 # =============================================================================
 function Menu-Update {
     do {
-        Cab "16. ATUALIZAÇÃO DO WINDOWS (PSWindowsUpdate)"
+        Cab "8. ATUALIZAÇÃO DO WINDOWS (PSWindowsUpdate)"
         Write-Host "  1. Verificar política de execução atual" -ForegroundColor $C.M
         Write-Host "  2. Preparar ambiente (instalar módulo PSWindowsUpdate)" -ForegroundColor $C.M
         Write-Host "  3. Verificar atualizações disponíveis" -ForegroundColor $C.M
@@ -1345,11 +1352,11 @@ function Menu-Update {
 }
 
 # =============================================================================
-# MENU 17: WINGET (USUARIO COMUM - SEM ADMIN)
+# MENU 19: WINGET (USUARIO COMUM - SEM ADMIN)
 # =============================================================================
 function Menu-Winget {
     do {
-        Cab "17. WINGET - GERENCIADOR DE PACOTES"
+        Cab "19. WINGET - GERENCIADOR DE PACOTES"
         Write-Host "  [!] Winget SEMPRE executa em contexto de usuario comum" -ForegroundColor $C.D
         Write-Host "  [!] Uma nova janela CMD será aberta para interação" -ForegroundColor $C.D
         Write-Host ""
@@ -1387,16 +1394,28 @@ function Teste-Velocidade {
     L; Cab "TESTE DE VELOCIDADE - INTERNET"
     Write-Host "  Servidor: Cloudflare (speed.cloudflare.com)" -ForegroundColor $C.H
     Write-Host ""
-    Write-Host "  Medindo latência (ping 1.1.1.1, 4 pacotes)..." -ForegroundColor $C.I
-    try {
-        $p = Test-Connection -ComputerName 1.1.1.1 -Count 4 -ErrorAction Stop
-        $ok = @($p | Where-Object { $_.StatusCode -eq 0 })
-        $lat = [math]::Round(($ok | Measure-Object ResponseTime -Average).Average, 1)
-        Write-Host "  Latência média: $lat ms (perda: $($p.Count - $ok.Count)/$($p.Count))" -ForegroundColor $C.M
-    } catch {
-        Write-Host "  [ERRO] Sem resposta. Verifique a conexão com a internet." -ForegroundColor $C.E
+    Write-Host "  Medindo latência (10 pacotes em 1.1.1.1 e 8.8.8.8)..." -ForegroundColor $C.I
+    $latencias = @()
+    foreach ($alvo in @("1.1.1.1", "8.8.8.8")) {
+        try {
+            $p = Test-Connection -ComputerName $alvo -Count 10 -ErrorAction Stop
+            $ok = @($p | Where-Object { $_.StatusCode -eq 0 })
+            if ($ok.Count -gt 0) {
+                $media = [math]::Round(($ok | Measure-Object ResponseTime -Average).Average, 1)
+                $latencias += $media
+                Write-Host "  $alvo : média ${media} ms (perda $($p.Count - $ok.Count)/$($p.Count))" -ForegroundColor $C.M
+            } else {
+                Write-Host "  $alvo : sem resposta (perda total)" -ForegroundColor $C.E
+            }
+        } catch {
+            Write-Host "  $alvo : sem resposta" -ForegroundColor $C.E
+        }
+    }
+    if ($latencias.Count -eq 0) {
+        Write-Host "  [ERRO] Sem conectividade com a internet." -ForegroundColor $C.E
         Log "Teste de velocidade: sem conectividade" "AVISO"; P; return
     }
+    $lat = [math]::Round(($latencias | Measure-Object -Average).Average, 1)
     Write-Host ""
     try {
         Add-Type -AssemblyName System.Net.Http
@@ -1441,13 +1460,12 @@ function Menu-Utilidades {
         Write-Host "  script clássico KlaytonBuenoPrince.bat." -ForegroundColor $C.H
         Write-Host ""
         Write-Host "   1. Ping (20 pacotes no destino)" -ForegroundColor $C.M
-        Write-Host "   2. Teste de velocidade (nativo, sem navegador)" -ForegroundColor $C.M
-        Write-Host "   3. Informações do sistema (msinfo32)" -ForegroundColor $C.M
-        Write-Host "   4. Mouse (main.cpl)" -ForegroundColor $C.M
-        Write-Host "   5. Configuração do sistema (msconfig)" -ForegroundColor $C.M
-        Write-Host "   6. Programas e Recursos (appwiz.cpl)" -ForegroundColor $C.M
-        Write-Host "   7. Calculadora" -ForegroundColor $C.M
-        Write-Host "   8. Editor do Registro (regedit)" -ForegroundColor $C.M
+        Write-Host "   2. Informações do sistema (msinfo32)" -ForegroundColor $C.M
+        Write-Host "   3. Mouse (main.cpl)" -ForegroundColor $C.M
+        Write-Host "   4. Configuração do sistema (msconfig)" -ForegroundColor $C.M
+        Write-Host "   5. Programas e Recursos (appwiz.cpl)" -ForegroundColor $C.M
+        Write-Host "   6. Calculadora" -ForegroundColor $C.M
+        Write-Host "   7. Editor do Registro (regedit)" -ForegroundColor $C.M
         Write-Host "   0. Voltar" -ForegroundColor $C.I
         switch (Read-Host "`n  Opção") {
             "1" {
@@ -1455,13 +1473,12 @@ function Menu-Utilidades {
                 if ([string]::IsNullOrWhiteSpace($dest)) { $dest = "8.8.8.8" }
                 Run "Ping em $dest (20 pacotes)..." "Envia 20 pacotes ICMP ao destino e exibe tempos de resposta e perdas. Útil para checar a conectividade básica antes de diagnósticos mais profundos." @("ping -n 20 $dest") -Win
             }
-            "2" { Teste-Velocidade }
-            "3" { Start-Process msinfo32.exe; Write-Host "  Abrindo Informações do Sistema..." -ForegroundColor $C.A; P }
-            "4" { Start-Process main.cpl; Write-Host "  Abrindo configurações do mouse..." -ForegroundColor $C.A; P }
-            "5" { Start-Process msconfig.exe; Write-Host "  Abrindo Configuração do Sistema..." -ForegroundColor $C.A; P }
-            "6" { Start-Process appwiz.cpl; Write-Host "  Abrindo Programas e Recursos..." -ForegroundColor $C.A; P }
-            "7" { Start-Process calc.exe; Write-Host "  Abrindo Calculadora..." -ForegroundColor $C.A; P }
-            "8" { Run "Abrindo Editor do Registro..." "Abre o regedit. Navegue com cuidado: alterações incorretas podem impedir o Windows de iniciar. Prefira o Menu 15 para ajustes guiados e seguros." @("regedit.exe") -Win }
+            "2" { Start-Process msinfo32.exe; Write-Host "  Abrindo Informações do Sistema..." -ForegroundColor $C.A; P }
+            "3" { Start-Process main.cpl; Write-Host "  Abrindo configurações do mouse..." -ForegroundColor $C.A; P }
+            "4" { Start-Process msconfig.exe; Write-Host "  Abrindo Configuração do Sistema..." -ForegroundColor $C.A; P }
+            "5" { Start-Process appwiz.cpl; Write-Host "  Abrindo Programas e Recursos..." -ForegroundColor $C.A; P }
+            "6" { Start-Process calc.exe; Write-Host "  Abrindo Calculadora..." -ForegroundColor $C.A; P }
+            "7" { Run "Abrindo Editor do Registro..." "Abre o regedit. Navegue com cuidado: alterações incorretas podem impedir o Windows de iniciar. Prefira o Menu 9 para ajustes guiados e seguros." @("regedit.exe") -Win }
             "0"  { return }
             default { Write-Host "  Opção inválida." -ForegroundColor $C.E; Start-Sleep 1 }
         }
@@ -1469,11 +1486,11 @@ function Menu-Utilidades {
 }
 
 # =============================================================================
-# MENU 19: MENU DE CONTEXTO (clássico do Win11 + atalhos T! SOS no desktop)
+# MENU 17: MENU DE CONTEXTO (clássico do Win11 + atalhos T! SOS no desktop)
 # =============================================================================
 function Menu-Contexto {
     do {
-        Cab "19. MENU DE CONTEXTO"
+        Cab "17. MENU DE CONTEXTO"
         Write-Host "  Gerencia o menu de botão direito da área de trabalho." -ForegroundColor $C.H
         Write-Host ""
         Write-Host "  -- Menu clássico do Windows 11 -------------------------" -ForegroundColor $C.H
@@ -1504,31 +1521,30 @@ function Menu-Principal {
         # Write-Host "  Status: $st | Log: $($APP.Log)" -ForegroundColor $(if ($script:isAdmin) { $C.M } else { $C.E })  # mostra o caminho do log
         Write-Host "  Status: $st " -ForegroundColor $(if ($script:isAdmin) { $C.M } else { $C.E })
         Write-Host ""
-        Write-Host "  -- MANUTENÇÃO ----------------------------------------" -ForegroundColor $C.H
+        Write-Host "  -- MANUTENÇÃO ------------------------------------------" -ForegroundColor $C.H
         Write-Host "   1. Reparo e Integridade do Sistema  (DISM, SFC)" -ForegroundColor $C.M
         Write-Host "   2. Discos e Armazenamento           (SMART, CHKDSK, TRIM)" -ForegroundColor $C.M
         Write-Host "   3. Drivers                          (PnPUtil)" -ForegroundColor $C.M
         Write-Host "   4. Impressão e Spooler" -ForegroundColor $C.M
-        Write-Host "   5. Energia e Desempenho             (powercfg, relatórios)" -ForegroundColor $C.M
-        Write-Host "   6. Memória RAM                      (diagnóstico, info)" -ForegroundColor $C.M
-        Write-Host "   7. Rede e DNS                       (TCP/IP, flush, IP estático)" -ForegroundColor $C.M
-        Write-Host "   8. Limpeza e Manutenção             (temp, cache WU)" -ForegroundColor $C.M
-        Write-Host "  -- SEGURANÇA -----------------------------------------" -ForegroundColor $C.H
-        Write-Host "   9. Segurança e Permissões           (ICACLS, USB, Firewall)" -ForegroundColor $C.M
-        Write-Host "  14. Segurança da Informação          (auditoria de eventos)" -ForegroundColor $C.M
-        Write-Host "  -- DIAGNÓSTICO ---------------------------------------" -ForegroundColor $C.H
-        Write-Host "  10. Diagnóstico Avancado             (processos, WinSAT, wmic)" -ForegroundColor $C.M
-        Write-Host "  11. Placa de Vídeo e Monitor         (dxdiag, DCOM, GPU)" -ForegroundColor $C.M
-        Write-Host "  -- CONFIGURAÇÃO --------------------------------------" -ForegroundColor $C.H
-        Write-Host "  12. Identidade do Sistema            (PC, usuario, IP)" -ForegroundColor $C.M
-        Write-Host "  15. Ajustes de Desempenho            (Registro do Windows)" -ForegroundColor $C.M
-        Write-Host "  -- TESTES E ATUALIZAÇÕES -----------------------------" -ForegroundColor $C.H
-        Write-Host "  13. Testes de Stress                 (CPU multinucleo)" -ForegroundColor $C.M
-        Write-Host "  16. Atualização do Windows           (PSWindowsUpdate)" -ForegroundColor $C.M
-        Write-Host "  17. Winget                           (usuario comum)" -ForegroundColor $C.M
-        Write-Host "  -- UTILIDADES ------------------------------------------" -ForegroundColor $C.H
-        Write-Host "  18. Utilidades Rápidas              (ping, velocidade, msinfo32)" -ForegroundColor $C.M
-        Write-Host "  19. Menu de Contexto               (clássico Win11 + atalhos)" -ForegroundColor $C.M
+        Write-Host "   5. Limpeza e Manutenção             (temp, cache WU)" -ForegroundColor $C.M
+        Write-Host "   6. Energia e Desempenho             (powercfg, relatórios)" -ForegroundColor $C.M
+        Write-Host "   7. Memória RAM                      (diagnóstico, info)" -ForegroundColor $C.M
+        Write-Host "   8. Atualização do Windows           (PSWindowsUpdate)" -ForegroundColor $C.M
+        Write-Host "   9. Ajustes de Desempenho            (Registro do Windows)" -ForegroundColor $C.M
+        Write-Host "  -- REDE ------------------------------------------------" -ForegroundColor $C.H
+        Write-Host "  10. Rede e DNS                       (TCP/IP, flush, IP estático)" -ForegroundColor $C.M
+        Write-Host "  -- SEGURANÇA -------------------------------------------" -ForegroundColor $C.H
+        Write-Host "  11. Segurança e Permissões           (ICACLS, USB, Firewall)" -ForegroundColor $C.M
+        Write-Host "  12. Segurança da Informação          (antivírus, auditoria)" -ForegroundColor $C.M
+        Write-Host "  -- DIAGNÓSTICO E TESTES -------------------------------" -ForegroundColor $C.H
+        Write-Host "  13. Diagnóstico Avançado             (processos, WinSAT, hardware)" -ForegroundColor $C.M
+        Write-Host "  14. Placa de Vídeo e Monitor         (dxdiag, DCOM, GPU)" -ForegroundColor $C.M
+        Write-Host "  15. Testes                           (CPU, velocidade, monitor)" -ForegroundColor $C.M
+        Write-Host "  -- SISTEMA E CONFIGURAÇÃO ----------------------------" -ForegroundColor $C.H
+        Write-Host "  16. Identidade do Sistema            (PC, usuário, IP)" -ForegroundColor $C.M
+        Write-Host "  17. Menu de Contexto                 (clássico Win11, atalhos)" -ForegroundColor $C.M
+        Write-Host "  18. Utilidades Rápidas               (ping, msinfo32, msconfig, calc)" -ForegroundColor $C.M
+        Write-Host "  19. Winget                           (usuário comum)" -ForegroundColor $C.M
         Write-Host ""
         Write-Host "   0. Sair" -ForegroundColor $C.E
         Write-Host ""
@@ -1543,21 +1559,21 @@ function Menu-Principal {
             "2"  { Menu-Discos }
             "3"  { Menu-Drivers }
             "4"  { Menu-Impressao }
-            "5"  { Menu-Energia }
-            "6"  { Menu-Memoria }
-            "7"  { Menu-Rede }
-            "8"  { Menu-Limpeza }
-            "9"  { Menu-Seguranca }
-            "10" { Menu-Diagnostico }
-            "11" { Menu-Video }
-            "12" { Menu-Identidade }
-            "13" { Menu-Stress }
-            "14" { Menu-SegInfo }
-            "15" { Menu-Registro }
-            "16" { Menu-Update }
-            "17" { Menu-Winget }
+            "5"  { Menu-Limpeza }
+            "6"  { Menu-Energia }
+            "7"  { Menu-Memoria }
+            "8"  { Menu-Update }
+            "9"  { Menu-Registro }
+            "10" { Menu-Rede }
+            "11" { Menu-Seguranca }
+            "12" { Menu-SegInfo }
+            "13" { Menu-Diagnostico }
+            "14" { Menu-Video }
+            "15" { Menu-Stress }
+            "16" { Menu-Identidade }
+            "17" { Menu-Contexto }
             "18" { Menu-Utilidades }
-            "19" { Menu-Contexto }
+            "19" { Menu-Winget }
             "0"  {
                 Write-Host "`n  Encerrando T! SOS Sistemas Ferramenta Técnica..." -ForegroundColor $C.A
                 Log "Sessão encerrada pelo usuario."

@@ -9,7 +9,7 @@ Versão atual: **v2.1.261021**.
 
 - Windows com PowerShell 5.1 ou superior (sintaxe mantida compatível com 5.1).
 - Conta com privilégios de **Administrador**.
-- Para o menu 16 (Windows Update): módulo `PSWindowsUpdate` (instalado pelo próprio menu).
+- Para o menu 8 (Windows Update): módulo `PSWindowsUpdate` (instalado pelo próprio menu).
 
 ## Como executar
 
@@ -33,21 +33,21 @@ Na inicialização, a ordem é fixa:
 | 2 | Discos e Armazenamento | SMART, CHKDSK, Optimize, TRIM |
 | 3 | Drivers | PnPUtil |
 | 4 | Impressão e Spooler | spooler, `printui`, `Get-Printer` |
-| 5 | Energia e Desempenho | `powercfg` + relatórios HTML |
-| 6 | Memória RAM | `mdsched`, WinSAT, `wmic` |
-| 7 | Rede e DNS | reset TCP/IP/Winsock, flush DNS, `tracert`, IP estático |
-| 8 | Limpeza e Manutenção | pastas Temp, `cleanmgr`, cache do Windows Update |
-| 9 | Segurança e Permissões | ICACLS, `takeown`, USB, Firewall, Execution Policy |
-| 10 | Diagnóstico Avançado | processos, eventos, WinSAT, hardware, `wmic` |
-| 11 | Placa de Vídeo e Monitor | `dxdiag`, DCOM, GPU |
-| 12 | Identidade do Sistema | renomear PC, nome de conta local, IP estático |
-| 13 | Testes de Stress | CPU multi-núcleo (PowerShell e CMD), teste de monitor |
-| 14 | Segurança da Informação | auditoria de logon, antivírus (Defender, MRT), RDP |
-| 15 | Ajustes de Desempenho | Registro do Windows |
-| 16 | Atualização do Windows | módulo `PSWindowsUpdate` |
-| 17 | Winget | gerenciador de pacotes (**roda em contexto não-elevado**) |
-| 18 | Utilidades Rápidas | ping, velocidade (nativo), msinfo32, msconfig, calc, regedit |
-| 19 | Menu de Contexto | clássico Win11, atalhos T! SOS no desktop |
+| 5 | Limpeza e Manutenção | pastas Temp, `cleanmgr`, cache do Windows Update |
+| 6 | Energia e Desempenho | `powercfg` + relatórios HTML |
+| 7 | Memória RAM | `mdsched`, WinSAT, `wmic` |
+| 8 | Atualização do Windows | módulo `PSWindowsUpdate` |
+| 9 | Ajustes de Desempenho | Registro do Windows |
+| 10 | Rede e DNS | reset TCP/IP/Winsock, flush DNS, `tracert`, IP estático |
+| 11 | Segurança e Permissões | ICACLS, `takeown`, USB, Firewall, Execution Policy |
+| 12 | Segurança da Informação | auditoria, antivírus (Defender, MRT), RDP |
+| 13 | Diagnóstico Avançado | processos, eventos, WinSAT, hardware, `wmic` |
+| 14 | Placa de Vídeo e Monitor | `dxdiag`, DCOM, GPU |
+| 15 | Testes | CPU, velocidade, monitor |
+| 16 | Identidade do Sistema | renomear PC, nome de conta local, IP estático |
+| 17 | Menu de Contexto | clássico Win11, atalhos T! SOS no desktop |
+| 18 | Utilidades Rápidas | ping, msinfo32, msconfig, calc, regedit |
+| 19 | Winget | gerenciador de pacotes (**roda em contexto não-elevado**) |
 
 Detalhes em [`docs/menus.md`](docs/menus.md) — ou rode localmente (ver abaixo).
 
@@ -55,7 +55,7 @@ Detalhes em [`docs/menus.md`](docs/menus.md) — ou rode localmente (ver abaixo)
 
 - Autenticação obrigatória com a senha do administrador local ao iniciar.
 - Todas as ações privilegiadas são registradas em `%TEMP%\SOS_Manutencao.log`.
-- O Winget (menu 17) sempre executa em contexto de **usuário comum** (requisito do gerenciador).
+- O Winget (menu 19) sempre executa em contexto de **usuário comum** (requisito do gerenciador).
 
 ## Estrutura do repositório
 

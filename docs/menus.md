@@ -37,67 +37,51 @@ Reset completo do spooler (para o serviço, apaga a fila, reinicia),
 (`Get-Printer`, `Rename-Printer`, `Set-Printer`, `Remove-Printer`),
 limpeza de trabalhos travados.
 
-## 5. Energia e Desempenho (powercfg)
-
-Relatórios de bateria, eficiência (60 s) e sleep; estados de energia;
-desativar hibernação; planos Alto Desempenho e Ultimate Performance;
-lista de planos.
-
-## 6. Memória RAM
-
-Agendamento do `mdsched.exe`, `wmic memorychip`, `winsat mem`, total/livre
-via CIM, `sysdm.cpl` (memória virtual).
-
-## 7. Rede e DNS
-
-Reset TCP/IP e Winsock (**requer reinicialização**), `flushdns` +
-`registerdns`, `ipconfig /all`, `nbtstat -n`, `netstat -ano`, `tracert`,
-`getmac`, IP estático (`Configurar-IP-Estatico`), `ncpa.cpl`.
-
-## 8. Limpeza e Manutenção
+## 5. Limpeza e Manutenção
 
 Temp do usuário e do sistema, limpeza completa (+ Prefetch),
 `cleanmgr /sageset:1` + `/sagerun:1`, cache do Windows Update
 (para `wuauserv`, limpa `SoftwareDistribution\Download`).
 
-## 9. Segurança e Permissões
+## 6. Energia e Desempenho (powercfg)
+
+Relatórios de bateria, eficiência (60 s) e sleep; estados de energia;
+desativar hibernação; planos Alto Desempenho e Ultimate Performance;
+lista de planos.
+
+## 7. Memória RAM
+
+Agendamento do `mdsched.exe`, `wmic memorychip`, `winsat mem`, total/livre
+via CIM, `sysdm.cpl` (memória virtual).
+
+## 8. Atualização do Windows (PSWindowsUpdate)
+
+Verifica Execution Policy, instala o módulo `PSWindowsUpdate`,
+lista/instala atualizações (com ou sem reboot automático), `gpupdate /force`.
+
+## 9. Ajustes de Desempenho (Registro)
+
+Efeitos visuais, animações, Aero Shake, delays de menu/startup,
+SysMain/SuperFetch (para SSDs), PowerThrottling, limpeza de pagefile,
+busca/Bing, balões, Focus Assist, apps silenciosos, telemetria e
+instruções do algoritmo de Nagle. **Crie um ponto de restauração antes
+(menu 11, opção 8).** Opções 15 e 16 aplicam (executa 1–13 de uma vez) e
+restauram (desfaz 1–13, voltando cada valor ao padrão do Windows).
+
+## 10. Rede e DNS
+
+Reset TCP/IP e Winsock (**requer reinicialização**), `flushdns` +
+`registerdns`, `ipconfig /all`, `nbtstat -n`, `netstat -ano`, `tracert`,
+`getmac`, IP estático (`Configurar-IP-Estatico`), `ncpa.cpl`.
+
+## 11. Segurança e Permissões
 
 `icacls /reset`, `takeown`, bloqueio/desbloqueio de USB
 (`USBSTOR`/`USBHUB3`), Firewall on/off (**desativar só para diagnóstico
 temporário**), Execution Policy, ponto de restauração, proteção de escrita
 em drives externos, MRT.
 
-## 10. Diagnóstico Avançado
-
-Top 10 processos por CPU/RAM, serviços em execução/parados, últimos erros
-do sistema, `eventvwr`, `perfmon /rel`, `systeminfo`, inventário WMI
-(CPU/RAM/disco/placa-mãe), WinSAT (formal e por componente), programas
-(`wmic product`), hotfixes (`wmic qfe`), `bcdedit`, `perfmon /report`.
-
-## 11. Placa de Vídeo e Monitor (dxdiag, DCOM, GPU)
-
-GPU via WMI, `dxdiag`, benchmarks `winsat d3d`/`dwm`, `pnputil` (Display),
-`DisplaySwitch`, `taskschd`, `dcomcnfg`, `devmgmt`, erros DCOM no log.
-Dica: reset de GPU sem reiniciar com `Ctrl + Win + Shift + B`.
-
-## 12. Identidade do Sistema
-
-Renomear computador (validação `^[A-Za-z0-9\-]{1,15}$`, exige reboot),
-alterar nome completo de uma conta local (pergunta o login e o novo nome),
-alterar exibição do usuário atual, IP estático, exibir computador/usuário/
-domínio/IP, `control userpasswords2`.
-
-## 13. Testes de Stress (CPU multi-núcleo)
-
-- Stress via PowerShell (workers `-EP Bypass`, até 2× núcleos).
-- Stress via CMD (loop aritmético, até 2× núcleos).
-- Pontuações WinSAT.
-- Teste de monitor: loop que reinicia o `explorer.exe` a cada 5 s em janela
-  separada — **feche a janela para parar**. Se a barra de tarefas sumir:
-  `Ctrl+Shift+Esc` > Arquivo > Executar nova tarefa > `explorer.exe`.
-  Monitore a temperatura (HWMonitor/Core Temp).
-
-## 14. Segurança da Informação (auditoria de eventos)
+## 12. Segurança da Informação (auditoria, antivírus)
 
 - Processos suspeitos: sem `Path`, +500 handles, CPU > 50 — com checagem de
   assinatura digital, hash SHA256 e link para o VirusTotal. `MsMpEng.exe`,
@@ -113,36 +97,40 @@ domínio/IP, `control userpasswords2`.
   quarentena/histórico (`Get-MpThreat`, `Get-MpThreatDetection`) e MRT
   (`mrt /f` só relata, `/f:y` remove).
 
-## 15. Ajustes de Desempenho (Registro)
+## 13. Diagnóstico Avançado
 
-Efeitos visuais, animações, Aero Shake, delays de menu/startup,
-SysMain/SuperFetch (para SSDs), PowerThrottling, limpeza de pagefile,
-busca/Bing, balões, Focus Assist, apps silenciosos, telemetria e
-instruções do algoritmo de Nagle. **Crie um ponto de restauração antes
-(menu 9, opção 8).** Opções 15 e 16 aplicam (executa 1–13 de uma vez) e
-restauram (desfaz 1–13, voltando cada valor ao padrão do Windows).
+Top 10 processos por CPU/RAM, serviços em execução/parados, últimos erros
+do sistema, `eventvwr`, `perfmon /rel`, `systeminfo`, inventário WMI
+(CPU/RAM/disco/placa-mãe), WinSAT (formal e por componente), programas
+(`wmic product`), hotfixes (`wmic qfe`), `bcdedit`, `perfmon /report`.
 
-## 16. Atualização do Windows (PSWindowsUpdate)
+## 14. Placa de Vídeo e Monitor (dxdiag, DCOM, GPU)
 
-Verifica Execution Policy, instala o módulo `PSWindowsUpdate`,
-lista/instala atualizações (com ou sem reboot automático), `gpupdate /force`.
+GPU via WMI, `dxdiag`, benchmarks `winsat d3d`/`dwm`, `pnputil` (Display),
+`DisplaySwitch`, `taskschd`, `dcomcnfg`, `devmgmt`, erros DCOM no log.
+Dica: reset de GPU sem reiniciar com `Ctrl + Win + Shift + B`.
 
-## 17. Winget (usuário comum — sem admin)
+## 15. Testes (CPU, velocidade, monitor)
 
-Versão, `upgrade`, `upgrade --all`, `search`, `list`; abre a Microsoft
-Store para instalar o App Installer. **Sempre executa não-elevado
-(`-SemAdmin`) em nova janela CMD.**
+- Stress via PowerShell (workers `-EP Bypass`, até 2× núcleos).
+- Stress via CMD (loop aritmético, até 2× núcleos).
+- Pontuações WinSAT.
+- Teste de monitor: loop que reinicia o `explorer.exe` a cada 5 s em janela
+  separada — **feche a janela para parar**. Se a barra de tarefas sumir:
+  `Ctrl+Shift+Esc` > Arquivo > Executar nova tarefa > `explorer.exe`.
+  Monitore a temperatura (HWMonitor/Core Temp).
+- Teste de velocidade (opção 5): latência em 1.1.1.1 e 8.8.8.8 (10 pacotes
+  cada), download de 25 MB e upload de 5 MB via Cloudflare — tudo em
+  PowerShell, sem abrir navegador.
 
-## 18. Utilidades Rápidas (script clássico)
+## 16. Identidade do Sistema
 
-Itens herdados do `KlaytonBuenoPrince.bat` não cobertos pelos outros menus:
-ping (20 pacotes, destino editável), teste de velocidade nativo em
-PowerShell (latência + download 25 MB + upload 5 MB via Cloudflare),
-`msinfo32`, mouse (`main.cpl`), `msconfig`, `appwiz.cpl`, calculadora e
-`regedit` (com confirmação). Sites mortos do script original (velocímetro,
-direta.com.br, Facebook) e a limpeza de desktop foram descartados.
+Renomear computador (validação `^[A-Za-z0-9\-]{1,15}$`, exige reboot),
+alterar nome completo de uma conta local (pergunta o login e o novo nome),
+alterar exibição do usuário atual, IP estático, exibir computador/usuário/
+domínio/IP, `control userpasswords2`.
 
-## 19. Menu de Contexto (script clássico)
+## 17. Menu de Contexto (script clássico)
 
 Gerencia o menu de botão direito do desktop, herdado dos três `.bat` de
 contexto (`menuContexto`, `menuContexto - Copia`, `menuContexto klayton`):
@@ -150,3 +138,16 @@ ativa/desativa o menu clássico do Windows 11 (com reinício do Explorer) e
 adiciona/remove 6 atalhos — contato T! SOS (e-mail), Chrome, Firefox, encerrar
 processos travados, reiniciar o Explorer e abrir pastas temporárias. Todos os
 rótulos `DTI - ...` viraram `T! SOS - ...`.
+## 18. Utilidades Rápidas (script clássico)
+
+Itens herdados do `KlaytonBuenoPrince.bat` não cobertos pelos outros menus:
+ping (20 pacotes, destino editável), `msinfo32`, mouse (`main.cpl`),
+`msconfig`, `appwiz.cpl`, calculadora e `regedit` (com confirmação). Sites mortos do script original (velocímetro,
+direta.com.br, Facebook) e a limpeza de desktop foram descartados.
+
+## 19. Winget (usuário comum — sem admin)
+
+Versão, `upgrade`, `upgrade --all`, `search`, `list`; abre a Microsoft
+Store para instalar o App Installer. **Sempre executa não-elevado
+(`-SemAdmin`) em nova janela CMD.**
+

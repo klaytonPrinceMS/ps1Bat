@@ -8,7 +8,7 @@
 - Windows com PowerShell 5.1+ (manter sintaxe compatível com 5.1:
   `wmic`, `pnputil` e `powercfg` ainda são usados).
 - Conta com privilégios de Administrador.
-- Menu 16 exige o módulo `PSWindowsUpdate` — o próprio menu instala
+- Menu 8 exige o módulo `PSWindowsUpdate` - o próprio menu instala
   (`Set-ExecutionPolicy RemoteSigned -Scope CurrentUser`, depois
   `Install-Module PSWindowsUpdate`).
 
@@ -43,11 +43,11 @@ Novas ações privilegiadas devem chamar `Log` da mesma forma.
 
 - Ações destrutivas usam o padrão `Desc` + `Confirmar` (ENTER vazio executa, qualquer tecla cancela).
   Preserve esse padrão em novas opções.
-- Menu 15 (Registro): crie um ponto de restauração antes (menu 9, opção 8).
-- Menu 13 (stress): monitore a temperatura; desligamento durante o teste
+- Menu 9 (Registro): crie um ponto de restauração antes (menu 11, opção 8).
+- Menu 15 (testes): monitore a temperatura; desligamento durante o teste
   indica problema de refrigeração. O teste de monitor (opção 4) reinicia o
   `explorer.exe` em loop numa janela separada — feche a janela para parar.
-- Menu 17 (Winget): **sempre não-elevado** (`-SemAdmin`). O `Run` abre uma
+- Menu 19 (Winget): **sempre não-elevado** (`-SemAdmin`). O `Run` abre uma
   nova janela CMD independente para interação. Não altere para modo elevado.
 - Rede/IP estático: máscara automática `172.16.x.x → 255.255.0.0` e
   `192.168.x.x → 255.255.255.0`; DNS usa o gateway por padrão.

@@ -13,7 +13,7 @@
   - `-PS` = executa via PowerShell;
   - `-Win` = abre em nova janela (via `.bat` temporário ou comando
     codificado em Base64);
-  - `-SemAdmin` = contexto não-elevado (obrigatório no Winget, menu 17).
+  - `-SemAdmin` = contexto não-elevado (obrigatório no Winget, menu 19).
 - Ações destrutivas: padrão `Desc` (explica o comando) + `Confirmar`
   (`[S/N]`).
 - Ações privilegiadas: registrar com `Log` (vai para

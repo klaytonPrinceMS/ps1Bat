@@ -59,8 +59,8 @@ def test_registro_lote_cobre_todos_os_ajustes():
     texto = (ROOT / "SOS-Manutencao.ps1").read_text(encoding="utf-8")
     menu = texto.split("function Menu-Registro", 1)[1].split("function Menu-Update", 1)[0]
     assert "APLICAR TODOS" in menu and "RESTAURAR TODOS" in menu
-    aplica = menu.split("APLICAR TODOS", 1)[1].split('"16"', 1)[0]
-    restaura = menu.split("RESTAURAR TODOS", 1)[1]
+    aplica = menu.split("Aplicando TODOS os ajustes", 1)[1].split("Restaurando TODOS os ajustes", 1)[0]
+    restaura = menu.split("Restaurando TODOS os ajustes", 1)[1]
     chaves = ["VisualFXSetting", "MinAnimate", "DisallowShaking", "MenuShowDelay",
               "StartupDelayInMSec", "EnableSuperfetch", "SysMain",
               "PowerThrottlingOff", "ClearPageFileAtShutdown",
@@ -89,6 +89,17 @@ def test_sem_scareware():
     assert "somente leitura" in texto
 
 
+def test_velocidade_no_menu_testes():
+    texto = (ROOT / "SOS-Manutencao.ps1").read_text(encoding="utf-8")
+    testes = texto.split("function Menu-Stress", 1)[1].split("function Teste-CPU-PS", 1)[0]
+    assert '"5" { Teste-Velocidade }' in testes, "opcao 5 de velocidade fora do menu Testes"
+    bloco = texto.split("function Teste-Velocidade", 1)[1].split("\nfunction ", 1)[0]
+    assert "1.1.1.1" in bloco and "8.8.8.8" in bloco, "latencia deve cobrir 2 servidores"
+    assert "-Count 10" in bloco, "latencia deve usar 10 pacotes por servidor"
+    utils = texto.split("function Menu-Utilidades", 1)[1].split("function Menu-Contexto", 1)[0]
+    assert "Teste-Velocidade" not in utils, "velocidade saiu dos Utilidades"
+
+
 def test_defender_scans_reais():
     texto = (ROOT / "SOS-Manutencao.ps1").read_text(encoding="utf-8")
     menu = texto.split("function Menu-SegInfo", 1)[1].split("function Menu-Registro", 1)[0]
@@ -99,3 +110,14 @@ def test_defender_scans_reais():
         assert cmd in menu, f"scan real ausente: {cmd}"
     idx = menu.index("Start-MpWDOScan")
     assert "REINICI" in menu[max(0, idx - 400):idx], "scan offline sem aviso de reboot"
+
+
+def test_velocidade_no_menu_testes():
+    texto = (ROOT / "SOS-Manutencao.ps1").read_text(encoding="utf-8")
+    testes = texto.split("function Menu-Stress", 1)[1].split("function Teste-CPU-PS", 1)[0]
+    assert '"5" { Teste-Velocidade }' in testes, "opcao 5 de velocidade fora do menu Testes"
+    bloco = texto.split("function Teste-Velocidade", 1)[1].split("\nfunction ", 1)[0]
+    assert "1.1.1.1" in bloco and "8.8.8.8" in bloco, "latencia deve cobrir 2 servidores"
+    assert "-Count 10" in bloco, "latencia deve usar 10 pacotes por servidor"
+    utils = texto.split("function Menu-Utilidades", 1)[1].split("function Menu-Contexto", 1)[0]
+    assert "Teste-Velocidade" not in utils, "velocidade saiu dos Utilidades"
