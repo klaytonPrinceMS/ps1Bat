@@ -106,6 +106,12 @@ domínio/IP, `control userpasswords2`.
   (grupos privilegiados), 4723/4724 (senhas), 1102 (**limpeza de log —
   altamente suspeito**), 4624 tipo 10 (RDP), 4624/4634 (logon/logoff).
 - Conexões RDP ativas (porta 3389) e análise completa combinada.
+- **Antivírus real** (opções 11–18, em vez do placebo do `.bat` clássico):
+  status do Defender (`Get-MpComputerStatus`), atualização de assinaturas
+  (`Update-MpSignature`), scan rápido e completo (`Start-MpScan`),
+  scan offline com reboot (`Start-MpWDOScan` — salva tudo antes),
+  quarentena/histórico (`Get-MpThreat`, `Get-MpThreatDetection`) e MRT
+  (`mrt /f` só relata, `/f:y` remove).
 
 ## 15. Ajustes de Desempenho (Registro)
 

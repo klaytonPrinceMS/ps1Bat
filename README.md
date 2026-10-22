@@ -42,7 +42,7 @@ Na inicialização, a ordem é fixa:
 | 11 | Placa de Vídeo e Monitor | `dxdiag`, DCOM, GPU |
 | 12 | Identidade do Sistema | renomear PC, nome de conta local, IP estático |
 | 13 | Testes de Stress | CPU multi-núcleo (PowerShell e CMD), teste de monitor |
-| 14 | Segurança da Informação | auditoria de logon (IDs 4624/4625/4720/4728/1102), RDP |
+| 14 | Segurança da Informação | auditoria de logon, antivírus (Defender, MRT), RDP |
 | 15 | Ajustes de Desempenho | Registro do Windows |
 | 16 | Atualização do Windows | módulo `PSWindowsUpdate` |
 | 17 | Winget | gerenciador de pacotes (**roda em contexto não-elevado**) |

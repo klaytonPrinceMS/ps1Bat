@@ -19,7 +19,7 @@
     11. Placa de Vídeo e Monitor         (dxdiag, DCOM, GPU reset)
     12. Identidade do Sistema            (renomear PC, usuario, IP estático)
     13. Testes de Stress                 (CPU multinucleo)
-    14. Segurança da Informação          (eventos de logon, auditoria, RDP)
+    14. Segurança da Informação          (auditoria, Defender, MRT, RDP)
     15. Ajustes de Desempenho            (Registro do Windows)
     16. Atualização do Windows           (PSWindowsUpdate)
     17. Winget                           (executa em contexto de usuario comum)
@@ -1155,7 +1155,8 @@ function Verificar-Processos-Suspeitos {
 # =============================================================================
 function Menu-SegInfo {
     do {
-        Cab "14. SEGURANÇA DA INFORMAÇÃO - AUDITORIA DE EVENTOS"
+        Cab "14. SEGURANÇA DA INFORMAÇÃO - AUDITORIA E ANTIVÍRUS"
+        Write-Host "  -- Auditoria de eventos --------------------------------" -ForegroundColor $C.H
         Write-Host "  1. Processos suspeitos (sem path, alta CPU/handles)" -ForegroundColor $C.M
         Write-Host "  2. Tentativas de logon com falha (força bruta - ID 4625)" -ForegroundColor $C.M
         Write-Host "  3. Criação de contas de usuario (ID 4720)" -ForegroundColor $C.M
@@ -1166,6 +1167,15 @@ function Menu-SegInfo {
         Write-Host "  8. Histórico de logons e logoffs" -ForegroundColor $C.M
         Write-Host "  9. Conexões RDP ativas na rede (porta 3389)" -ForegroundColor $C.M
         Write-Host " 10. Análise completa de segurança (todos os eventos)" -ForegroundColor $C.A
+        Write-Host "  -- Antivírus (Defender + MRT) --------------------------" -ForegroundColor $C.H
+        Write-Host "  11. Status do Windows Defender" -ForegroundColor $C.M
+        Write-Host "  12. Atualizar assinaturas do Defender" -ForegroundColor $C.M
+        Write-Host "  13. Scan rápido (Defender)" -ForegroundColor $C.M
+        Write-Host "  14. Scan completo (Defender - demora horas)" -ForegroundColor $C.M
+        Write-Host "  15. Scan offline (Defender - REINICIA o PC)" -ForegroundColor $C.A
+        Write-Host "  16. Ameaças em quarentena / histórico" -ForegroundColor $C.M
+        Write-Host "  17. MRT - verificação completa com remoção" -ForegroundColor $C.M
+        Write-Host "  18. MRT - verificação completa (só relata)" -ForegroundColor $C.M
         Write-Host "  0. Voltar" -ForegroundColor $C.I
         switch (Read-Host "`n  Opção") {
             "1"  { Verificar-Processos-Suspeitos }
@@ -1178,6 +1188,14 @@ function Menu-SegInfo {
             "8"  { Run "Histórico de logons e logoffs..." "Exibe os últimos 50 logons (4624) e logoffs (4634) do sistema. Permite auditar quem usou o computador, quando entrou e saiu, e identificar sessões inesperadas." @('Get-WinEvent -FilterHashtable @{LogName="Security"; Id=4624,4634} -MaxEvents 50 -EA SilentlyContinue | Select-Object @{N="Data";E={$_.TimeCreated}},@{N="Evento";E={if($_.Id -eq 4624){"LOGON"}else{"LOGOFF"}}},@{N="Conta";E={$_.Properties[5].Value}} | Format-Table -AutoSize') -PS -Win }
             "9"  { Run "Conexões RDP ativas (porta 3389)..." "Verifica se ha conexões ativas na porta 3389 (Remote Desktop Protocol). Conexões inesperadas podem indicar acesso remoto não autorizado ao computador." @("netstat -ano | findstr :3389", "echo.", "netstat -n | findstr :3389") -Win }
             "10" { Run "Análise completa de segurança..." "Relatório abrangente: logon, logoff, falhas de autenticação, criação de usuario, mudancas de grupo, alterações de senha e limpeza de logs. Últimos 30 eventos de cada ID." @('Get-WinEvent -FilterHashtable @{LogName="Security"; Id=4624,4634,4625,4720,4723,4724,4728,1102} -MaxEvents 30 -EA SilentlyContinue | Select-Object @{N="Data";E={$_.TimeCreated}},@{N="ID";E={$_.Id}},@{N="Resumo";E={$_.Message.Substring(0,[Math]::Min(70,$_.Message.Length))}} | Format-Table -AutoSize -Wrap') -PS -Win }
+            "11" { Run "Status do Windows Defender..." "Exibe se a proteção está ativa, a versão das assinaturas e há quantos dias estão desatualizadas. Assinaturas velhas = proteção furada: rode a opção 12 antes de qualquer scan." @("Get-MpComputerStatus | Select-Object AMRunning, AntivirusEnabled, AntivirusSignatureVersion, AntivirusSignatureAge | Format-List") -PS -Win }
+            "12" { Run "Atualizando assinaturas do Defender..." "Baixa as definições de vírus mais recentes. Sempre rode antes de um scan para não verificar com base desatualizada." @("Update-MpSignature") -PS -Win }
+            "13" { Run "Scan rápido do Defender..." "Verifica os locais onde malware costuma se instalar (memória, registro, pastas de inicialização). Leva alguns minutos." @("Start-MpScan -ScanType QuickScan") -PS -Win }
+            "14" { Run "Scan completo do Defender..." "Varre TODOS os arquivos do disco em busca de malware. Pode demorar horas; deixe rodando até o fim. Rode a opção 12 antes." @("Start-MpScan -ScanType FullScan") -PS -Win }
+            "15" { Run "Scan offline do Defender..." "Reinicia o PC em ambiente isolado (fora do Windows) para remover pragas persistentes como rootkits. SALVE TUDO antes: o computador vai REINICIAR na hora." @("Start-MpWDOScan") -PS -Win }
+            "16" { Run "Ameaças detectadas e quarentena..." "Lista ameaças ativas/em quarentena e o histórico das últimas detecções do Defender, com data e ação tomada." @('Get-MpThreat | Select-Object ThreatName, SeverityID, DidThreatExecute, ActionSuccess | Format-Table -AutoSize', 'Get-MpThreatDetection | Select-Object -First 20 ThreatName, DomainUser, InitialDetectionTime, ActionSuccess | Format-Table -AutoSize') -PS -Win }
+            "17" { Run "MRT completo com remoção..." "Microsoft Malicious Software Removal Tool em verificação completa com remoção automática (/f:y). Pode demorar bastante; o relatório final mostra o que foi encontrado e removido." @("mrt.exe /f:y") -Win }
+            "18" { Run "MRT completo (só relata)..." "MRT em verificação completa sem remover nada (/f). Use para auditar antes de decidir pela remoção (opção 17)." @("mrt.exe /f") -Win }
             "0"  { return }
             default { Write-Host "  Opção inválida." -ForegroundColor $C.E; Start-Sleep 1 }
         }

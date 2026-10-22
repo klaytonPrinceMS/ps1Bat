@@ -87,3 +87,15 @@ def test_sem_scareware():
                   "Shutdown -r", "shutdown -r"]:
         assert termo not in texto, f"resquicio scareware: {termo}"
     assert "somente leitura" in texto
+
+
+def test_defender_scans_reais():
+    texto = (ROOT / "SOS-Manutencao.ps1").read_text(encoding="utf-8")
+    menu = texto.split("function Menu-SegInfo", 1)[1].split("function Menu-Registro", 1)[0]
+    for cmd in ["Get-MpComputerStatus", "Update-MpSignature",
+                "Start-MpScan -ScanType QuickScan",
+                "Start-MpScan -ScanType FullScan", "Start-MpWDOScan",
+                "Get-MpThreat", "mrt.exe /f:y", '"mrt.exe /f"']:
+        assert cmd in menu, f"scan real ausente: {cmd}"
+    idx = menu.index("Start-MpWDOScan")
+    assert "REINICI" in menu[max(0, idx - 400):idx], "scan offline sem aviso de reboot"
