@@ -27,7 +27,7 @@
     19. Menu de Contexto                 (clássico Win11, atalhos T! SOS)
 
   SEGURANÇA: Autentica com senha de administrador local ao iniciar.
-             Todas as acoes ficam gravadas em log.
+             Todas as ações ficam gravadas em log.
   WINGET:    Executa em contexto não-elevado (requisito do gerenciador).
   LOG:       %TEMP%\SOS_Manutencao.log
 
@@ -268,7 +268,7 @@ function Autenticar {
     Write-Host ""
     Write-Host "  Por segurança, confirme a senha de administrador deste" -ForegroundColor $C.I
     Write-Host "  computador antes de acessar as ferramentas do T! SOS Sistemas." -ForegroundColor $C.I
-    Write-Host "  Todas as acoes ficam registradas em log de auditoria." -ForegroundColor $C.H
+    Write-Host "  Todas as ações ficam registradas em log de auditoria." -ForegroundColor $C.H
     Write-Host ""
 
     $def = $env:USERNAME
@@ -407,7 +407,7 @@ function Menu-Reparo {
             "2" { Run "DISM: Reparando imagem..." "Repara a imagem do Windows baixando arquivos integros do Windows Update. Demora 10-20 min e requer internet. Use quando SFC ou CheckHealth indicarem problemas." @("DISM /Online /Cleanup-Image /RestoreHealth") -Win }
             "3" { Run "DISM: Limpando componentes obsoletos..." "Remove versões antigas de pacotes ja substituidos por atualizações. Libera espaço no disco do sistema sem afetar o funcionamento." @("DISM /Online /Cleanup-Image /StartComponentCleanup") -Win }
             "4" { Run "SFC: Verificando e reparando arquivos do sistema..." "Varre todos os arquivos protegidos do Windows e substitui versões corrompidas por copias do cache local. Não requer internet. Demora alguns minutos." @("sfc /scannow") -Win }
-            "5" { Run "DISM + SFC (reparacao completa)..." "Sequência recomendada: DISM repara a imagem usando Windows Update, depois SFC repara os arquivos do sistema com a imagem restaurada. Total: 20-40 min. Requer internet." @("DISM /Online /Cleanup-Image /RestoreHealth", "sfc /scannow") -Win }
+            "5" { Run "DISM + SFC (reparação completa)..." "Sequência recomendada: DISM repara a imagem usando Windows Update, depois SFC repara os arquivos do sistema com a imagem restaurada. Total: 20-40 min. Requer internet." @("DISM /Online /Cleanup-Image /RestoreHealth", "sfc /scannow") -Win }
             "0" { return }
             default { Write-Host "  Opção inválida." -ForegroundColor $C.E; Start-Sleep 1 }
         }
@@ -445,7 +445,7 @@ function Menu-Discos {
             "9"  {
                 $drv = Read-Host "  Letra da unidade a desfragmentar (ex: D)"
                 if ($drv -match '^[A-Za-z]$') {
-                    Run "Desfragmentando ${drv}:..." "Reorganiza os arquivos do disco para que fiquem em blocos contiguos, melhorando o tempo de acesso. Use APENAS em HDs mecanicos (HDD). NUNCA use em SSDs." @("Optimize-Volume -DriveLetter $drv -Defrag -Verbose") -PS -Win
+                    Run "Desfragmentando ${drv}:..." "Reorganiza os arquivos do disco para que fiquem em blocos contiguos, melhorando o tempo de acesso. Use APENAS em HDs mecânicos (HDD). NUNCA use em SSDs." @("Optimize-Volume -DriveLetter $drv -Defrag -Verbose") -PS -Win
                 } else { Write-Host "  Letra inválida." -ForegroundColor $C.E; P }
             }
             "10" { Run "Informações NTFS do disco C:..." "Exibe parâmetros técnicos do sistema de arquivos NTFS: número de série do volume, bytes por setor, bytes por cluster, total de clusters, MFT e configuração de journaling." @("fsutil fsinfo ntfsinfo C:") -Win }
@@ -481,20 +481,20 @@ function Menu-Drivers {
         Write-Host "  6. Remover driver (informar oemXX.inf)" -ForegroundColor $C.M
         Write-Host "  0. Voltar" -ForegroundColor $C.I
         switch (Read-Host "`n  Opção") {
-            "1" { Run "Listando drivers instalados..." "Exibe todos os pacotes de drivers instalados no repositorio do sistema, com nome do driver, versão, data e fornecedor. Útil para auditar ou localizar drivers a remover." @("pnputil /enum-drivers") -Win }
+            "1" { Run "Listando drivers instalados..." "Exibe todos os pacotes de drivers instalados no repositório do sistema, com nome do driver, versão, data e fornecedor. Útil para auditar ou localizar drivers a remover." @("pnputil /enum-drivers") -Win }
             "2" { Run "Dispositivos com problemas..." "Lista dispositivos cujo código de erro no WMI e diferente de zero. Código 0 = OK. Qualquer outro valor indica problema: driver corrompido, conflito de recursos ou hardware com defeito." @('Get-WmiObject -Class Win32_PnPEntity | Where-Object { $_.ConfigManagerErrorCode -ne 0 } | Select-Object Name, DeviceID, ConfigManagerErrorCode | Format-Table -AutoSize') -PS -Win }
             "3" { Run "Monitores e displays conectados..." "Lista todos os dispositivos de exibição reconhecidos pelo sistema via Plug and Play. Use quando um monitor não esta sendo detectado." @("pnputil /enum-devices /class Display") -Win }
             "4" { Run "Escaneando dispositivos PnP..." "Força o Windows a reescanear o barramento PnP em busca de novos dispositivos. Útil quando um dispositivo recém-conectado não aparece automaticamente." @("pnputil /scan-devices") -Win }
             "5" {
                 $inf = Read-Host "  Caminho completo do arquivo .inf"
                 if ($inf -and (Test-Path $inf)) {
-                    Run "Adicionando driver..." "Adiciona o pacote de driver ao repositorio do Windows e instala nos dispositivos compativeis. Use apenas drivers confiaveis e certificados." @("pnputil /add-driver `"$inf`" /install") -Win
+                    Run "Adicionando driver..." "Adiciona o pacote de driver ao repositório do Windows e instala nos dispositivos compativeis. Use apenas drivers confiaveis e certificados." @("pnputil /add-driver `"$inf`" /install") -Win
                 } else { Write-Host "  Arquivo não encontrado." -ForegroundColor $C.E; P }
             }
             "6" {
                 $oem = Read-Host "  Nome do driver (ex: oem15.inf)"
                 if ($oem) {
-                    Run "Removendo driver $oem..." "Remove o pacote de driver do repositorio. /uninstall remove dos dispositivos que o usam, /force remove mesmo se em uso. CUIDADO: confirme o driver correto antes de remover." @("pnputil /delete-driver $oem /uninstall /force") -Win
+                    Run "Removendo driver $oem..." "Remove o pacote de driver do repositório. /uninstall remove dos dispositivos que o usam, /force remove mesmo se em uso. CUIDADO: confirme o driver correto antes de remover." @("pnputil /delete-driver $oem /uninstall /force") -Win
                 } else { P }
             }
             "0" { return }
@@ -572,7 +572,7 @@ function Menu-Energia {
         Write-Host "  8. Listar planos de energia disponíveis" -ForegroundColor $C.M
         Write-Host "  0. Voltar" -ForegroundColor $C.I
         switch (Read-Host "`n  Opção") {
-            "1" { Run "Gerando relatório de bateria..." "Gera relatório HTML com histórico da bateria: capacidade original vs atual, ciclos de carga e estimativas de duracao. O relatório abre automaticamente no navegador." @("powercfg /batteryreport /output `"$env:TEMP\battery_report.html`"", "start `"$env:TEMP\battery_report.html`"") -Win }
+            "1" { Run "Gerando relatório de bateria..." "Gera relatório HTML com histórico da bateria: capacidade original vs atual, ciclos de carga e estimativas de duração. O relatório abre automaticamente no navegador." @("powercfg /batteryreport /output `"$env:TEMP\battery_report.html`"", "start `"$env:TEMP\battery_report.html`"") -Win }
             "2" { Run "Analisando eficiência energetica (60s)..." "Monitora o sistema por 60 segundos e gera relatório HTML com problemas de eficiência detectados: dispositivos impedindo o sleep, configurações incorretas e processos mal configurados." @("powercfg /energy /output `"$env:TEMP\energy_report.html`"", "start `"$env:TEMP\energy_report.html`"") -Win }
             "3" { Run "Gerando relatório de sleep/soneca..." "Analisa o histórico de consumo durante os periodos de hibernação e sleep. Identifica o que acorda o computador indevidamente ou impede a entrada em modo de economia." @("powercfg /sleepstudy /output `"$env:TEMP\sleep_report.html`"", "start `"$env:TEMP\sleep_report.html`"") -Win }
             "4" { Run "Verificando estados de energia disponíveis..." "Lista os estados de energia suportados pelo hardware: S0 (ligado), S3 (sleep), S4 (hiberna), S5 (desligado). Indica quais estao habilitados nesta máquina." @("powercfg /a") -Win }
@@ -985,7 +985,7 @@ function Menu-Stress {
     do {
         Cab "13. TESTES DE STRESS"
         Write-Host "  !!! Use HWMonitor ou Core Temp para monitorar temperatura !!!" -ForegroundColor $C.A
-        Write-Host "  !!! Se o PC desligar durante o teste: problema de refrigeracao !!!" -ForegroundColor $C.A
+        Write-Host "  !!! Se o PC desligar durante o teste: problema de refrigeração !!!" -ForegroundColor $C.A
         Write-Host ""
         Write-Host "  1. Stress CPU via PowerShell (mais eficiente, demora N segundos)" -ForegroundColor $C.M
         Write-Host "  2. Stress CPU via CMD (loop de calculo simples)" -ForegroundColor $C.M
@@ -1029,7 +1029,7 @@ function Teste-CPU-PS {
     Write-Host "  Núcleos lógicos: $nucleos" -ForegroundColor $C.I
     Write-Host ""
     $num = Read-Host "  Quantos processos de stress usar? (max recomendado: $nucleos)"
-    $dur = Read-Host "  Duracao do teste em segundos (ex: 60)"
+    $dur = Read-Host "  Duração do teste em segundos (ex: 60)"
     if ($num -notmatch '^\d+$' -or $dur -notmatch '^\d+$') { Write-Host "  Valores invalidos." -ForegroundColor $C.E; P; return }
     $num = [math]::Min([int]$num, $nucleos * 2)
     $dur = [int]$dur
@@ -1065,7 +1065,7 @@ function Teste-CPU-CMD {
     Write-Host "  Núcleos lógicos: $nucleos" -ForegroundColor $C.I
     Write-Host ""
     $num = Read-Host "  Quantos processos worker? (max: $nucleos)"
-    $dur = Read-Host "  Duracao em segundos (ex: 60)"
+    $dur = Read-Host "  Duração em segundos (ex: 60)"
     if ($num -notmatch '^\d+$' -or $dur -notmatch '^\d+$') { Write-Host "  Valores invalidos." -ForegroundColor $C.E; P; return }
     $num = [math]::Min([int]$num, [int]($nucleos) * 2)
     $dur = [int]$dur
@@ -1218,14 +1218,14 @@ function Menu-SegInfo {
         switch (Read-Host "`n  Opção") {
             "1"  { Verificar-Processos-Suspeitos }
             "2"  { Run "Tentativas de logon com falha (ID 4625)..." "Busca os últimos 50 eventos de falha de autenticação. Muitas falhas seguidas do mesmo IP ou conta indicam ataque de força bruta ou password spraying. Investigue se houver padrão." @('Get-WinEvent -FilterHashtable @{LogName="Security"; Id=4625} -MaxEvents 50 -EA SilentlyContinue | Select-Object @{N="Data";E={$_.TimeCreated}},@{N="Conta";E={$_.Properties[5].Value}},@{N="IP_Origem";E={$_.Properties[18].Value}} | Format-Table -AutoSize') -PS -Win }
-            "3"  { Run "Criação de contas de usuario (ID 4720)..." "Verifica os últimos 20 eventos de criação de conta local. Contas criadas sem autorizacao podem indicar comprometimento do sistema ou acesso não autorizado com privilégios elevados." @('Get-WinEvent -FilterHashtable @{LogName="Security"; Id=4720} -MaxEvents 20 -EA SilentlyContinue | Select-Object @{N="Data";E={$_.TimeCreated}},@{N="Nova_Conta";E={$_.Properties[0].Value}},@{N="Criado_Por";E={$_.Properties[4].Value}} | Format-Table -AutoSize') -PS -Win }
-            "4"  { Run "Alterações em grupos privilegiados (ID 4728)..." "Verifica adicoes a grupos de segurança privilegiados como Administradores. Alterações não autorizadas podem indicar escalacao de privilégios ou movimento lateral de um invasor." @('Get-WinEvent -FilterHashtable @{LogName="Security"; Id=4728} -MaxEvents 20 -EA SilentlyContinue | Select-Object @{N="Data";E={$_.TimeCreated}},@{N="Membro_Adicionado";E={$_.Properties[0].Value}},@{N="Grupo";E={$_.Properties[2].Value}},@{N="Por";E={$_.Properties[4].Value}} | Format-Table -AutoSize') -PS -Win }
+            "3"  { Run "Criação de contas de usuario (ID 4720)..." "Verifica os últimos 20 eventos de criação de conta local. Contas criadas sem autorização podem indicar comprometimento do sistema ou acesso não autorizado com privilégios elevados." @('Get-WinEvent -FilterHashtable @{LogName="Security"; Id=4720} -MaxEvents 20 -EA SilentlyContinue | Select-Object @{N="Data";E={$_.TimeCreated}},@{N="Nova_Conta";E={$_.Properties[0].Value}},@{N="Criado_Por";E={$_.Properties[4].Value}} | Format-Table -AutoSize') -PS -Win }
+            "4"  { Run "Alterações em grupos privilegiados (ID 4728)..." "Verifica adições a grupos de segurança privilegiados como Administradores. Alterações não autorizadas podem indicar escalação de privilégios ou movimento lateral de um invasor." @('Get-WinEvent -FilterHashtable @{LogName="Security"; Id=4728} -MaxEvents 20 -EA SilentlyContinue | Select-Object @{N="Data";E={$_.TimeCreated}},@{N="Membro_Adicionado";E={$_.Properties[0].Value}},@{N="Grupo";E={$_.Properties[2].Value}},@{N="Por";E={$_.Properties[4].Value}} | Format-Table -AutoSize') -PS -Win }
             "5"  { Run "Alterações de senha (ID 4723/4724)..." "Verifica eventos de alteração de senha (4723 = usuario muda propria senha, 4724 = admin redefine senha de outro). Alterações não autorizadas indicam comprometimento ou acesso indevido." @('Get-WinEvent -FilterHashtable @{LogName="Security"; Id=4723,4724} -MaxEvents 20 -EA SilentlyContinue | Select-Object @{N="Data";E={$_.TimeCreated}},@{N="Conta_Alvo";E={$_.Properties[0].Value}},@{N="Alterado_Por";E={$_.Properties[4].Value}},Id | Format-Table -AutoSize') -PS -Win }
-            "6"  { Run "Limpeza de logs de segurança (ID 1102)..." "Verifica se o log de auditoria foi limpo. Esta acao e ALTAMENTE SUSPEITA pois atacantes apagam logs para encobrir atividades maliciosas. Qualquer ocorrência não autorizada deve ser investigada imediatamente." @('Get-WinEvent -FilterHashtable @{LogName="Security"; Id=1102} -MaxEvents 10 -EA SilentlyContinue | Select-Object @{N="Data";E={$_.TimeCreated}},@{N="Limpo_Por";E={$_.Properties[0].Value}} | Format-Table -AutoSize') -PS -Win }
+            "6"  { Run "Limpeza de logs de segurança (ID 1102)..." "Verifica se o log de auditoria foi limpo. Esta ação e ALTAMENTE SUSPEITA pois atacantes apagam logs para encobrir atividades maliciosas. Qualquer ocorrência não autorizada deve ser investigada imediatamente." @('Get-WinEvent -FilterHashtable @{LogName="Security"; Id=1102} -MaxEvents 10 -EA SilentlyContinue | Select-Object @{N="Data";E={$_.TimeCreated}},@{N="Limpo_Por";E={$_.Properties[0].Value}} | Format-Table -AutoSize') -PS -Win }
             "7"  { Run "Logons RDP remotos (ID 4624, tipo 10)..." "Filtra logons bem-sucedidos do tipo 10 (RemoteInteractive/RDP). Permite rastrear quem acessou o computador remotamente, de qual IP e quando. Acesso não autorizado deve ser investigado." @('Get-WinEvent -FilterHashtable @{LogName="Security"; Id=4624} -MaxEvents 100 -EA SilentlyContinue | Where-Object { $_.Message -like "*Tipo de Logon:*10*" -or $_.Message -like "*Logon Type:*10*" } | Select-Object @{N="Data";E={$_.TimeCreated}},@{N="Conta";E={$_.Properties[5].Value}},@{N="IP_Origem";E={$_.Properties[18].Value}} | Format-Table -AutoSize') -PS -Win }
             "8"  { Run "Histórico de logons e logoffs..." "Exibe os últimos 50 logons (4624) e logoffs (4634) do sistema. Permite auditar quem usou o computador, quando entrou e saiu, e identificar sessões inesperadas." @('Get-WinEvent -FilterHashtable @{LogName="Security"; Id=4624,4634} -MaxEvents 50 -EA SilentlyContinue | Select-Object @{N="Data";E={$_.TimeCreated}},@{N="Evento";E={if($_.Id -eq 4624){"LOGON"}else{"LOGOFF"}}},@{N="Conta";E={$_.Properties[5].Value}} | Format-Table -AutoSize') -PS -Win }
             "9"  { Run "Conexões RDP ativas (porta 3389)..." "Verifica se ha conexões ativas na porta 3389 (Remote Desktop Protocol). Conexões inesperadas podem indicar acesso remoto não autorizado ao computador." @("netstat -ano | findstr :3389", "echo.", "netstat -n | findstr :3389") -Win }
-            "10" { Run "Análise completa de segurança..." "Relatório abrangente: logon, logoff, falhas de autenticação, criação de usuario, mudancas de grupo, alterações de senha e limpeza de logs. Últimos 30 eventos de cada ID." @('Get-WinEvent -FilterHashtable @{LogName="Security"; Id=4624,4634,4625,4720,4723,4724,4728,1102} -MaxEvents 30 -EA SilentlyContinue | Select-Object @{N="Data";E={$_.TimeCreated}},@{N="ID";E={$_.Id}},@{N="Resumo";E={$_.Message.Substring(0,[Math]::Min(70,$_.Message.Length))}} | Format-Table -AutoSize -Wrap') -PS -Win }
+            "10" { Run "Análise completa de segurança..." "Relatório abrangente: logon, logoff, falhas de autenticação, criação de usuario, mudanças de grupo, alterações de senha e limpeza de logs. Últimos 30 eventos de cada ID." @('Get-WinEvent -FilterHashtable @{LogName="Security"; Id=4624,4634,4625,4720,4723,4724,4728,1102} -MaxEvents 30 -EA SilentlyContinue | Select-Object @{N="Data";E={$_.TimeCreated}},@{N="ID";E={$_.Id}},@{N="Resumo";E={$_.Message.Substring(0,[Math]::Min(70,$_.Message.Length))}} | Format-Table -AutoSize -Wrap') -PS -Win }
             "11" { Run "Status do Windows Defender..." "Exibe se a proteção está ativa, a versão das assinaturas e há quantos dias estão desatualizadas. Assinaturas velhas = proteção furada: rode a opção 12 antes de qualquer scan." @("Get-MpComputerStatus | Select-Object AMRunning, AntivirusEnabled, AntivirusSignatureVersion, AntivirusSignatureAge | Format-List") -PS -Win }
             "12" { Run "Atualizando assinaturas do Defender..." "Baixa as definições de vírus mais recentes. Sempre rode antes de um scan para não verificar com base desatualizada." @("Update-MpSignature") -PS -Win }
             "13" { Run "Scan rápido do Defender..." "Verifica os locais onde malware costuma se instalar (memória, registro, pastas de inicialização). Leva alguns minutos." @("Start-MpScan -ScanType QuickScan") -PS -Win }
@@ -1260,7 +1260,7 @@ function Menu-Registro {
         Write-Host "   8. Desativar limpeza do pagefile no shutdown" -ForegroundColor $C.M
         Write-Host "  -- Pesquisa e Notificações -----------------------------------" -ForegroundColor $C.H
         Write-Host "   9. Desativar busca na internet pela barra de pesquisa" -ForegroundColor $C.M
-        Write-Host "  10. Desativar notificações de balao" -ForegroundColor $C.M
+        Write-Host "  10. Desativar notificações de balão" -ForegroundColor $C.M
         Write-Host "  11. Desativar Focus Assist (modo foco automático)" -ForegroundColor $C.M
         Write-Host "  12. Desativar instalação silenciosa de apps (Microsoft Store)" -ForegroundColor $C.M
         Write-Host "  -- Telemetria e Privacidade ----------------------------------" -ForegroundColor $C.H
@@ -1278,11 +1278,11 @@ function Menu-Registro {
             "5"  { Run "Reduzindo delay de startup..." "Define StartupDelayInMSec = 0, removendo o atraso artificial que o Windows adiciona antes de iniciar programas na inicialização. O desktop fica funcional mais rápido." @('reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer" /v StartupDelayInMSec /t REG_DWORD /d 0 /f') -Win }
             "6"  { Run "Desativando SuperFetch/SysMain..." "Desativa o servico SysMain (SuperFetch), que pré-carrega aplicativos na RAM antecipando o uso. Em SSDs rápidos esse servico gera picos de I/O sem beneficio pratico e pode ser desativado com segurança." @('REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management\PrefetchParameters" /v EnableSuperfetch /t REG_DWORD /d 0 /f', 'REG ADD "HKLM\SYSTEM\CurrentControlSet\Services\SysMain" /v Start /t REG_DWORD /d 4 /f') -Win }
             "7"  { Run "Desativando PowerThrottling..." "Desativa a limitação de energia do processador imposta pelo Windows (PowerThrottling). O CPU não terá mais sua frequência reduzida em processos de segundo plano. Aumenta performance em troca de mais consumo energetico." @('REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\Power\PowerThrottling" /v PowerThrottlingOff /t REG_DWORD /d 1 /f') -Win }
-            "8"  { Run "Desativando limpeza do pagefile no shutdown..." "Impede que o Windows apague o arquivo de paginacao (pagefile.sys) durante o desligamento. Essa limpeza, quando ativa, atrasa o desligamento. Desativar e seguro na maioria dos ambientes." @('REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v ClearPageFileAtShutdown /t REG_DWORD /d 0 /f') -Win }
+            "8"  { Run "Desativando limpeza do pagefile no shutdown..." "Impede que o Windows apague o arquivo de paginação (pagefile.sys) durante o desligamento. Essa limpeza, quando ativa, atrasa o desligamento. Desativar e seguro na maioria dos ambientes." @('REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v ClearPageFileAtShutdown /t REG_DWORD /d 0 /f') -Win }
             "9"  { Run "Desativando pesquisa na internet..." "Remove sugestões do Bing e pesquisa na web a partir da barra de pesquisa do Windows. A busca ficara restrita a arquivos e aplicativos locais, com resultado muito mais rápido." @('reg add "HKCU\Software\Policies\Microsoft\Windows\Explorer" /v DisableSearchBoxSuggestions /t REG_DWORD /d 1 /f', 'reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\SearchSettings" /v IsDynamicSearchBoxEnabled /t REG_DWORD /d 0 /f') -Win }
-            "10" { Run "Desativando notificações de balao..." "Remove as notificações em balao da bandeja do sistema. Reduz interrupcoes e libera levemente recursos de renderizacao." @('REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v EnableBallooTips /t REG_DWORD /d 0 /F') -Win }
+            "10" { Run "Desativando notificações de balão..." "Remove as notificações em balão da bandeja do sistema. Reduz interrupções e libera levemente recursos de renderização." @('REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v EnableBallooTips /t REG_DWORD /d 0 /F') -Win }
             "11" { Run "Desativando Focus Assist automático..." "Desativa o modo de foco que ativa automaticamente em certas condições (ex: durante apresentacoes), garantindo que notificações importantes não sejam bloqueadas sem que o usuario saiba." @('REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\FocusAssist" /v Disabled /t REG_DWORD /d 1 /f') -Win }
-            "12" { Run "Desativando instalação silenciosa de apps..." "Impede que o Windows instale apps automaticamente em segundo plano sem solicitacao do usuario. Libera espaço em disco e evita aplicativos não desejados da Microsoft Store." @('REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v SilentInstalledAppsEnabled /t REG_DWORD /d 0 /F') -Win }
+            "12" { Run "Desativando instalação silenciosa de apps..." "Impede que o Windows instale apps automaticamente em segundo plano sem solicitação do usuario. Libera espaço em disco e evita aplicativos não desejados da Microsoft Store." @('REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v SilentInstalledAppsEnabled /t REG_DWORD /d 0 /F') -Win }
             "13" { Run "Desativando Telemetria (DataCollection)..." "Define AllowTelemetry = 0, impedindo o Windows de coletar e enviar dados de diagnóstico e uso para a Microsoft. Reduz tráfego de rede em segundo plano e uso de CPU para coleta de dados." @('REG ADD "HKLM\SOFTWARE\Policies\Microsoft\Windows\DataCollection" /v AllowTelemetry /t REG_DWORD /d 0 /f') -Win }
             "14" {
                 L; Write-Host ""
@@ -1334,10 +1334,10 @@ function Menu-Update {
                 P
             }
             "2" { Run "Instalando módulo PSWindowsUpdate..." "Define a política RemoteSigned temporariamente e instala o módulo PSWindowsUpdate da PowerShell Gallery. Este módulo permite gerenciar atualizações Windows via linha de comando." @('Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Force; if (-not (Get-Module -ListAvailable -Name PSWindowsUpdate)) { Install-Module PSWindowsUpdate -Force -Confirm:$false }; Write-Host "Módulo PSWindowsUpdate pronto!"') -PS -Win }
-            "3" { Run "Verificando atualizações disponíveis..." "Conecta ao Windows Update e lista todas as atualizações pendentes com titulo, tamanho e classificacao. Não instala nada, apenas mostra o que esta disponível." @("Import-Module PSWindowsUpdate -EA Stop; Get-WindowsUpdate") -PS -Win }
+            "3" { Run "Verificando atualizações disponíveis..." "Conecta ao Windows Update e lista todas as atualizações pendentes com título, tamanho e classificação. Não instala nada, apenas mostra o que esta disponível." @("Import-Module PSWindowsUpdate -EA Stop; Get-WindowsUpdate") -PS -Win }
             "4" { Run "Instalando atualizações (auto-reboot)..." "Instala todas as atualizações pendentes e reinicia o computador automaticamente se necessário. Use quando puder reiniciar imediatamente após a manutenção." @("Import-Module PSWindowsUpdate -EA Stop; Install-WindowsUpdate -AcceptAll -AutoReboot") -PS -Win }
             "5" { Run "Instalando atualizações (sem reboot)..." "Instala todas as atualizações pendentes sem reiniciar automaticamente. Você devera reiniciar manualmente depois para completar a instalação de alguns pacotes." @("Import-Module PSWindowsUpdate -EA Stop; Install-WindowsUpdate -AcceptAll -IgnoreReboot") -PS -Win }
-            "6" { Run "Forcando atualização de GPO..." "Força a aplicação imediata de todas as Políticas de Grupo do computador e do usuario. Útil após mudancas no Active Directory ou configurações de domínio." @("gpupdate /force") -Win }
+            "6" { Run "Forcando atualização de GPO..." "Força a aplicação imediata de todas as Políticas de Grupo do computador e do usuario. Útil após mudanças no Active Directory ou configurações de domínio." @("gpupdate /force") -Win }
             "0" { return }
             default { Write-Host "  Opção inválida." -ForegroundColor $C.E; Start-Sleep 1 }
         }
@@ -1362,11 +1362,11 @@ function Menu-Winget {
         Write-Host "  0. Voltar" -ForegroundColor $C.I
         switch (Read-Host "`n  Opção") {
             "1" { Run "Verificando versão do Winget..." "Exibe a versão atual do Winget (Windows Package Manager) instalada no sistema. Se o comando não for reconhecido, instale o App Installer pela Microsoft Store (opção 6)." @("winget --version") -SemAdmin }
-            "2" { Run "Listando aplicativos atualizáveis..." "Consulta o repositorio do Winget e lista todos os aplicativos instalados que possuem uma versão mais recente disponível, com nome, versão atual e versão nova." @("winget upgrade") -SemAdmin }
-            "3" { Run "Atualizando todos os aplicativos..." "Atualiza automaticamente todos os aplicativos que possuem nova versão disponível no repositorio do Winget. O processo e interativo: pode pedir confirmacao para cada app." @("winget upgrade --all --accept-package-agreements --accept-source-agreements") -SemAdmin }
+            "2" { Run "Listando aplicativos atualizáveis..." "Consulta o repositório do Winget e lista todos os aplicativos instalados que possuem uma versão mais recente disponível, com nome, versão atual e versão nova." @("winget upgrade") -SemAdmin }
+            "3" { Run "Atualizando todos os aplicativos..." "Atualiza automaticamente todos os aplicativos que possuem nova versão disponível no repositório do Winget. O processo e interativo: pode pedir confirmação para cada app." @("winget upgrade --all --accept-package-agreements --accept-source-agreements") -SemAdmin }
             "4" {
                 $busca = Read-Host "  Nome do aplicativo para buscar"
-                if ($busca) { Run "Buscando '$busca' no Winget..." "Pesquisa o repositorio do Winget por aplicativos que correspondam ao nome informado. Exibe ID do pacote, nome, versão e fonte para posterior instalação." @("winget search `"$busca`"") -SemAdmin }
+                if ($busca) { Run "Buscando '$busca' no Winget..." "Pesquisa o repositório do Winget por aplicativos que correspondam ao nome informado. Exibe ID do pacote, nome, versão e fonte para posterior instalação." @("winget search `"$busca`"") -SemAdmin }
             }
             "5" { Run "Listando todos os apps instalados via Winget..." "Exibe a lista completa de aplicativos gerenciados pelo Winget com ID, versão instalada e fonte. Útil para auditoria de software." @("winget list") -SemAdmin }
             "6" {
