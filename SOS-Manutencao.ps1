@@ -1534,5 +1534,6 @@ function Menu-Principal {
 # PONTO DE ENTRADA
 # =============================================================================
 Garantir-Admin    # 1. Garante execução como Administrador (eleva via UAC se necessário)
-Autenticar        # 2. Autentica com senha local do administrador (segurança obrigatória)
-Menu-Principal    # 3. Exibe o menu principal
+Show-Splash       # 2. Tela inicial com a caveira (exibida uma única vez)
+Autenticar        # 3. Autentica com senha local do administrador (segurança obrigatória)
+Menu-Principal    # 4. Exibe o menu principal

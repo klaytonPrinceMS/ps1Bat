@@ -38,9 +38,11 @@ def test_identificadores_ascii():
 
 
 def test_splash_so_na_tela_inicial():
+    import re
     texto = (ROOT / "SOS-Manutencao.ps1").read_text(encoding="utf-8")
     assert "function Show-Splash" in texto
-    assert texto.count("Show-Splash") == 2, "splash deve existir 1x (def + chamada na entrada)"
+    chamadas = re.findall(r"(?m)^Show-Splash\s*(#|$)", texto)
+    assert len(chamadas) == 1, "Show-Splash deve ser CHAMADA 1x na entrada (def nao conta)"
     marca = "VHVHHHAHHHHMMV"
     assert marca in texto, "arte da caveira sumiu"
     cab = texto.split("function Cab", 1)[1].split("\nfunction ", 1)[0]
