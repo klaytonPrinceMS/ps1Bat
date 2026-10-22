@@ -132,3 +132,14 @@ def test_perfis_instalacao_winget():
         assert i in texto, f"ID ausente: {i}"
     assert texto.index("AnyDesk.AnyDesk") < texto.index("$AppsAvancado"), "AnyDesk e do perfil comum"
     assert texto.count("Instalar-Perfil") >= 4, "helper + 3 chamadas de perfil"
+
+
+def test_novas_opcoes_diagnostico():
+    texto = (ROOT / "SOS-Manutencao.ps1").read_text(encoding="utf-8")
+    assert '"7" { Run "Verificação do Driver Verifier' in texto, "opcao 7 verifier ausente (menu 3)"
+    discos = texto.split("function Menu-Discos", 1)[1].split("function Menu-Drivers", 1)[0]
+    assert '"12"' in discos and "chkdsk C:" in discos, "opcao 12 do CHKDSK leitura ausente"
+    diag = texto.split("function Menu-Diagnostico", 1)[1].split("function Menu-Video", 1)[0]
+    assert '"17"' in diag and "tasklist /fi" in diag, "opcao 17 tasklist ausente"
+    energia = texto.split("function Menu-Energia", 1)[1].split("function Menu-Memoria", 1)[0]
+    assert '"9"' in energia and "Win32_Battery" in energia, "opcao 9 bateria ausente"

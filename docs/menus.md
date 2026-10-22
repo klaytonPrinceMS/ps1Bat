@@ -28,7 +28,8 @@
 
 Lista drivers (`pnputil /enum-drivers`), dispositivos com erro
 (`ConfigManagerErrorCode != 0`), monitores, `/scan-devices`; adiciona
-(`.inf`) e remove (`oemXX.inf`) drivers.
+(`.inf`) e remove (`oemXX.inf`) drivers; consulta o Driver Verifier
+(`verifier /query`).
 
 ## 4. Impressão e Spooler
 
@@ -47,7 +48,7 @@ Temp do usuário e do sistema, limpeza completa (+ Prefetch),
 
 Relatórios de bateria, eficiência (60 s) e sleep; estados de energia;
 desativar hibernação; planos Alto Desempenho e Ultimate Performance;
-lista de planos.
+lista de planos; saúde da bateria via WMI (`Win32_Battery`, ideal para notebooks).
 
 ## 7. Memória RAM
 
@@ -102,7 +103,9 @@ em drives externos, MRT.
 Top 10 processos por CPU/RAM, serviços em execução/parados, últimos erros
 do sistema, `eventvwr`, `perfmon /rel`, `systeminfo`, inventário WMI
 (CPU/RAM/disco/placa-mãe), WinSAT (formal e por componente), programas
-(`wmic product`), hotfixes (`wmic qfe`), `bcdedit`, `perfmon /report`.
+(`wmic product`), hotfixes (`wmic qfe`), `bcdedit`, `perfmon /report`,
+serviços por processo (`tasklist /svc`, ex: descobrir o que roda
+dentro de cada `svchost.exe`).
 
 ## 14. Placa de Vídeo e Monitor (dxdiag, DCOM, GPU)
 

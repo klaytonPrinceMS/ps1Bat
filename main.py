@@ -119,7 +119,7 @@ def report_danger():
         texto = (ROOT / arq).read_text(encoding="utf-8", errors="replace")
         linhas = [i + 1 for i, l in enumerate(texto.splitlines()) if re.search(padrao, l)]
         print(f"{desc}: {arq}:{linhas if linhas else 'ausente'}")
-    print("Perigo real de 'barra sumida': menu 15 opcao 5 (mata explorer em loop).")
+    print("Perigo real de 'barra sumida': menu 15 opcao 4 (mata explorer em loop).")
     print("Recuperacao: Ctrl+Shift+Esc > Arquivo > Executar nova tarefa > explorer.exe")
 
 

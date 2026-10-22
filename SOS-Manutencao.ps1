@@ -376,7 +376,7 @@ namespace SOS {
         $estilo = [SOS.JanelaFixa]::GetWindowLong($hwnd, -16)
         $semBotoes = $estilo -band (-bnot (0x00010000 -bor 0x00020000))
         [void][SOS.JanelaFixa]::SetWindowLong($hwnd, -16, $semBotoes)
-        [void][SOS.JanelaFixa]::SetWindowPos($hwnd, [IntPtr]::Zero, 0, 0, 0, 0, 0x27)
+        [void][SOS.JanelaFixa]::SetWindowPos($hwnd, [IntPtr]::Zero, 0, 0, 0, 0, 0x25)
     } catch { }
 }
 
@@ -485,6 +485,7 @@ function Menu-Drivers {
         Write-Host "  4. Escanear dispositivos PnP (força detecção)" -ForegroundColor $C.M
         Write-Host "  5. Adicionar e instalar driver (informar .inf)" -ForegroundColor $C.M
         Write-Host "  6. Remover driver (informar oemXX.inf)" -ForegroundColor $C.M
+        Write-Host "  7. Verificação do Driver Verifier (verifier /query)" -ForegroundColor $C.M
         Write-Host "  0. Voltar" -ForegroundColor $C.I
         switch (Read-Host "`n  Opção") {
             "1" { Run "Listando drivers instalados..." "Exibe todos os pacotes de drivers instalados no repositório do sistema, com nome do driver, versão, data e fornecedor. Útil para auditar ou localizar drivers a remover." @("pnputil /enum-drivers") -Win }
@@ -503,6 +504,7 @@ function Menu-Drivers {
                     Run "Removendo driver $oem..." "Remove o pacote de driver do repositório. /uninstall remove dos dispositivos que o usam, /force remove mesmo se em uso. CUIDADO: confirme o driver correto antes de remover." @("pnputil /delete-driver $oem /uninstall /force") -Win
                 } else { P }
             }
+            "7" { Run "Verificação do Driver Verifier..." "Consulta o Driver Verifier (verifier /query), que mostra se há drivers sob verificação de estresse do Windows. Útil após telas azuis para confirmar se o Verifier está ativo e sobre quais drivers." @("verifier /query") -Win }
             "0" { return }
             default { Write-Host "  Opção inválida." -ForegroundColor $C.E; Start-Sleep 1 }
         }
@@ -576,6 +578,7 @@ function Menu-Energia {
         Write-Host "  6. Ativar plano Alto Desempenho" -ForegroundColor $C.M
         Write-Host "  7. Ativar plano Ultimate Performance (mais agressivo)" -ForegroundColor $C.M
         Write-Host "  8. Listar planos de energia disponíveis" -ForegroundColor $C.M
+        Write-Host "  9. Saúde da bateria (Win32_Battery, notebooks)" -ForegroundColor $C.M
         Write-Host "  0. Voltar" -ForegroundColor $C.I
         switch (Read-Host "`n  Opção") {
             "1" { Run "Gerando relatório de bateria..." "Gera relatório HTML com histórico da bateria: capacidade original vs atual, ciclos de carga e estimativas de duração. O relatório abre automaticamente no navegador." @("powercfg /batteryreport /output `"$env:TEMP\battery_report.html`"", "start `"$env:TEMP\battery_report.html`"") -Win }
@@ -586,6 +589,7 @@ function Menu-Energia {
             "6" { Run "Ativando plano Alto Desempenho..." "Define o plano de energia de alto desempenho, mantendo o processador em velocidade máxima e desativando reducoes de clock automaticas. Melhora a responsividade geral." @("powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c") -Win }
             "7" { Run "Ativando Ultimate Performance..." "Cria e ativa o plano Ultimate Performance (oculto por padrão no Windows 10). Elimina microtolerancias de energia do processador. Indicado para estacos de trabalho com demanda máxima." @("powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61", "powercfg /setactive e9a42b02-d5df-448d-aa00-03f14749eb61") -Win }
             "8" { Run "Listando planos de energia..." "Exibe todos os planos de energia instalados com seus GUIDs e indica qual esta ativo no momento." @("powercfg /list") -Win }
+            "9" { Run "Saúde da bateria..." "Consulta o WMI (Win32_Battery) e mostra carga restante, status e tempo estimado. Em desktops sem bateria a lista vem vazia, o que é normal." @('Get-CimInstance Win32_Battery -ErrorAction SilentlyContinue | Select-Object Name, EstimatedChargeRemaining, BatteryStatus, EstimatedRunTime | Format-List *') -PS -Win }
             "0" { return }
             default { Write-Host "  Opção inválida." -ForegroundColor $C.E; Start-Sleep 1 }
         }
@@ -824,6 +828,7 @@ function Menu-Diagnostico {
         Write-Host "  14. Atualizações instaladas (wmic qfe)" -ForegroundColor $C.M
         Write-Host "  15. Informações de boot (bcdedit)" -ForegroundColor $C.M
         Write-Host "  16. Relatório de desempenho (perfmon)" -ForegroundColor $C.M
+        Write-Host " 17. Serviços por processo (tasklist /svc)" -ForegroundColor $C.M
         Write-Host "   0. Voltar" -ForegroundColor $C.I
         switch (Read-Host "`n  Opção") {
             "1"  {
@@ -879,6 +884,11 @@ function Menu-Diagnostico {
             "14" { Run "Atualizações instaladas (hotfixes, KBs)..." "Lista todos os KBs, patches e service packs instalados com data de instalação. Útil para verificar se um patch especifico ja foi aplicado." @("wmic qfe list") -Win }
             "15" { Run "Informações de boot (BCD)..." "Exibe a configuração completa do Boot Configuration Data: entradas de boot, timeout, drivers de debug. Útil para diagnosticar problemas de inicialização ou dual boot." @("bcdedit /enum all") -Win }
             "16" { Start-Process perfmon.exe -ArgumentList "/report"; Write-Host "  Gerando relatório de desempenho (pode demorar ~60s)..." -ForegroundColor $C.A; P }
+            "17" {
+                $img = Read-Host "  Nome do executável (Enter = chrome.exe)"
+                if ([string]::IsNullOrWhiteSpace($img)) { $img = "chrome.exe" }
+                Run "Serviços em '$img'..." "Lista os serviços hospedados no processo informado. Útil para descobrir qual serviço está por trás de um svchost.exe com alto consumo, por exemplo." @("tasklist /fi `"imagename eq $img`" /svc") -Win
+            }
             "0"  { return }
             default { Write-Host "  Opção inválida." -ForegroundColor $C.E; Start-Sleep 1 }
         }
@@ -1341,7 +1351,7 @@ function Menu-Update {
                 Get-ExecutionPolicy -List | Format-Table -AutoSize
                 P
             }
-            "2" { Run "Instalando módulo PSWindowsUpdate..." "Define a política RemoteSigned temporariamente e instala o módulo PSWindowsUpdate da PowerShell Gallery. Este módulo permite gerenciar atualizações Windows via linha de comando." @('Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Force; if (-not (Get-Module -ListAvailable -Name PSWindowsUpdate)) { Install-Module PSWindowsUpdate -Force -Confirm:$false }; Write-Host "Módulo PSWindowsUpdate pronto!"') -PS -Win }
+            "2" { Run "Instalando módulo PSWindowsUpdate..." "Define a política RemoteSigned temporariamente e instala o módulo PSWindowsUpdate da PowerShell Gallery. Este módulo permite gerenciar atualizações Windows via linha de comando. Após concluir, volte a política anterior com o Menu 9, opção 7 (Gerenciar Execution Policy)." @('Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Force; if (-not (Get-Module -ListAvailable -Name PSWindowsUpdate)) { Install-Module PSWindowsUpdate -Force -Confirm:$false }; Write-Host "Módulo PSWindowsUpdate pronto!"') -PS -Win }
             "3" { Run "Verificando atualizações disponíveis..." "Conecta ao Windows Update e lista todas as atualizações pendentes com título, tamanho e classificação. Não instala nada, apenas mostra o que esta disponível." @("Import-Module PSWindowsUpdate -EA Stop; Get-WindowsUpdate") -PS -Win }
             "4" { Run "Instalando atualizações (auto-reboot)..." "Instala todas as atualizações pendentes e reinicia o computador automaticamente se necessário. Use quando puder reiniciar imediatamente após a manutenção." @("Import-Module PSWindowsUpdate -EA Stop; Install-WindowsUpdate -AcceptAll -AutoReboot") -PS -Win }
             "5" { Run "Instalando atualizações (sem reboot)..." "Instala todas as atualizações pendentes sem reiniciar automaticamente. Você devera reiniciar manualmente depois para completar a instalação de alguns pacotes." @("Import-Module PSWindowsUpdate -EA Stop; Install-WindowsUpdate -AcceptAll -IgnoreReboot") -PS -Win }
