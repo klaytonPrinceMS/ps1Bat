@@ -70,3 +70,20 @@ def test_registro_lote_cobre_todos_os_ajustes():
     for c in chaves:
         assert c in aplica, f"{c} fora do aplicar-todos"
         assert c in restaura, f"{c} fora do restaurar-todos"
+
+
+def test_chkdsk_leitura_sem_correcao():
+    texto = (ROOT / "SOS-Manutencao.ps1").read_text(encoding="utf-8")
+    menu = texto.split("function Menu-Discos", 1)[1].split("function Menu-Drivers", 1)[0]
+    idx = menu.index('"12"')
+    trecho = menu[idx:idx + 500]
+    assert "chkdsk" in trecho.lower(), "opcao 12 sem chkdsk"
+    assert "/f" not in trecho and "/r" not in trecho, "chkdsk leitura nao pode corrigir"
+
+
+def test_sem_scareware():
+    texto = (ROOT / "SOS-Manutencao.ps1").read_text(encoding="utf-8")
+    for termo in ["0-Day", "0-day", "Virus detectado", "removendo seu Virus",
+                  "Shutdown -r", "shutdown -r"]:
+        assert termo not in texto, f"resquicio scareware: {termo}"
+    assert "somente leitura" in texto

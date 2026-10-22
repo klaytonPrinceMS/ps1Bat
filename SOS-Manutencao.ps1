@@ -359,7 +359,7 @@ function Menu-Reparo {
         Write-Host ""
         Write-Host "  1. DISM - Verificar status da imagem (rápido, sem reparar)" -ForegroundColor $C.M
         Write-Host "  2. DISM - Reparar imagem do Windows (usa Windows Update)" -ForegroundColor $C.M
-        Write-Host "  3. DISM - Limpar componentes substituidos (libera espaco)" -ForegroundColor $C.M
+        Write-Host "  3. DISM - Limpar componentes substituidos (libera espaço)" -ForegroundColor $C.M
         Write-Host "  4. SFC  - Verificar e reparar arquivos do sistema" -ForegroundColor $C.M
         Write-Host "  5. SFC + DISM sequencial (reparo completo - recomendado)" -ForegroundColor $C.A
         Write-Host "  5. Teste" -ForegroundColor $C.M
@@ -367,7 +367,7 @@ function Menu-Reparo {
         switch (Read-Host "`n  Opção") {
             "1" { Run "DISM: Verificando status da imagem..." "Verifica se a imagem do Windows tem problemas, SEM fazer reparos. Resultado: Healthy = OK; Repairable = execute a opção 2; Non repairable = reinstalacao necessaria." @("DISM /Online /Cleanup-Image /CheckHealth") -Win }
             "2" { Run "DISM: Reparando imagem..." "Repara a imagem do Windows baixando arquivos integros do Windows Update. Demora 10-20 min e requer internet. Use quando SFC ou CheckHealth indicarem problemas." @("DISM /Online /Cleanup-Image /RestoreHealth") -Win }
-            "3" { Run "DISM: Limpando componentes obsoletos..." "Remove versões antigas de pacotes ja substituidos por atualizações. Libera espaco no disco do sistema sem afetar o funcionamento." @("DISM /Online /Cleanup-Image /StartComponentCleanup") -Win }
+            "3" { Run "DISM: Limpando componentes obsoletos..." "Remove versões antigas de pacotes ja substituidos por atualizações. Libera espaço no disco do sistema sem afetar o funcionamento." @("DISM /Online /Cleanup-Image /StartComponentCleanup") -Win }
             "4" { Run "SFC: Verificando e reparando arquivos do sistema..." "Varre todos os arquivos protegidos do Windows e substitui versões corrompidas por copias do cache local. Não requer internet. Demora alguns minutos." @("sfc /scannow") -Win }
             "5" { Run "DISM + SFC (reparacao completa)..." "Sequência recomendada: DISM repara a imagem usando Windows Update, depois SFC repara os arquivos do sistema com a imagem restaurada. Total: 20-40 min. Requer internet." @("DISM /Online /Cleanup-Image /RestoreHealth", "sfc /scannow") -Win }
             "0" { return }
@@ -382,9 +382,9 @@ function Menu-Reparo {
 function Menu-Discos {
     do {
         Cab "2. DISCOS E ARMAZENAMENTO"
-        Write-Host "  1. Status SMART - Previsao de falha (PredictFailure)" -ForegroundColor $C.M
+        Write-Host "  1. Status SMART - Previsão de falha (PredictFailure)" -ForegroundColor $C.M
         Write-Host "  2. Contadores de confiabilidade do disco" -ForegroundColor $C.M
-        Write-Host "  3. Informações dos discos fisicos (saúde, status)" -ForegroundColor $C.M
+        Write-Host "  3. Informações dos discos físicos (saúde, status)" -ForegroundColor $C.M
         Write-Host "  4. Status WMIC dos discos (modelo, serial, tamanho)" -ForegroundColor $C.M
         Write-Host "  5. CHKDSK - Verificar e corrigir erros no disco C:" -ForegroundColor $C.M
         Write-Host "  6. Otimizar todos os discos (detecta SSD/HDD auto)" -ForegroundColor $C.M
@@ -392,14 +392,15 @@ function Menu-Discos {
         Write-Host "  8. Ativar TRIM (SSDs)" -ForegroundColor $C.M
         Write-Host "  9. Desfragmentar disco especifico (apenas HDD)" -ForegroundColor $C.M
         Write-Host " 10. Informações do sistema de arquivos NTFS" -ForegroundColor $C.M
-        Write-Host " 11. Espaco livre em todos os discos lógicos" -ForegroundColor $C.M
+        Write-Host " 11. Espaço livre em todos os discos lógicos" -ForegroundColor $C.M
+        Write-Host " 12. CHKDSK rápido - somente leitura (sem reiniciar)" -ForegroundColor $C.M
         Write-Host "  0. Voltar" -ForegroundColor $C.I
         switch (Read-Host "`n  Opção") {
-            "1"  { Run "Verificando SMART (previsao de falha)..." "Lê os dados S.M.A.R.T. dos discos. Se PredictFailure = True, o disco esta prestes a falhar: faca backup imediatamente e substitua o hardware. Valor esperado: PredictFailure = False." @("Get-CimInstance -ClassName MSStorageDriver_FailurePredictStatus -Namespace root\wmi | Select-Object InstanceName, PredictFailure, Reason | Format-Table -AutoSize") -PS -Win }
-            "2"  { Run "Contadores de confiabilidade dos discos..." "Exibe contadores de erros de leitura, escrita e desgaste de cada disco. Valores ideais são proximos de zero. WearLevel alto em SSDs indica desgaste acumulado." @("Get-PhysicalDisk | Get-StorageReliabilityCounter | Format-List *") -PS -Win }
-            "3"  { Run "Informações dos discos fisicos..." "Lista cada disco com seu status de saúde e status operacional. HealthStatus = Healthy e o esperado. Warning ou Unhealthy requerem atenção imediata." @("Get-PhysicalDisk | Select-Object DeviceId, FriendlyName, HealthStatus, OperationalStatus | Format-Table -AutoSize") -PS -Win }
-            "4"  { Run "Status WMIC dos discos (modelo, serial)..." "Consulta o WMI para obter status, modelo, número de serie e tamanho de cada disco fisico instalado. Útil para inventario de hardware." @("wmic diskdrive get status,model,serialnumber,size") -Win }
-            "5"  { Run "CHKDSK C: (agendado para próximo boot)..." "Agenda verificação do disco C: para a próxima reinicialização. /f corrige erros, /r localiza setores defeituosos, /x forcca desmontagem. O PC reiniciara uma vez para executar o teste." @("chkdsk C: /f /r /x") -Win }
+            "1"  { Run "Verificando SMART (previsão de falha)..." "Lê os dados S.M.A.R.T. dos discos. Se PredictFailure = True, o disco esta prestes a falhar: faça backup imediatamente e substitua o hardware. Valor esperado: PredictFailure = False." @("Get-CimInstance -ClassName MSStorageDriver_FailurePredictStatus -Namespace root\wmi | Select-Object InstanceName, PredictFailure, Reason | Format-Table -AutoSize") -PS -Win }
+            "2"  { Run "Contadores de confiabilidade dos discos..." "Exibe contadores de erros de leitura, escrita e desgaste de cada disco. Valores ideais são próximos de zero. WearLevel alto em SSDs indica desgaste acumulado." @("Get-PhysicalDisk | Get-StorageReliabilityCounter | Format-List *") -PS -Win }
+            "3"  { Run "Informações dos discos físicos..." "Lista cada disco com seu status de saúde e status operacional. HealthStatus = Healthy e o esperado. Warning ou Unhealthy requerem atenção imediata." @("Get-PhysicalDisk | Select-Object DeviceId, FriendlyName, HealthStatus, OperationalStatus | Format-Table -AutoSize") -PS -Win }
+            "4"  { Run "Status WMIC dos discos (modelo, serial)..." "Consulta o WMI para obter status, modelo, número de série e tamanho de cada disco físico instalado. Útil para inventário de hardware." @("wmic diskdrive get status,model,serialnumber,size") -Win }
+            "5"  { Run "CHKDSK C: (agendado para próximo boot)..." "Agenda verificação do disco C: para a próxima reinicialização. /f corrige erros, /r localiza setores defeituosos, /x força desmontagem. O PC reiniciará uma vez para executar o teste." @("chkdsk C: /f /r /x") -Win }
             "6"  { Run "Otimizando todos os discos automaticamente..." "Detecta automaticamente se cada disco e SSD (executa ReTrim) ou HDD (executa Defrag). SSDs não devem ser desfragmentados, pois isso reduz a vida útil." @('Get-Volume | Where-Object { $_.DriveType -eq "Fixed" -and $_.DriveLetter } | ForEach-Object { $l = $_.DriveLetter; Write-Host "Otimizando ${l}:..." -ForegroundColor Cyan; try { $disk = Get-PhysicalDisk | Where-Object DeviceId -eq ((Get-Partition -DriveLetter $l -EA SilentlyContinue | Get-Disk -EA SilentlyContinue).Number); if ($disk.MediaType -eq "SSD") { Optimize-Volume -DriveLetter $l -ReTrim -Verbose } else { Optimize-Volume -DriveLetter $l -Defrag -Verbose } } catch { Write-Host "Erro em ${l}: $_" -ForegroundColor Red } }') -PS -Win }
             "7"  { Run "Verificando status do TRIM..." "Consulta a configuração de TRIM. DisableDeleteNotify = 0 significa TRIM ATIVO (correto para SSDs). DisableDeleteNotify = 1 significa TRIM DESATIVADO, use a opção 8 para ativar." @("fsutil behavior query DisableDeleteNotify") -Win }
             "8"  { Run "Ativando TRIM nos SSDs..." "Ativa o TRIM, que permite ao Windows informar ao SSD quais blocos foram apagados, mantendo a performance ao longo do tempo. Essencial para a saúde de todo SSD." @("fsutil behavior set DisableDeleteNotify 0") -Win }
@@ -409,9 +410,9 @@ function Menu-Discos {
                     Run "Desfragmentando ${drv}:..." "Reorganiza os arquivos do disco para que fiquem em blocos contiguos, melhorando o tempo de acesso. Use APENAS em HDs mecanicos (HDD). NUNCA use em SSDs." @("Optimize-Volume -DriveLetter $drv -Defrag -Verbose") -PS -Win
                 } else { Write-Host "  Letra inválida." -ForegroundColor $C.E; P }
             }
-            "10" { Run "Informações NTFS do disco C:..." "Exibe parametros tecnicos do sistema de arquivos NTFS: número de serie do volume, bytes por setor, bytes por cluster, total de clusters, MFT e configuração de journaling." @("fsutil fsinfo ntfsinfo C:") -Win }
+            "10" { Run "Informações NTFS do disco C:..." "Exibe parâmetros técnicos do sistema de arquivos NTFS: número de série do volume, bytes por setor, bytes por cluster, total de clusters, MFT e configuração de journaling." @("fsutil fsinfo ntfsinfo C:") -Win }
             "11" {
-                Write-Host "`n  Espaco em disco:" -ForegroundColor $C.A
+                Write-Host "`n  Espaço em disco:" -ForegroundColor $C.A
                 Get-PSDrive -PSProvider FileSystem | Where-Object { $_.Used } |
                     Select-Object Name,
                         @{N="Total(GB)";  E={[math]::Round(($_.Used+$_.Free)/1GB,1)}},
@@ -421,6 +422,7 @@ function Menu-Discos {
                     Format-Table -AutoSize
                 P
             }
+            "12" { Run "CHKDSK C: (somente leitura)..." "Executa o CHKDSK em modo leitura: verifica e RELATA erros sem corrigir nada e sem precisar reiniciar. Rápido e seguro para um primeiro diagnóstico; se apontar erros, use a opção 5 (correção, exige reboot)." @("chkdsk C:") -Win }
             "0"  { return }
             default { Write-Host "  Opção inválida." -ForegroundColor $C.E; Start-Sleep 1 }
         }
@@ -436,7 +438,7 @@ function Menu-Drivers {
         Write-Host "  1. Listar todos os drivers instalados" -ForegroundColor $C.M
         Write-Host "  2. Listar dispositivos com problemas (erro != 0)" -ForegroundColor $C.M
         Write-Host "  3. Listar monitores/displays conectados" -ForegroundColor $C.M
-        Write-Host "  4. Escanear dispositivos PnP (forcca detecção)" -ForegroundColor $C.M
+        Write-Host "  4. Escanear dispositivos PnP (força detecção)" -ForegroundColor $C.M
         Write-Host "  5. Adicionar e instalar driver (informar .inf)" -ForegroundColor $C.M
         Write-Host "  6. Remover driver (informar oemXX.inf)" -ForegroundColor $C.M
         Write-Host "  0. Voltar" -ForegroundColor $C.I
@@ -526,7 +528,7 @@ function Menu-Energia {
         Write-Host "  2. Relatório de eficiência energetica (60s)" -ForegroundColor $C.M
         Write-Host "  3. Relatório de consumo em sleep/soneca" -ForegroundColor $C.M
         Write-Host "  4. Listar estados de energia suportados" -ForegroundColor $C.M
-        Write-Host "  5. Desativar hibernação (libera espaco no disco)" -ForegroundColor $C.M
+        Write-Host "  5. Desativar hibernação (libera espaço no disco)" -ForegroundColor $C.M
         Write-Host "  6. Ativar plano Alto Desempenho" -ForegroundColor $C.M
         Write-Host "  7. Ativar plano Ultimate Performance (mais agressivo)" -ForegroundColor $C.M
         Write-Host "  8. Listar planos de energia disponíveis" -ForegroundColor $C.M
@@ -536,7 +538,7 @@ function Menu-Energia {
             "2" { Run "Analisando eficiência energetica (60s)..." "Monitora o sistema por 60 segundos e gera relatório HTML com problemas de eficiência detectados: dispositivos impedindo o sleep, configurações incorretas e processos mal configurados." @("powercfg /energy /output `"$env:TEMP\energy_report.html`"", "start `"$env:TEMP\energy_report.html`"") -Win }
             "3" { Run "Gerando relatório de sleep/soneca..." "Analisa o histórico de consumo durante os periodos de hibernação e sleep. Identifica o que acorda o computador indevidamente ou impede a entrada em modo de economia." @("powercfg /sleepstudy /output `"$env:TEMP\sleep_report.html`"", "start `"$env:TEMP\sleep_report.html`"") -Win }
             "4" { Run "Verificando estados de energia disponíveis..." "Lista os estados de energia suportados pelo hardware: S0 (ligado), S3 (sleep), S4 (hiberna), S5 (desligado). Indica quais estao habilitados nesta máquina." @("powercfg /a") -Win }
-            "5" { Run "Desativando hibernação..." "Remove o arquivo hiberfil.sys do disco, liberando espaco equivalente ao total de RAM. Recomendado em desktops e em SSDs com espaco crítico. Sem hibernação, o PC desliga normalmente." @("powercfg -h off") -Win }
+            "5" { Run "Desativando hibernação..." "Remove o arquivo hiberfil.sys do disco, liberando espaço equivalente ao total de RAM. Recomendado em desktops e em SSDs com espaço crítico. Sem hibernação, o PC desliga normalmente." @("powercfg -h off") -Win }
             "6" { Run "Ativando plano Alto Desempenho..." "Define o plano de energia de alto desempenho, mantendo o processador em velocidade máxima e desativando reducoes de clock automaticas. Melhora a responsividade geral." @("powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c") -Win }
             "7" { Run "Ativando Ultimate Performance..." "Cria e ativa o plano Ultimate Performance (oculto por padrão no Windows 10). Elimina microtolerancias de energia do processador. Indicado para estacos de trabalho com demanda máxima." @("powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61", "powercfg /setactive e9a42b02-d5df-448d-aa00-03f14749eb61") -Win }
             "8" { Run "Listando planos de energia..." "Exibe todos os planos de energia instalados com seus GUIDs e indica qual esta ativo no momento." @("powercfg /list") -Win }
@@ -611,7 +613,7 @@ function Menu-Rede {
                 $dest = Read-Host "  Destino (IP ou domínio, ex: www.google.com)"
                 if ($dest) { Run "Traceroute para $dest..." "Rastreia a rota completa dos pacotes até o destino, exibindo cada salto (roteador) e a latência em cada um. Útil para identificar em qual ponto a conexão degrada ou cai." @("tracert $dest") -Win }
             }
-            "8"  { Run "Endereços MAC das interfaces..." "Lista os endereços fisicos (MAC) de todos os adaptadores de rede. Útil para controle de acesso a rede (ACL por MAC) ou identificar a placa usada." @("getmac /v") -Win }
+            "8"  { Run "Endereços MAC das interfaces..." "Lista os endereços físicos (MAC) de todos os adaptadores de rede. Útil para controle de acesso a rede (ACL por MAC) ou identificar a placa usada." @("getmac /v") -Win }
             "9"  { Configurar-IP-Estatico }
             "10" { Start-Process ncpa.cpl; Write-Host "  Abrindo gerenciador de conexões de rede..." -ForegroundColor $C.A; P }
             "0"  { return }
@@ -670,7 +672,7 @@ function Menu-Limpeza {
             "1" { Run "Limpando Temp do usuario..." "Remove todos os arquivos temporarios gerados pelo usuario atual em %TEMP%. Arquivos em uso são ignorados. Não afeta documentos pessoais. Pode liberar centenas de MB." @('Get-ChildItem -Path $env:TEMP -Recurse -ErrorAction SilentlyContinue | Remove-Item -Force -Recurse -ErrorAction SilentlyContinue; Write-Host "Limpeza concluida!"') -PS -Win }
             "2" { Run "Limpando Temp do sistema..." "Remove arquivos temporarios de C:\Windows\Temp, usados pelo sistema e por servicos. Requer privilégios de administrador. Arquivos em uso são ignorados." @('Get-ChildItem -Path "C:\Windows\Temp" -Recurse -ErrorAction SilentlyContinue | Remove-Item -Force -Recurse -ErrorAction SilentlyContinue; Write-Host "Limpeza do sistema concluida!"') -PS -Win }
             "3" { Run "Limpeza completa de temporarios..." "Remove Temp do usuario, Temp do sistema e Prefetch. O Prefetch será regenerado automaticamente pelo Windows nas proximas execucoes. Pode liberar varios GB." @('Remove-Item "$env:TEMP\*" -Recurse -Force -EA SilentlyContinue; Remove-Item "C:\Windows\Temp\*" -Recurse -Force -EA SilentlyContinue; Remove-Item "C:\Windows\Prefetch\*" -Recurse -Force -EA SilentlyContinue; Write-Host "Limpeza completa concluida!"') -PS -Win }
-            "4" { Run "Abrindo Disk Cleanup avancado..." "Abre a ferramenta de Limpeza de Disco do Windows em modo avancado. Permite selecionar categorias (arquivos WU, miniaturas, lixeira, arquivos de instalação) e libera espaco de forma segura." @("cleanmgr /sageset:1", "cleanmgr /sagerun:1") -Win }
+            "4" { Run "Abrindo Disk Cleanup avancado..." "Abre a ferramenta de Limpeza de Disco do Windows em modo avancado. Permite selecionar categorias (arquivos WU, miniaturas, lixeira, arquivos de instalação) e libera espaço de forma segura." @("cleanmgr /sageset:1", "cleanmgr /sagerun:1") -Win }
             "5" { Run "Limpando cache do Windows Update..." "Para o servico Windows Update, remove os downloads em cache de atualizações (pasta SoftwareDistribution\Download) e reinicia o servico. Resolve erros de atualização travada ou falha de instalação." @('net stop wuauserv; Remove-Item "C:\Windows\SoftwareDistribution\Download\*" -Recurse -Force -EA SilentlyContinue; net start wuauserv; Write-Host "Cache do Windows Update limpo com sucesso!"') -PS -Win }
             "6" { Start-Process $env:TEMP; Write-Host "  Abrindo pasta de temporarios..." -ForegroundColor $C.A; P }
             "0" { return }
@@ -806,7 +808,7 @@ function Menu-Diagnostico {
             "6"  { Start-Process eventvwr.msc; Write-Host "  Abrindo Visualizador de Eventos..." -ForegroundColor $C.A; P }
             "7"  { Start-Process cmd.exe -ArgumentList "/k perfmon /rel"; P }
             "8"  { Run "Informações completas do sistema..." "Exibe uma ficha completa do sistema operacional: versão, arquitetura, hora do último boot, configurações de rede, hotfixes instalados, configuração de memória virtual e muito mais." @("systeminfo") -Win }
-            "9"  { Run "Hardware via WMI (inventario)..." "Coleta dados de CPU (nome, núcleos, clock), RAM (capacidade por módulo, velocidade), disco (modelo, serial, status) e placa-mae (produto, fabricante). Útil para inventario de hardware." @("wmic cpu get name,currentclockspeed,maxclockspeed,numberofcores,numberoflogicalprocessors", "wmic memorychip get capacity,speed,devicelocator,manufacturer", "wmic diskdrive get status,model,serialnumber,size", "wmic baseboard get product,manufacturer,version") -Win }
+            "9"  { Run "Hardware via WMI (inventário)..." "Coleta dados de CPU (nome, núcleos, clock), RAM (capacidade por módulo, velocidade), disco (modelo, serial, status) e placa-mae (produto, fabricante). Útil para inventário de hardware." @("wmic cpu get name,currentclockspeed,maxclockspeed,numberofcores,numberoflogicalprocessors", "wmic memorychip get capacity,speed,devicelocator,manufacturer", "wmic diskdrive get status,model,serialnumber,size", "wmic baseboard get product,manufacturer,version") -Win }
             "10" {
                 Write-Host "`n  Pontuacoes WinSAT (escala de 1.0 a 9.9):" -ForegroundColor $C.A
                 try { Get-CimInstance Win32_WinSAT | Select-Object CPUScore, MemoryScore, DiskScore, GraphicsScore, GamingScore | Format-Table -AutoSize }
@@ -1224,7 +1226,7 @@ function Menu-Registro {
             "9"  { Run "Desativando pesquisa na internet..." "Remove sugestões do Bing e pesquisa na web a partir da barra de pesquisa do Windows. A busca ficara restrita a arquivos e aplicativos locais, com resultado muito mais rápido." @('reg add "HKCU\Software\Policies\Microsoft\Windows\Explorer" /v DisableSearchBoxSuggestions /t REG_DWORD /d 1 /f', 'reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\SearchSettings" /v IsDynamicSearchBoxEnabled /t REG_DWORD /d 0 /f') -Win }
             "10" { Run "Desativando notificações de balao..." "Remove as notificações em balao da bandeja do sistema. Reduz interrupcoes e libera levemente recursos de renderizacao." @('REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v EnableBallooTips /t REG_DWORD /d 0 /F') -Win }
             "11" { Run "Desativando Focus Assist automático..." "Desativa o modo de foco que ativa automaticamente em certas condições (ex: durante apresentacoes), garantindo que notificações importantes não sejam bloqueadas sem que o usuario saiba." @('REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\FocusAssist" /v Disabled /t REG_DWORD /d 1 /f') -Win }
-            "12" { Run "Desativando instalação silenciosa de apps..." "Impede que o Windows instale apps automaticamente em segundo plano sem solicitacao do usuario. Libera espaco em disco e evita aplicativos não desejados da Microsoft Store." @('REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v SilentInstalledAppsEnabled /t REG_DWORD /d 0 /F') -Win }
+            "12" { Run "Desativando instalação silenciosa de apps..." "Impede que o Windows instale apps automaticamente em segundo plano sem solicitacao do usuario. Libera espaço em disco e evita aplicativos não desejados da Microsoft Store." @('REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v SilentInstalledAppsEnabled /t REG_DWORD /d 0 /F') -Win }
             "13" { Run "Desativando Telemetria (DataCollection)..." "Define AllowTelemetry = 0, impedindo o Windows de coletar e enviar dados de diagnóstico e uso para a Microsoft. Reduz tráfego de rede em segundo plano e uso de CPU para coleta de dados." @('REG ADD "HKLM\SOFTWARE\Policies\Microsoft\Windows\DataCollection" /v AllowTelemetry /t REG_DWORD /d 0 /f') -Win }
             "14" {
                 L; Write-Host ""
