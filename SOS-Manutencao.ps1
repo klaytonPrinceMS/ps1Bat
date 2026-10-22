@@ -80,7 +80,6 @@ function Cab {
     L
     Write-Host ("=" * 64) -ForegroundColor $C.T
     Write-Host "  $($APP.Nome)" -ForegroundColor $C.T
-    Write-Host "  $($APP.Org)" -ForegroundColor $C.T
     Write-Host ("=" * 64) -ForegroundColor $C.T
     if ($sub) {
         Write-Host "  >> $sub" -ForegroundColor $C.A
