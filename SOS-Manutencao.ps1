@@ -118,11 +118,11 @@ function Confirmar {
 $script:Splash = @'
                         ...----....
                     ..-:"''         ''"-..
-                 .-'  Fone: 359-8713-5649 '-.
+                 .-'                      '-.
                .'              .     .       '.
              .'   .          .    .      .    .''.
            .'  .    .       .   .   .     .   . ..:.
-         .' . tisossistemas@gmail.com..  .   . ....::.
+         .' .   . . .      .   .   . ..  .   . ....::.
         ..   .   .      .  .    .     .  ..  . ....:IA.
       .:  .   .    .    .  .  .    .. .  .. .. ....:IA.
       .: .   .   ..   .    .     . . .. . ... ....:.:VHA.
@@ -147,9 +147,9 @@ $script:Splash = @'
    :IP""HHII:.  .  .    . . .'V:. . . ..:IH:.:.::IHIHHMMMMM"
    :V:. VIMA:I..  .     .  . .. . .  .:.I:I:..:IHHHHMMHHMMM
    :"VI:.VWMA::. .:      .   .. .:. ..:.I::.:IVHHHMMMHMMMMI
-   :."VIIHHMMA:.  .   .   .:  .:.. . .:.II:I:AMMMMMMHMMMMMI
+   :."VIIHHMMA:.  .   .   .:  .:.. . .:.II:(35)9-8713-5649 
    :..VIHIHMMMI...::.,:.,:!"I:!"I!"I!"V:AI:VAMMMMMMHMMMMMM'
-   ':.:HIHIMHHA:"!!"I.:AXXXVVXXXXXXXA:."HPHIMMMMHHMHMMMMMV
+   ':.:HIHIMHHA:tisossistemas@gmail.com"HPHIMMMMHHMHMMMMMV
    ':.:HIHIMHHA:"!!"I.:AXXXVVXXXXXXXA:."HPHIMMMMHHMHMMMMMV
      V:H:I:MA:W'I :AXXXIXII:IIIISSSSSSXXA.I.VMMMHMHMMMMMM
        'I::IVA ASSSSXSSSSBBSBMBSSSSSSBBMMMBS.VVMMHIMM'"'
