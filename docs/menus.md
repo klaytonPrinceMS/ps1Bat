@@ -150,4 +150,10 @@ direta.com.br, Facebook) e a limpeza de desktop foram descartados.
 Versão, `upgrade`, `upgrade --all`, `search`, `list`; abre a Microsoft
 Store para instalar o App Installer. **Sempre executa não-elevado
 (`-SemAdmin`) em nova janela CMD.**
+Substitui os instaladores silenciosos legados (`u_padrao.bat`,
+`u_hacker.bat`, chamados via `menu2.bat`): pacotes congelados em
+2015–2016 (JRE 8u66, IE10, Office 2007, QuickTime, Skype) com
+vulnerabilidades conhecidas e arquivos instaladores ausentes no projeto.
+Ferramentas de pentest (`u_hacker.bat`: Nmap, Wireshark, Maltego) ficam
+de fora da ferramenta corporativa por política de segurança.
 
