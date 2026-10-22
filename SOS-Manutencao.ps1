@@ -49,13 +49,6 @@ $APP = @{
     MaxAuth = 3
 }
 
-# ── CONTATO (do InstaladorProgramasKBP.bat: variáveis feito e contato) ─────────
-$Contato = @{
-    Feito = "Software by: KBP"
-    Fone  = "35987135649"
-    Email = "tisossistemas@gmail.com"
-}
-
 $C = @{
     T = "Cyan"      # Titulo
     M = "Green"     # Menu / Sucesso
@@ -125,11 +118,11 @@ function Confirmar {
 $script:Splash = @'
                         ...----....
                     ..-:"''         ''"-..
-                 .-'                      '-.
+                 .-'  Fone: 359-8713-5649 '-.
                .'              .     .       '.
              .'   .          .    .      .    .''.
            .'  .    .       .   .   .     .   . ..:.
-         .' .   . .  .       .   .   ..  .   . ....::.
+         .' . tisossistemas@gmail.com..  .   . ....::.
         ..   .   .      .  .    .     .  ..  . ....:IA.
       .:  .   .    .    .  .  .    .. .  .. .. ....:IA.
       .: .   .   ..   .    .     . . .. . ... ....:.:VHA.
@@ -181,12 +174,8 @@ function Show-Splash {
     Write-Host $script:Splash -ForegroundColor Red
     Write-Host ""
     Write-Host "  $($APP.Nome)" -ForegroundColor $C.T
-    Write-Host "  $($APP.Org)" -ForegroundColor $C.T
     $agora = Get-Date
     Write-Host "  Data: $($agora.ToString('dd/MM/yyyy'))  Hora: $($agora.ToString('HH:mm'))" -ForegroundColor $C.H
-    if ($Contato.Feito) { Write-Host "  $($Contato.Feito)" -ForegroundColor $C.I }
-    if ($Contato.Fone)  { Write-Host "  Fone: $($Contato.Fone)" -ForegroundColor $C.I }
-    if ($Contato.Email) { Write-Host "  E-mail: $($Contato.Email)" -ForegroundColor $C.I }
     Write-Host ""
     Write-Host "  Pressione ENTER para continuar..." -ForegroundColor $C.I
     $null = Read-Host
