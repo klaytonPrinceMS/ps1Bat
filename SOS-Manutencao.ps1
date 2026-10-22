@@ -336,6 +336,64 @@ function Autenticar {
     Start-Sleep 2; exit 1
 }
 
+function Fixar-Janela {
+    # Dimensiona a janela em PIXELS (94% da largura e 90% da altura uteis do
+    # monitor onde a janela esta), convertendo para colunas/linhas pelo tamanho
+    # da fonte atual do console. Assim cabe em tela pequena ou vertical.
+    # Trava a largura (sem rolagem horizontal) e desabilita os botoes
+    # maximizar/minimizar. Roda primeiro na entrada (vale tambem apos a
+    # auto-elevacao, que reabre o script em nova janela).
+    try {
+        Add-Type -AssemblyName System.Windows.Forms -ErrorAction Stop
+        Add-Type -TypeDefinition '
+using System;
+using System.Runtime.InteropServices;
+namespace SOS {
+  [StructLayout(LayoutKind.Sequential)]
+  public struct COORD { public short X; public short Y; }
+  [StructLayout(LayoutKind.Sequential, CharSet=CharSet.Unicode)]
+  public struct CONSOLE_FONT_INFOEX {
+    public uint cbSize; public uint nFont; public COORD dwFontSize;
+    public int FontFamily; public int FontWeight;
+    [MarshalAs(UnmanagedType.ByValTStr, SizeConst=32)] public string FaceName;
+  }
+  public static class JanelaFixa {
+    [DllImport("user32.dll")] public static extern IntPtr GetConsoleWindow();
+    [DllImport("user32.dll")] public static extern int GetWindowLong(IntPtr hWnd, int nIndex);
+    [DllImport("user32.dll")] public static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
+    [DllImport("user32.dll")] public static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
+    [DllImport("kernel32.dll", SetLastError=true)] public static extern IntPtr GetStdHandle(int nStdHandle);
+    [DllImport("kernel32.dll", SetLastError=true)] public static extern bool GetCurrentConsoleFontEx(IntPtr hConsoleOutput, bool bMaximumWindow, ref CONSOLE_FONT_INFOEX info);
+  }
+}' -ErrorAction Stop
+        $hwnd = [SOS.JanelaFixa]::GetConsoleWindow()
+        if ($hwnd -eq [IntPtr]::Zero) { return }
+        $tela = [Windows.Forms.Screen]::FromHandle($hwnd)
+        if (-not $tela) { $tela = [Windows.Forms.Screen]::PrimaryScreen }
+        $area = $tela.WorkingArea
+        $info = New-Object SOS.CONSOLE_FONT_INFOEX
+        $info.cbSize = [Runtime.InteropServices.Marshal]::SizeOf($info)
+        if (-not [SOS.JanelaFixa]::GetCurrentConsoleFontEx([SOS.JanelaFixa]::GetStdHandle(-11), $false, [ref]$info)) { return }
+        $fx = [Math]::Max($info.dwFontSize.X, 4)
+        $fy = [Math]::Max($info.dwFontSize.Y, 4)
+        $cols = [Math]::Floor($area.Width * 0.94 / $fx)
+        $rows = [Math]::Floor($area.Height * 0.90 / $fy)
+        $cols = [Math]::Min(160, [Math]::Max(80, $cols))
+        $rows = [Math]::Min(70, [Math]::Max(30, $rows))
+        $raw = $Host.UI.RawUI
+        $buf = $raw.BufferSize
+        $buf.Width = $cols; $buf.Height = $rows
+        $raw.BufferSize = $buf
+        $jan = $raw.WindowSize
+        $jan.Width = $cols; $jan.Height = $rows
+        $raw.WindowSize = $jan
+        $estilo = [SOS.JanelaFixa]::GetWindowLong($hwnd, -16)
+        $semBotoes = $estilo -band (-bnot (0x00010000 -bor 0x00020000))
+        [void][SOS.JanelaFixa]::SetWindowLong($hwnd, -16, $semBotoes)
+        [void][SOS.JanelaFixa]::SetWindowPos($hwnd, [IntPtr]::Zero, 0, 0, 0, 0, 0x27)
+    } catch { }
+}
+
 function Garantir-Admin {
     if (-not $script:isAdmin) {
         Write-Host "  Solicitando elevação de privilégios (UAC)..." -ForegroundColor $C.A
@@ -1533,6 +1591,7 @@ function Menu-Principal {
 # =============================================================================
 # PONTO DE ENTRADA
 # =============================================================================
+Fixar-Janela       # 0. Dimensiona a janela em pixels e trava botoes max/min
 Garantir-Admin    # 1. Garante execução como Administrador (eleva via UAC se necessário)
 Show-Splash       # 2. Tela inicial com a caveira (exibida uma única vez)
 Autenticar        # 3. Autentica com senha local do administrador (segurança obrigatória)

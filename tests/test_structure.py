@@ -37,6 +37,19 @@ def test_identificadores_ascii():
     assert not com_acento, f"variaveis com acento: {com_acento}"
 
 
+def test_janela_fixa_na_entrada():
+    texto = (ROOT / "SOS-Manutencao.ps1").read_text(encoding="utf-8")
+    assert "function Fixar-Janela" in texto
+    entrada = texto.split("# PONTO DE ENTRADA", 1)[1]
+    assert entrada.index("Fixar-Janela") < entrada.index("Garantir-Admin"), \
+        "Fixar-Janela deve rodar antes da elevacao (vale p/ janela reaberta)"
+    bloco = texto.split("function Fixar-Janela", 1)[1].split("\nfunction ", 1)[0]
+    assert "WorkingArea" in bloco, "sem dimensionamento por pixels do monitor"
+    assert "GetCurrentConsoleFontEx" in bloco, "sem leitura da fonte (conversao px->celula)"
+    assert "GetWindowLong" in bloco and "SetWindowLong" in bloco, \
+        "sem trava dos botoes maximizar/minimizar"
+
+
 def test_splash_so_na_tela_inicial():
     import re
     texto = (ROOT / "SOS-Manutencao.ps1").read_text(encoding="utf-8")
