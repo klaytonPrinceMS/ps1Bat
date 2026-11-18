@@ -88,6 +88,11 @@ Arquivos: `mkdocs.yml` (navegação), `docs/` (páginas em Markdown).
 Ao adicionar um menu ao script, documente-o em `docs/menus.md` e atualize
 a tabela de menus do `README.md`.
 
+O fluxograma de execução fica em `docs/assets/fluxograma.{svg,png}`. Ao alterar a
+cadeia de entrada (`Fixar-Janela → Garantir-Admin → Autenticar → Menu-Principal`), os
+grupos de menus ou o motor de execução, edite também o SVG — o PNG é gerado a partir
+dele.
+
 ## Publicação (GitHub Pages)
 
 O workflow `.github/workflows/docs.yml` gera o site a cada push em `main`

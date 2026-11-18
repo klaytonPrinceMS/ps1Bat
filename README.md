@@ -7,6 +7,15 @@
 
 Versão atual: **v2.1.261118**.
 
+## Fluxograma de execução
+
+![Fluxograma de execução do T! SOS Sistemas](docs/assets/fluxograma.png)
+
+Do `INÍCIO` ao despacho dos 21 menus: fixagem da janela, elevação UAC, autenticação
+(SID `S-1-5-32-544`, máx. 3 tentativas), menu principal com multi-seleção, os 5 grupos de
+módulos, o motor de execução (`Run → Desc → Confirmar → Execução → Log`) e as
+proteções/auditoria. Vetor editável em [`docs/assets/fluxograma.svg`](docs/assets/fluxograma.svg).
+
 ## Requisitos
 
 - Windows com PowerShell 5.1 ou superior (sintaxe mantida compatível com 5.1).
@@ -65,7 +74,7 @@ Detalhes em [`docs/menus.md`](docs/menus.md) — ou rode localmente (ver abaixo)
 
 ```text
 SOS-Manutencao.ps1              # único script; toda a lógica em funções Menu-*
-docs/                # documentação MkDocs
+docs/                # documentação MkDocs (inclui assets/fluxograma.svg|png)
 mkdocs.yml           # configuração do MkDocs
 requirements-docs.txt# dependência da documentação (mkdocs)
 README.md
@@ -75,6 +84,7 @@ LICENSE
 ## Documentação completa
 
 - Índice da documentação: https://github.com/klaytonPrinceMS/ps1Bat/tree/main/docs
+- Fluxograma de execução (SVG vetorial): https://github.com/klaytonPrinceMS/ps1Bat/blob/main/docs/assets/fluxograma.svg
 - Uso (execução, autenticação, log): https://github.com/klaytonPrinceMS/ps1Bat/blob/main/docs/uso.md
 - Referência dos 21 menus: https://github.com/klaytonPrinceMS/ps1Bat/blob/main/docs/menus.md
 - Desenvolvimento (código, testes, versionamento): https://github.com/klaytonPrinceMS/ps1Bat/blob/main/docs/desenvolvimento.md
