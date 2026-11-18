@@ -200,16 +200,9 @@ Exceção feita ao primeiro commit: `Iniciando o projeto`.
 
 ## 11. Marca / Branding
 
-Os seguintes termos são proibidos em todo o repositório, exceto dentro do arquivo `tests/test_branding.py` (que define a lista):
+O repositório não pode conter menções a órgãos ou entidades antigos, nem termos técnicos usados de forma imprópria. A lista exata de termos barrados vive em `tests/test_branding.py` — o único arquivo autorizado a defini-la — e é validada automaticamente por `python main.py check` e pelo pytest em `tests/`.
 
-- `prefeitura`
-- `monte santo`
-- `departamento de tecnologia`
-- `hacker`
-
-- **EN:** The following terms are forbidden throughout the repository, except inside `tests/test_branding.py` (which defines the list): `prefeitura`, `monte santo`, `departamento de tecnologia`, `hacker`.
-
-Isso é validado automaticamente por `tests/test_branding.py` e por `python main.py check`.
+- **EN:** The repo must not contain mentions of old agencies or entities, nor improper technical terms. The exact list of barred terms lives in `tests/test_branding.py` — the only file allowed to define it — and is enforced automatically by `python main.py check` and by pytest in `tests/`.
 
 ## 12. Lembrete final / Final reminder
 
