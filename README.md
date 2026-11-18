@@ -1,11 +1,11 @@
 # T! SOS Sistemas — Ferramenta Técnica de Manutenção
 
-> **EN:** Interactive Windows maintenance toolkit (PowerShell 5.1) — a single-script menu tool with 20 maintenance, diagnostic and security modules.
-> **PT:** Ferramenta interativa de manutenção para Windows (PowerShell 5.1) — script único com menu de 20 módulos de manutenção, diagnóstico e segurança.
+> **EN:** Interactive Windows maintenance toolkit (PowerShell 5.1) — a single-script menu tool with 21 maintenance, diagnostic and security modules.
+> **PT:** Ferramenta interativa de manutenção para Windows (PowerShell 5.1) — script único com menu de 21 módulos de manutenção, diagnóstico e segurança.
 > **EN:** Every menu accepts multi-select: type `2,3,10`, ranges like `1-3`, `TODOS`, or press ENTER to run all options in sequence (`0` goes back).
 > **PT:** Todos os menus aceitam seleção múltipla: digite `2,3,10`, intervalos como `1-3`, `TODOS` ou pressione ENTER para executar todas as opções em sequência (`0` volta).
 
-Versão atual: **v2.1.261021**.
+Versão atual: **v2.1.261118**.
 
 ## Requisitos
 
@@ -51,6 +51,7 @@ Na inicialização, a ordem é fixa:
 | 18 | Utilidades Rápidas | ping, msinfo32, msconfig, calc, regedit |
 | 19 | Winget | gerenciador de pacotes (**roda em contexto não-elevado**) |
 | 20 | Instalação de Programas | Winget: comum, avançado, desenvolvimento |
+| 21 | Informe IP no Relógio do Windows | IP na bandeja via registro + VBS persistente + tarefa agendada `kbp_atualiza_ip` |
 
 Detalhes em [`docs/menus.md`](docs/menus.md) — ou rode localmente (ver abaixo).
 
@@ -75,7 +76,7 @@ LICENSE
 
 - Índice da documentação: https://github.com/klaytonPrinceMS/ps1Bat/tree/main/docs
 - Uso (execução, autenticação, log): https://github.com/klaytonPrinceMS/ps1Bat/blob/main/docs/uso.md
-- Referência dos 17 menus: https://github.com/klaytonPrinceMS/ps1Bat/blob/main/docs/menus.md
+- Referência dos 21 menus: https://github.com/klaytonPrinceMS/ps1Bat/blob/main/docs/menus.md
 - Desenvolvimento (código, testes, versionamento): https://github.com/klaytonPrinceMS/ps1Bat/blob/main/docs/desenvolvimento.md
 - Site MkDocs: https://klaytonprincems.github.io/ps1Bat/ (ative em Settings → Pages → Source: GitHub Actions; o workflow `docs` publica a cada push)
 

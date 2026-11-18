@@ -55,7 +55,7 @@ python main.py run     # abre o menu do SOS-Manutencao.ps1 (Windows + admin)
 ```
 
 `tests/` trava versão consistente, marca limpa, estrutura (funções e
-dispatch dos 17 menus), padrão bilíngue da docs e as travas de segurança
+dispatch dos 21 menus), padrão bilíngue da docs e as travas de segurança
 (kill de explorer só no teste de monitor, firewall-off e remoção de driver
 com confirmação, instrução de recuperação da barra).
 

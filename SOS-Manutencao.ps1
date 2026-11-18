@@ -1,7 +1,7 @@
 ﻿#Requires -Version 5.1
 <#
 ==============================================================================
-  T! SOS SISTEMAS - FERRAMENTA TÉCNICA DE MANUTENÇÃO  v2.1.261021
+  T! SOS SISTEMAS - FERRAMENTA TÉCNICA DE MANUTENÇÃO  v2.1.261118
   T! SOS Sistemas
   Autores: Anderson / Prince, K.B
 
@@ -31,6 +31,7 @@
     18. Utilidades Rápidas               (ping, msinfo32, msconfig, calc)
     19. Winget                           (executa em contexto de usuário comum)
     20. Instalação de Programas          (Winget: comum, avançado e dev)
+    21. Informe IP no Relógio do Windows (IP na bandeja do relógio; VBS + kbp_atualiza_ip)
 
   SEGURANÇA: Autentica com senha de administrador local ao iniciar.
              Todas as ações ficam gravadas em log.
@@ -49,7 +50,7 @@ $OutputEncoding            = [System.Text.Encoding]::UTF8
 
 # ── CONFIGURAÇÕES GLOBAIS ─────────────────────────────────────────────────────
 $APP = @{
-    Nome    = "T! SOS Sistemas - Manutenção Técnica  v2.1.261021"
+    Nome    = "T! SOS Sistemas - Manutenção Técnica  v2.1.261118"
     Org     = "T! SOS Sistemas"
     Log     = "$env:TEMP\SOS_Manutencao.log"
     MaxAuth = 3

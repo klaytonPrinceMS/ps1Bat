@@ -1,7 +1,7 @@
 # Menus
 
-> **EN:** Quick reference for the 17 `Menu-Principal` menus. Every option runs through the `Run` helper and is written to the log.
-> **PT:** Referência rápida dos 17 menus do `Menu-Principal`. Toda opção executa via função auxiliar `Run` e é registrada no log.
+> **EN:** Quick reference for the 21 `Menu-Principal` menus. Every option runs through the `Run` helper and is written to the log.
+> **PT:** Referência rápida dos 21 menus do `Menu-Principal`. Toda opção executa via função auxiliar `Run` e é registrada no log.
 > **EN:** Every menu accepts multi-select: type `2,3,10`, ranges like `1-3`, `TODOS`, or press ENTER to run all options in sequence (`0` goes back).
 > **PT:** Todos os menus aceitam seleção múltipla: digite `2,3,10`, intervalos como `1-3`, `TODOS` ou pressione ENTER para executar todas as opções em sequência (`0` volta).
 
@@ -169,4 +169,17 @@ Python, Node, Java). ENTER instala tudo do perfil; ou digite os números
 separados por vírgula (ex: `3,4,13`). A instalação roda em nova janela,
 em contexto de usuário comum (sem elevação). Requer Winget (menu 19,
 opção 6).
+
+## 21. Informe IP no Relógio do Windows
+
+- Exibe um IP no relógio da bandeja do Windows (junto à hora), via `sTimeFormat`/`sShortTime`
+  em `HKCU:\Control Panel\International`.
+- Lista IPs IPv4 não-loopback/não-169.254; IPs fixos `172.16.x.x` (/16) não são exibidos por
+  padrão, mas podem ser selecionados manualmente (exibidos como `IP: <octeto3>.<octeto4>`).
+- Opções: 1) escolher IP a exibir (oferece reiniciar o Explorer ao aplicar); 2) atualizar IP
+  agora (re-lê o IP atual, ignorando 172.16/16); 3) remover o IP do relógio (restaura `HH:mm`);
+  4) configurar persistência (script VBS `Atualizar-IpRelogio.vbs` em `C:\dti\informeIp` +
+  tarefa agendada `kbp_atualiza_ip`, no logon e no intervalo escolhido); 5) ver status da
+  persistência; 6) definir texto personalizado no relógio; `0. Voltar`.
+- Texto exibido limitado a 39 caracteres (o excedente é truncado).
 

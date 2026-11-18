@@ -1,0 +1,13 @@
+# Atualizações automáticas de dependências — semanal (pip + github-actions)
+version: 2
+updates:
+  - package-ecosystem: pip          # requirements-docs.txt e pyproject.toml (Poetry)
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+  - package-ecosystem: github-actions   # workflows em .github/workflows/
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
