@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1320" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="35%" r="120%">
+      <stop offset="0%" stop-color="#131b29"/>
+      <stop offset="100%" stop-color="#0a0f18"/>
+    </radialGradient>
+    <linearGradient id="redbox" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#e5484d"/>
+      <stop offset="100%" stop-color="#b62f38"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#182232"/>
+      <stop offset="100%" stop-color="#131b29"/>
+    </linearGradient>
+    <linearGradient id="menubar" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#141e2d"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#e5484d"/>
+    </marker>
+    <marker id="arrowgreen" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#4ade80"/>
+    </marker>
+  </defs>
+
+  <rect width="1920" height="1320" fill="url(#bg)"/>
+
+  <!-- ===== TITULO ===== -->
+  <text x="960" y="88" text-anchor="middle" font-size="56" font-weight="800" fill="#eef2f9">T! SOS SISTEMAS</text>
+  <text x="960" y="122" text-anchor="middle" font-size="19" font-weight="700" letter-spacing="6" fill="#9fb0c6">FLUXOGRAMA DE EXECUÇÃO</text>
+  <text x="960" y="150" text-anchor="middle" font-size="15" fill="#66778d">Ferramenta técnica de manutenção · Windows 10/11 · PowerShell 5.1 · entrada v2.1.261118</text>
+  <line x1="600" y1="168" x2="1320" y2="168" stroke="#e5484d" stroke-width="2.5"/>
+
+  <!-- ===== CADEIA DE ENTRADA ===== -->
+  <rect x="64" y="212" width="152" height="78" rx="10" fill="url(#redbox)"/>
+  <text x="140" y="259" text-anchor="middle" font-size="22" font-weight="800" fill="#ffffff">INICIO</text>
+
+  <line x1="216" y1="251" x2="250" y2="251" stroke="#e5484d" stroke-width="2.5" marker-end="url(#arrow)"/>
+
+  <rect x="252" y="212" width="216" height="78" rx="10" fill="url(#panel)" stroke="#31435b" stroke-width="1.5"/>
+  <text x="360" y="240" text-anchor="middle" font-size="16" font-weight="700" fill="#ffd166">FIXAR-JANELA</text>
+  <text x="360" y="262" text-anchor="middle" font-size="11.5" fill="#9fb0c6">redimensiona em px (94% x 90%)</text>
+  <text x="360" y="279" text-anchor="middle" font-size="11.5" fill="#9fb0c6">trava max/min da janela</text>
+
+  <line x1="468" y1="251" x2="502" y2="251" stroke="#e5484d" stroke-width="2.5" marker-end="url(#arrow)"/>
+
+  <rect x="504" y="212" width="258" height="78" rx="10" fill="url(#panel)" stroke="#31435b" stroke-width="1.5"/>
+  <text x="633" y="240" text-anchor="middle" font-size="16" font-weight="700" fill="#ffd166">GARANTIR-ADMIN</text>
+  <text x="633" y="262" text-anchor="middle" font-size="11.5" fill="#9fb0c6">verificacao UAC (RunAs)</text>
+  <text x="633" y="279" text-anchor="middle" font-size="11.5" fill="#9fb0c6">reexecuta elevado se preciso</text>
+
+  <line x1="762" y1="251" x2="796" y2="251" stroke="#e5484d" stroke-width="2.5" marker-end="url(#arrow)"/>
+
+  <rect x="798" y="212" width="476" height="78" rx="10" fill="url(#panel)" stroke="#31435b" stroke-width="1.5"/>
+  <text x="1036" y="238" text-anchor="middle" font-size="16" font-weight="700" fill="#ffd166">SPLASH + AUTENTICACAO</text>
+  <text x="1036" y="259" text-anchor="middle" font-size="11.5" fill="#9fb0c6">senha de admin local · SID S-1-5-32-544</text>
+  <text x="1036" y="277" text-anchor="middle" font-size="11.5" fill="#9fb0c6">máx. 3 tentativas · tentativas logadas</text>
+
+  <line x1="1274" y1="251" x2="1330" y2="251" stroke="#e5484d" stroke-width="2.5" marker-end="url(#arrow)"/>
+
+  <polygon points="1480,190 1650,251 1480,312 1310,251" fill="#241a22" stroke="#e5484d" stroke-width="2.5"/>
+  <text x="1480" y="246" text-anchor="middle" font-size="15" font-weight="800" fill="#ffb4ab">AUTENTICADO?</text>
+  <text x="1480" y="268" text-anchor="middle" font-size="11" fill="#c98f8b">senha x 3 tentativas</text>
+
+  <line x1="1650" y1="251" x2="1690" y2="251" stroke="#e5484d" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <text x="1672" y="236" font-size="12" font-weight="700" fill="#e5484d">nao</text>
+
+  <rect x="1696" y="212" width="160" height="78" rx="10" fill="#1a0f14" stroke="#e5484d" stroke-width="2"/>
+  <text x="1776" y="247" text-anchor="middle" font-size="19" font-weight="800" fill="#e5484d">ENCERRAR</text>
+  <text x="1776" y="269" text-anchor="middle" font-size="11" fill="#c98f8b">exit 1 · log</text>
+
+  <!-- ===== SIM -> MENU PRINCIPAL ===== -->
+  <line x1="1480" y1="312" x2="1480" y2="392" stroke="#4ade80" stroke-width="2.5" marker-end="url(#arrowgreen)"/>
+  <text x="1496" y="356" font-size="13" font-weight="800" fill="#4ade80">sim</text>
+
+  <rect x="64" y="398" width="1792" height="66" rx="12" fill="url(#menubar)" stroke="#e5484d" stroke-width="2.5"/>
+  <text x="960" y="429" text-anchor="middle" font-size="27" font-weight="800" fill="#f3f6fb">MENU PRINCIPAL</text>
+  <text x="960" y="452" text-anchor="middle" font-size="12.5" fill="#cdd7e3">21 módulos + 0 (sair) · ENTER vazio executa TODOS · seleção múltipla: 2,3,10 · faixas 1-5 · TODOS</text>
+
+  <!-- espinha para os grupos -->
+  <line x1="960" y1="464" x2="960" y2="496" stroke="#e5484d" stroke-width="2.5"/>
+  <line x1="232" y1="496" x2="1672" y2="496" stroke="#e5484d" stroke-width="2.5"/>
+  <line x1="232" y1="496" x2="232" y2="548" stroke="#e5484d" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <line x1="592" y1="496" x2="592" y2="548" stroke="#e5484d" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <line x1="952" y1="496" x2="952" y2="548" stroke="#e5484d" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <line x1="1312" y1="496" x2="1312" y2="548" stroke="#e5484d" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <line x1="1672" y1="496" x2="1672" y2="548" stroke="#e5484d" stroke-width="2.5" marker-end="url(#arrow)"/>
+
+  <!-- ===== GRUPO 1 · MANUTENCAO ===== -->
+  <rect x="64" y="552" width="336" height="300" rx="12" fill="url(#panel)" stroke="#31435b" stroke-width="1.5"/>
+  <rect x="64" y="564" width="336" height="30" fill="#2a1116"/><rect x="76" y="552" width="312" height="12" fill="#2a1116"/><circle cx="76" cy="564" r="12" fill="#2a1116"/><circle cx="388" cy="564" r="12" fill="#2a1116"/>
+  <text x="232" y="573" text-anchor="middle" font-size="14.5" font-weight="800" letter-spacing="2" fill="#ffb4ab">MANUTENCAO</text>
+  <text x="88" y="624" font-size="12.5" fill="#dbe4ee"><tspan fill="#e5484d" font-weight="800">1</tspan>  Reparo (DISM · SFC)</text>
+  <text x="88" y="650" font-size="12.5" fill="#dbe4ee"><tspan fill="#e5484d" font-weight="800">2</tspan>  Discos (SMART · CHKDSK · TRIM)</text>
+  <text x="88" y="676" font-size="12.5" fill="#dbe4ee"><tspan fill="#e5484d" font-weight="800">3</tspan>  Drivers (PnPUtil · verifier)</text>
+  <text x="88" y="702" font-size="12.5" fill="#dbe4ee"><tspan fill="#e5484d" font-weight="800">4</tspan>  Impressão (Spooler)</text>
+  <text x="88" y="728" font-size="12.5" fill="#dbe4ee"><tspan fill="#e5484d" font-weight="800">5</tspan>  Limpeza (temp · WU)</text>
+  <text x="88" y="754" font-size="12.5" fill="#dbe4ee"><tspan fill="#e5484d" font-weight="800">6</tspan>  Energia (powercfg)</text>
+  <text x="88" y="780" font-size="12.5" fill="#dbe4ee"><tspan fill="#e5484d" font-weight="800">7</tspan>  Memória RAM (mdsched)</text>
+  <text x="88" y="806" font-size="12.5" fill="#dbe4ee"><tspan fill="#e5484d" font-weight="800">8</tspan>  Windows Update</text>
+  <text x="88" y="832" font-size="12.5" fill="#dbe4ee"><tspan fill="#e5484d" font-weight="800">9</tspan>  Ajustes (Registro)</text>
+
+  <!-- ===== GRUPO 2 · REDE ===== -->
+  <rect x="424" y="552" width="336" height="300" rx="12" fill="url(#panel)" stroke="#31435b" stroke-width="1.5"/>
+  <rect x="424" y="564" width="336" height="30" fill="#2a1116"/><rect x="436" y="552" width="312" height="12" fill="#2a1116"/><circle cx="436" cy="564" r="12" fill="#2a1116"/><circle cx="748" cy="564" r="12" fill="#2a1116"/>
+  <text x="592" y="573" text-anchor="middle" font-size="14.5" font-weight="800" letter-spacing="2" fill="#ffb4ab">REDE</text>
+  <text x="448" y="624" font-size="13" font-weight="700" fill="#f3f6fb"><tspan fill="#e5484d" font-weight="800">10</tspan> · Rede e DNS</text>
+  <text x="448" y="650" font-size="11.5" fill="#9fb0c6">TCP/IP · Winsock reset</text>
+  <text x="448" y="672" font-size="11.5" fill="#9fb0c6">flushdns · registerdns</text>
+  <text x="448" y="694" font-size="11.5" fill="#9fb0c6">IP estático · ncpa.cpl</text>
+  <text x="448" y="716" font-size="11.5" fill="#9fb0c6">tracert · netstat</text>
+  <text x="448" y="748" font-size="11" font-style="italic" fill="#ffd166">reset TCP/IP exige REBOOT</text>
+
+  <!-- ===== GRUPO 3 · SEGURANCA ===== -->
+  <rect x="784" y="552" width="336" height="300" rx="12" fill="url(#panel)" stroke="#31435b" stroke-width="1.5"/>
+  <rect x="784" y="564" width="336" height="30" fill="#2a1116"/><rect x="796" y="552" width="312" height="12" fill="#2a1116"/><circle cx="796" cy="564" r="12" fill="#2a1116"/><circle cx="1108" cy="564" r="12" fill="#2a1116"/>
+  <text x="952" y="573" text-anchor="middle" font-size="14.5" font-weight="800" letter-spacing="2" fill="#ffb4ab">SEGURANÇA</text>
+  <text x="808" y="624" font-size="12.5" font-weight="700" fill="#f3f6fb"><tspan fill="#e5484d" font-weight="800">11</tspan> · Segurança e Permissões</text>
+  <text x="808" y="646" font-size="11" fill="#9fb0c6">icacls · takeown · USB</text>
+  <text x="808" y="668" font-size="11" fill="#9fb0c6">Firewall · ExecPolicy · restauração</text>
+  <text x="808" y="700" font-size="12.5" font-weight="700" fill="#f3f6fb"><tspan fill="#e5484d" font-weight="800">12</tspan> · Segurança da Informação</text>
+  <text x="808" y="722" font-size="11" fill="#9fb0c6">4625 (falhas) · 4624 RDP</text>
+  <text x="808" y="744" font-size="11" fill="#9fb0c6">Defender · MRT · quarentena</text>
+  <text x="808" y="776" font-size="11" font-style="italic" fill="#ffd166">auditoria: quem · onde · tipo</text>
+
+  <!-- ===== GRUPO 4 · DIAGNOSTICO E TESTES ===== -->
+  <rect x="1144" y="552" width="336" height="300" rx="12" fill="url(#panel)" stroke="#31435b" stroke-width="1.5"/>
+  <rect x="1144" y="564" width="336" height="30" fill="#2a1116"/><rect x="1156" y="552" width="312" height="12" fill="#2a1116"/><circle cx="1156" cy="564" r="12" fill="#2a1116"/><circle cx="1468" cy="564" r="12" fill="#2a1116"/>
+  <text x="1312" y="573" text-anchor="middle" font-size="14.5" font-weight="800" letter-spacing="1.2" fill="#ffb4ab">DIAGNÓSTICO</text>
+  <text x="1168" y="624" font-size="12.5" font-weight="700" fill="#f3f6fb"><tspan fill="#e5484d" font-weight="800">13</tspan> · Diagnóstico Avançado</text>
+  <text x="1168" y="646" font-size="11" fill="#9fb0c6">processos · WinSAT · hardware</text>
+  <text x="1168" y="678" font-size="12.5" font-weight="700" fill="#f3f6fb"><tspan fill="#e5484d" font-weight="800">14</tspan> · Placa de Vídeo e Monitor</text>
+  <text x="1168" y="700" font-size="11" fill="#9fb0c6">dxdiag · DCOM · GPU</text>
+  <text x="1168" y="722" font-size="11" fill="#9fb0c6">Ctrl+Shift+B = reset GPU</text>
+  <text x="1168" y="754" font-size="12.5" font-weight="700" fill="#f3f6fb"><tspan fill="#e5484d" font-weight="800">15</tspan> · Testes</text>
+  <text x="1168" y="776" font-size="11" fill="#9fb0c6">Stress CPU · monitor · velocidade</text>
+
+  <!-- ===== GRUPO 5 · SISTEMA ===== -->
+  <rect x="1504" y="552" width="336" height="300" rx="12" fill="url(#panel)" stroke="#31435b" stroke-width="1.5"/>
+  <rect x="1504" y="564" width="336" height="30" fill="#2a1116"/><rect x="1516" y="552" width="312" height="12" fill="#2a1116"/><circle cx="1516" cy="564" r="12" fill="#2a1116"/><circle cx="1828" cy="564" r="12" fill="#2a1116"/>
+  <text x="1672" y="573" text-anchor="middle" font-size="14.5" font-weight="800" letter-spacing="2" fill="#ffb4ab">SISTEMA</text>
+  <text x="1528" y="620" font-size="12.5" fill="#dbe4ee"><tspan fill="#e5484d" font-weight="800">16</tspan>  Identidade (PC·IP)</text>
+  <text x="1528" y="645" font-size="12.5" fill="#dbe4ee"><tspan fill="#e5484d" font-weight="800">17</tspan>  Menu de Contexto</text>
+  <text x="1528" y="670" font-size="12.5" fill="#dbe4ee"><tspan fill="#e5484d" font-weight="800">18</tspan>  Utilidades Rápidas</text>
+  <text x="1528" y="695" font-size="12.5" fill="#dbe4ee"><tspan fill="#e5484d" font-weight="800">19</tspan>  Winget (usuário)</text>
+  <text x="1528" y="720" font-size="12.5" fill="#dbe4ee"><tspan fill="#e5484d" font-weight="800">20</tspan>  Instalação (perfis)</text>
+  <text x="1528" y="745" font-size="12.5" fill="#dbe4ee"><tspan fill="#e5484d" font-weight="800">21</tspan>  Informe IP no Relógio</text>
+  <text x="1528" y="800" font-size="11" font-style="italic" fill="#9fb0c6">bandeja do relógio · VBS +</text>
+  <text x="1528" y="817" font-size="11" font-style="italic" fill="#9fb0c6">tarefa kbp_atualiza_ip</text>
+
+  <!-- ===== MOTOR DE EXECUCAO ===== -->
+  <rect x="64" y="880" width="1792" height="172" rx="12" fill="#141c2a" stroke="#31435b" stroke-width="1.5"/>
+  <rect x="64" y="880" width="6" height="172" fill="#e5484d"/>
+  <text x="96" y="908" font-size="13" font-weight="800" letter-spacing="6" fill="#9fb0c6">MOTOR DE EXECUÇÃO</text>
+  <text x="1824" y="908" text-anchor="end" font-size="11.5" fill="#66778d">Run → Desc → Confirmar → Execução → Log</text>
+
+  <rect x="88" y="922" width="300" height="104" rx="8" fill="#1b2436" stroke="#3b4d66"/>
+  <text x="238" y="956" text-anchor="middle" font-size="14" font-weight="700" fill="#ffd166" font-family="Consolas, monospace">Run "TITLE"</text>
+  <text x="238" y="980" text-anchor="middle" font-size="10.5" fill="#9fb0c6">motor central · -Win (nova</text>
+  <text x="238" y="997" text-anchor="middle" font-size="10.5" fill="#9fb0c6">janela) · -PS · -SemAdmin</text>
+
+  <line x1="392" y1="974" x2="444" y2="974" stroke="#e5484d" stroke-width="2.2" marker-end="url(#arrow)"/>
+
+  <rect x="448" y="922" width="300" height="104" rx="8" fill="#1b2436" stroke="#3b4d66"/>
+  <text x="598" y="956" text-anchor="middle" font-size="14" font-weight="700" fill="#ffd166" font-family="Consolas, monospace">Desc "texto"</text>
+  <text x="598" y="980" text-anchor="middle" font-size="10.5" fill="#9fb0c6">quadro "O QUE ESTE</text>
+  <text x="598" y="997" text-anchor="middle" font-size="10.5" fill="#9fb0c6">COMANDO FAZ" · word-wrap</text>
+
+  <line x1="752" y1="974" x2="804" y2="974" stroke="#e5484d" stroke-width="2.2" marker-end="url(#arrow)"/>
+
+  <rect x="808" y="922" width="300" height="104" rx="8" fill="#1b2436" stroke="#3b4d66"/>
+  <text x="958" y="956" text-anchor="middle" font-size="14" font-weight="700" fill="#ffd166" font-family="Consolas, monospace">Confirmar</text>
+  <text x="958" y="980" text-anchor="middle" font-size="10.5" fill="#9fb0c6">ENTER = executar</text>
+  <text x="958" y="997" text-anchor="middle" font-size="10.5" fill="#9fb0c6">outra tecla = cancela</text>
+
+  <line x1="1112" y1="974" x2="1164" y2="974" stroke="#e5484d" stroke-width="2.2" marker-end="url(#arrow)"/>
+
+  <rect x="1168" y="922" width="300" height="104" rx="8" fill="#1b2436" stroke="#3b4d66"/>
+  <text x="1318" y="956" text-anchor="middle" font-size="13" font-weight="700" fill="#ffd166">Execução</text>
+  <text x="1318" y="980" text-anchor="middle" font-size="10.5" fill="#9fb0c6">PS -EncodedCommand · .bat</text>
+  <text x="1318" y="997" text-anchor="middle" font-size="10.5" fill="#9fb0c6">temp ou inline · chcp 65001</text>
+
+  <line x1="1472" y1="974" x2="1524" y2="974" stroke="#e5484d" stroke-width="2.2" marker-end="url(#arrow)"/>
+
+  <rect x="1528" y="922" width="264" height="104" rx="8" fill="#1b2436" stroke="#3b4d66"/>
+  <text x="1660" y="956" text-anchor="middle" font-size="14" font-weight="700" fill="#ffd166" font-family="Consolas, monospace">Log</text>
+  <text x="1660" y="980" text-anchor="middle" font-size="9.5" fill="#9fb0c6" font-family="Consolas, monospace">%TEMP%\SOS_Manutencao.log</text>
+  <text x="1660" y="997" text-anchor="middle" font-size="10.5" fill="#9fb0c6">append · UTF-8</text>
+
+  <!-- ===== PROTEÇOES E AUDITORIA ===== -->
+  <rect x="64" y="1076" width="1792" height="142" rx="12" fill="#141c2a" stroke="#31435b" stroke-width="1.5"/>
+  <rect x="64" y="1076" width="6" height="142" fill="#e5484d"/>
+  <text x="96" y="1103" font-size="13" font-weight="800" letter-spacing="6" fill="#9fb0c6">PROTEÇÕES E AUDITORIA</text>
+
+  <rect x="88" y="1114" width="394" height="86" rx="8" fill="#1b2436" stroke="#3b4d66"/>
+  <text x="110" y="1140" font-size="11.5" font-weight="800" letter-spacing="1.5" fill="#ffd166">SENHA · CREDENCIAL</text>
+  <text x="110" y="1162" font-size="10.5" fill="#9fb0c6">SecureString → ValidateCredentials</text>
+  <text x="110" y="1180" font-size="10.5" fill="#9fb0c6">BSTR zerado · só admin local entra</text>
+
+  <rect x="538" y="1114" width="394" height="86" rx="8" fill="#1b2436" stroke="#3b4d66"/>
+  <text x="560" y="1140" font-size="11.5" font-weight="800" letter-spacing="1.5" fill="#ffd166">MAX. 3 TENTATIVAS</text>
+  <text x="560" y="1162" font-size="10.5" fill="#9fb0c6">falhas com usuário vão pro log ·</text>
+  <text x="560" y="1180" font-size="10.5" fill="#9fb0c6">exceder = encerra · autorização auditável</text>
+
+  <rect x="988" y="1114" width="394" height="86" rx="8" fill="#1b2436" stroke="#3b4d66"/>
+  <text x="1010" y="1140" font-size="11.5" font-weight="800" letter-spacing="1.5" fill="#ffd166">APENAS LEITURA · OP. 2 / 7</text>
+  <text x="1010" y="1162" font-size="10.5" fill="#9fb0c6">Get-WinEvent no Security · N configurável ·</text>
+  <text x="1010" y="1180" font-size="10.5" fill="#9fb0c6">terminal com IP completo · relógio encurta</text>
+
+  <rect x="1438" y="1114" width="394" height="86" rx="8" fill="#1b2436" stroke="#3b4d66"/>
+  <text x="1460" y="1140" font-size="11.5" font-weight="800" letter-spacing="1.5" fill="#ffd166">CI / QUALIDADE</text>
+  <text x="1460" y="1162" font-size="10.5" fill="#9fb0c6">main.py check (parse PS) · 27 testes ·</text>
+  <text x="1460" y="1180" font-size="10.5" fill="#9fb0c6">mkdocs --strict · PS1 BOM + CRLF</text>
+
+  <!-- ===== RODAPE ===== -->
+  <line x1="600" y1="1246" x2="1320" y2="1246" stroke="#31435b" stroke-width="1.5"/>
+  <text x="960" y="1272" text-anchor="middle" font-size="12.5" fill="#66778d">T! SOS Sistemas · v2.1.261118 · github.com/klaytonPrinceMS/ps1Bat</text>
+  <text x="960" y="1292" text-anchor="middle" font-size="11" fill="#4d5a6e">fluxograma extraído do código-fonte (headers MENU · Autenticar · Run · Verificar-Processos-Suspeitos) · docs: README.md · docs/</text>
+</svg>
