@@ -38,9 +38,6 @@
   WINGET:    Executa em contexto não-elevado (requisito do gerenciador).
   LOG:       %TEMP%\SOS_Manutencao.log
 
-
-  v2.1.26.0612 #menu SEGURANÇA 14.1 Processos Suspeitos, agora realiza a verificação do executablepath e commandline se tiver em branco pode ser virus e mostra o que o cmd consegue visualizar e abre o virus total
-
 ==============================================================================
 #>
 
@@ -1144,7 +1141,6 @@ function Teste-CPU-CMD {
 # =============================================================================
 # FUNCAO: ANÁLISE PROFUNDA DE PROCESSOS SUSPEITOS
 # =============================================================================
-# v2.1.26.0612 #menu SEGURANÇA 14.1 Processos Suspeitos, agora realiza a verificação do executablepath e commandline se tiver em branco pode ser virus e mostra o que o cmd consegue visualizar e abre o virus total
 
 function Verificar-Processos-Suspeitos {
     L; Cab "14.1 - PROCESSOS SUSPEITOS - ANÁLISE PROFUNDA"
@@ -2086,7 +2082,6 @@ function Menu-Principal {
     do {
         Cab
         $st = if ($script:isAdmin) { "[ADMIN]" } else { "[USUARIO]" }
-        # Write-Host "  Status: $st | Log: $($APP.Log)" -ForegroundColor $(if ($script:isAdmin) { $C.M } else { $C.E })  # mostra o caminho do log
         Write-Host "  Status: $st " -ForegroundColor $(if ($script:isAdmin) { $C.M } else { $C.E })
         Write-Host ""
         Write-Host "  -- MANUTENÇÃO ------------------------------------------" -ForegroundColor $C.H
@@ -2119,11 +2114,6 @@ function Menu-Principal {
         Write-Host "   0. Sair" -ForegroundColor $C.E
         Write-Host ""
         switch (Expandir-Selecao (Read-Host "  Opção [2,3,10 | TODOS | ENTER=todos | 0 sair]") @("1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","teste")) {
-
-
-        
-
-         
             "teste" { Run "Teste..." "Apenas um teste latino americano, sem um deploy tranquilo, sem um log que me conforte, mais trago na cabeça a lição do meu SRPINT" @("winver") -Win -PS -SemAdmin }     # -PS  Usar PowerShell (padrão = CMD),             -Win   Abrir em nova janela,          -SemAdmin   Sem elevação
             "1"  { Menu-Reparo }
             "2"  { Menu-Discos }
@@ -2144,8 +2134,8 @@ function Menu-Principal {
             "17" { Menu-Contexto }
             "18" { Menu-Utilidades }
             "19" { Menu-Winget }
-        "20" { Menu-Instalacao }
-        "21" { Menu-InformeIP }
+            "20" { Menu-Instalacao }
+            "21" { Menu-InformeIP }
             "0"  {
                 Write-Host "`n  Encerrando T! SOS Sistemas Ferramenta Técnica..." -ForegroundColor $C.A
                 Log "Sessão encerrada pelo usuario."
