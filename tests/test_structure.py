@@ -66,8 +66,8 @@ def test_splash_so_na_autenticacao():
 def test_menu_contexto_marca():
     texto = (ROOT / "SOS-Manutencao.ps1").read_text(encoding="utf-8")
     bloco = texto.split("function Menu-Contexto", 1)[1].split("\nfunction ", 1)[0]
-    assert "T! SOS - " in bloco, "atalhos sem marca T! SOS"
-    assert "KBP" in bloco, "entrada de contato KBP ausente"
+    assert "cascading T! SOS" in bloco, "menu cascading T! SOS ausente no menu de contexto"
+    assert "ctx.ps1" in bloco, "referencia ao ctx.ps1 (instalador dos atalhos) ausente"
     assert '"DTI - ' not in bloco, "restou rotulo DTI no menu de contexto"
 
 
