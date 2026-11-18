@@ -1654,6 +1654,419 @@ function Menu-Instalacao {
 }
 
 # =============================================================================
+# MENU: INFORME IP NO RELÓGIO DO WINDOWS
+# =============================================================================
+function Menu-InformeIP {
+    do {
+        Cab "INFORME IP NO RELÓGIO DO WINDOWS"
+        Write-Host "  Exibe um IP no relógio da bandeja do Windows (junto à hora)." -ForegroundColor $C.H
+        Write-Host "  Por padrão, IPs fixos 172.16.x.x (/16) não são exibidos automaticamente," -ForegroundColor $C.H
+        Write-Host "  mas você pode especificar qualquer IP manualmente." -ForegroundColor $C.H
+        Write-Host ""
+        $ips = @(Get-NetIPAddress -AddressFamily IPv4 -ErrorAction SilentlyContinue |
+            Where-Object { $_.IPAddress -notlike '127.*' -and $_.IPAddress -notlike '169.254.*' } |
+            Sort-Object InterfaceAlias)
+        if ($ips.Count -eq 0) {
+            Write-Host "  Nenhum IP IPv4 encontrado." -ForegroundColor $C.E; P; return
+        }
+        for ($i = 0; $i -lt $ips.Count; $i++) {
+            $ip = $ips[$i].IPAddress
+            $fixo = if ($ip -like '172.16.*') { "  [fixo 172.16/16 - não exibido por padrão]" } else { "" }
+            Write-Host ("  {0,2}. {1}  ({2}){3}" -f ($i + 1), $ip, $ips[$i].InterfaceAlias, $fixo) -ForegroundColor $C.M
+        }
+        Write-Host ""
+        Write-Host "  Formato atual do relógio:" -ForegroundColor $C.A
+        $fmtLong = (Get-ItemProperty -Path 'HKCU:\Control Panel\International' -Name 'sTimeFormat' -EA SilentlyContinue).sTimeFormat
+        $fmtShort = (Get-ItemProperty -Path 'HKCU:\Control Panel\International' -Name 'sShortTime' -EA SilentlyContinue).sShortTime
+        Write-Host "    longo:  $fmtLong" -ForegroundColor $C.I
+        Write-Host "    curto:  $fmtShort" -ForegroundColor $C.I
+        if ($fmtShort -match "[A-Za-z]{3,}") {
+            Write-Host "  [AVISO] O formato curto contem texto (possivelmente seu nome)." -ForegroundColor $C.A
+            Write-Host "  Isso impede a exibicao do IP. Use a opcao 1/2/3 para sobrescrever." -ForegroundColor $C.A
+        }
+        Write-Host ""
+        Write-Host "  1. Escolher IP a exibir no relógio" -ForegroundColor $C.M
+        Write-Host "  2. Atualizar IP agora (re-ler IP atual, ignora 172.16/16)" -ForegroundColor $C.M
+        Write-Host "  3. Remover IP do relógio (formato padrão)" -ForegroundColor $C.M
+        Write-Host "  4. Configurar persistência (script em C:\dti\informeIp + tarefa agendada)" -ForegroundColor $C.M
+        Write-Host "  5. Ver status da persistência" -ForegroundColor $C.M
+        Write-Host "  6. Definir texto personalizado (ex: nome) no relógio" -ForegroundColor $C.M
+        Write-Host "  0. Voltar" -ForegroundColor $C.I
+        $op = Read-Host "`n  Opção"
+        switch ($op) {
+            "1" {
+                $n = Read-Host "  Número do IP a exibir (0 = remover)"
+                if ($n -match '^\d+$') {
+                    $idx = [int]$n
+                    if ($idx -eq 0) {
+                        Set-ItemProperty -Path 'HKCU:\Control Panel\International' -Name 'sTimeFormat' -Value "HH:mm"
+                        Set-ItemProperty -Path 'HKCU:\Control Panel\International' -Name 'sShortTime' -Value "HH:mm"
+                        Write-Host "  IP removido do relógio." -ForegroundColor $C.M
+                        $dir = "C:\dti\informeIp"
+                        if (Test-Path $dir) { "NONE" | Out-File -FilePath "$dir\config.txt" -Encoding ASCII -NoNewline }
+                    } elseif ($idx -ge 1 -and $idx -le $ips.Count) {
+                        $ipSel = $ips[$idx - 1].IPAddress
+                        $ipExibir = $ipSel
+                        if ($ipSel -like '172.16.*') {
+                            $p = $ipSel -split '\.'
+                            $ipExibir = "IP: $($p[2]).$($p[3])"
+                        }
+                        if ($ipExibir.Length -gt 39) { $ipExibir = $ipExibir.Substring(0,39) }
+                        Set-ItemProperty -Path 'HKCU:\Control Panel\International' -Name 'sTimeFormat' -Value "HH:mm '$ipExibir'"
+                        Set-ItemProperty -Path 'HKCU:\Control Panel\International' -Name 'sShortTime' -Value "HH:mm '$ipExibir'"
+                        Write-Host "  IP $ipSel definido no relógio." -ForegroundColor $C.M
+                        Write-Host "  Pode ser necessário reiniciar o Explorer para aparecer." -ForegroundColor $C.H
+                        if (Confirmar "Reiniciar o Explorer agora para aplicar? (recomendado)") {
+                            try {
+                                Stop-Process -Name explorer -Force -ErrorAction SilentlyContinue
+                                Start-Sleep -Seconds 2
+                                $exp = "$env:SystemRoot\explorer.exe"
+                                for ($r = 1; $r -le 5; $r++) {
+                                    try { Start-Process $exp; break } catch { Start-Sleep -Seconds 2 }
+                                }
+                            } catch {
+                                Write-Host "  Não foi possível reiniciar o Explorer automaticamente." -ForegroundColor $C.A
+                                Write-Host "  Reinicie o computador ou abra o Gerenciador de Tarefas e inicie 'explorer.exe'." -ForegroundColor $C.A
+                            }
+                        } else {
+                            Write-Host "  Reinicie o Explorer manualmente (Ctrl+Shift+Esc > Arquivo > Executar nova tarefa > explorer.exe)" -ForegroundColor $C.A
+                            Write-Host "  ou reinicie o PC para ver o IP no relógio." -ForegroundColor $C.A
+                        }
+                        $dir = "C:\dti\informeIp"
+                        if (Test-Path $dir) { $ipSel | Out-File -FilePath "$dir\config.txt" -Encoding ASCII -NoNewline }
+                    } else { Write-Host "  Número inválido." -ForegroundColor $C.E }
+                }
+                P
+            }
+            "2" {
+                $ips2 = @(Get-NetIPAddress -AddressFamily IPv4 -ErrorAction SilentlyContinue | Where-Object { $_.IPAddress -notlike '127.*' -and $_.IPAddress -notlike '169.254.*' })
+                $auto = $ips2 | Where-Object { $_.InterfaceAlias -match 'Ethernet|Wi-Fi|WLAN' -and $_.InterfaceAlias -notmatch 'vEthernet|WSL|Hyper-V|Cloudflare|Default' } | Where-Object { $_.IPAddress -notlike '172.16.*' } | Select-Object -First 1
+                if (-not $auto) { $auto = $ips2 | Where-Object { $_.IPAddress -notlike '172.16.*' -and $_.InterfaceAlias -notmatch 'vEthernet|WSL|Hyper-V|Cloudflare|Default' } | Select-Object -First 1 }
+                if (-not $auto) { $auto = $ips2 | Where-Object { $_.IPAddress -notlike '172.16.*' } | Select-Object -First 1 }
+                if (-not $auto) { $auto = $ips2 | Select-Object -First 1 }
+                if ($auto) {
+                    $ipSel2 = $auto.IPAddress
+                    $ipExibir2 = $ipSel2
+                    if ($ipSel2 -like '172.16.*') {
+                        $p2 = $ipSel2 -split '\.'
+                        $ipExibir2 = "IP: $($p2[2]).$($p2[3])"
+                    }
+                    if ($ipExibir2.Length -gt 39) { $ipExibir2 = $ipExibir2.Substring(0,39) }
+                    Set-ItemProperty -Path 'HKCU:\Control Panel\International' -Name 'sTimeFormat' -Value "HH:mm '$ipExibir2'"
+                    Set-ItemProperty -Path 'HKCU:\Control Panel\International' -Name 'sShortTime' -Value "HH:mm '$ipExibir2'"
+                    Write-Host "  IP $ipSel2 aplicado ao relógio (exibido como $ipExibir2)." -ForegroundColor $C.M
+                } else { Write-Host "  Nenhum IP encontrado." -ForegroundColor $C.E }
+                P
+            }
+            "3" {
+                Set-ItemProperty -Path 'HKCU:\Control Panel\International' -Name 'sTimeFormat' -Value "HH:mm"
+                Set-ItemProperty -Path 'HKCU:\Control Panel\International' -Name 'sShortTime' -Value "HH:mm"
+                Write-Host "  Formato padrão restaurado." -ForegroundColor $C.M
+                $dir = "C:\dti\informeIp"
+                if (Test-Path $dir) { "NONE" | Out-File -FilePath "$dir\config.txt" -Encoding ASCII -NoNewline }
+                P
+            }
+            "4" {
+                $dir = "C:\dti\informeIp"
+                $taskName = "kbp_atualiza_ip"
+                Write-Host ""
+                Write-Host "  Removendo configuração anterior..." -ForegroundColor $C.A
+                schtasks /delete /tn $taskName /f 2>$null | Out-Null
+                if (Test-Path $dir) {
+                    Remove-Item -Path "$dir\*" -Recurse -Force -ErrorAction SilentlyContinue
+                } else {
+                    New-Item -ItemType Directory -Path $dir -Force | Out-Null
+                }
+                Write-Host "  Configuração anterior removida." -ForegroundColor $C.M
+                Write-Host ""
+                Write-Host "  Escolha a fonte do IP para a persistência:" -ForegroundColor $C.A
+                $ips = @(Get-NetIPAddress -AddressFamily IPv4 -ErrorAction SilentlyContinue |
+                    Where-Object { $_.IPAddress -notlike '127.*' -and $_.IPAddress -notlike '169.254.*' } |
+                    Sort-Object InterfaceAlias)
+                for ($i = 0; $i -lt $ips.Count; $i++) {
+                    Write-Host ("  {0}. {1}  ({2})" -f ($i + 1), $ips[$i].IPAddress, $ips[$i].InterfaceAlias) -ForegroundColor $C.M
+                }
+                Write-Host "  0. Automático (ignora 172.16/16; usa o primeiro disponível)" -ForegroundColor $C.M
+                $src = Read-Host "  Opção"
+                if ($src -match '^\d+$' -and [int]$src -ge 1 -and [int]$src -le $ips.Count) {
+                    $iface = $ips[[int]$src - 1].InterfaceAlias
+                    "IFACE:$iface" | Out-File -FilePath "$dir\config.txt" -Encoding ASCII -NoNewline
+                    Write-Host "  Fonte: interface '$iface' (IP atual sera lido a cada execucao)" -ForegroundColor $C.M
+                } else {
+                    "AUTO" | Out-File -FilePath "$dir\config.txt" -Encoding ASCII -NoNewline
+                    Write-Host "  Fonte: Automático" -ForegroundColor $C.M
+                }
+                Write-Host ""
+                Write-Host "  Intervalo de repetição da tarefa:" -ForegroundColor $C.A
+                Write-Host "  1. 4 horas (padrão)" -ForegroundColor $C.M
+                Write-Host "  2. 5 minutos (teste)" -ForegroundColor $C.M
+                Write-Host "  3. Outro (informar minutos)" -ForegroundColor $C.M
+                $iv = Read-Host "  Opção"
+                $intervalo = "PT4H"
+                if ($iv -eq "2") { $intervalo = "PT5M" }
+                elseif ($iv -eq "3") {
+                    $mins = Read-Host "  Minutos entre execuções"
+                    if ($mins -match '^\d+$' -and [int]$mins -gt 0) { $intervalo = "PT${mins}M" }
+                    else { Write-Host "  Valor inválido, usando 4 horas." -ForegroundColor $C.A; $intervalo = "PT4H" }
+                }
+                Write-Host "  Intervalo definido: $intervalo" -ForegroundColor $C.M
+                # Script VBS direto (sem PS1): consulta IP e atualiza o relogio
+                $vbs = @"
+' Atualiza o IP/texto exibido no relogio do Windows
+' Gerado automaticamente pelo T! SOS Sistemas
+Option Explicit
+Dim dir, configFile, pref, ip, texto, ipExibir, wsh, fso
+Dim needAuto, ifaceName, ad2, c2, foundIP, bestIP, candidate, desc, i, adapters, adapter, parts
+dir = "C:\dti\informeIp"
+configFile = dir & "\config.txt"
+pref = "AUTO"
+Set fso = CreateObject("Scripting.FileSystemObject")
+If fso.FileExists(configFile) Then
+    Dim tf
+    Set tf = fso.OpenTextFile(configFile, 1)
+    pref = Trim(tf.ReadAll)
+    tf.Close
+End If
+
+ip = ""
+texto = ""
+
+needAuto = False
+
+If Left(pref, 5) = "TEXT:" Then
+    texto = Mid(pref, 6)
+ElseIf Left(pref, 6) = "IFACE:" Then
+    ifaceName = Mid(pref, 7)
+    foundIP = ""
+    Set adapters = GetObject("winmgmts:").ExecQuery("Select * from Win32_NetworkAdapterConfiguration Where IPEnabled = True")
+    ' Preferir correspondencia exata ou mais especifica (evitar vEthernet ao buscar Ethernet)
+    For Each ad2 In adapters
+        If Not IsNull(ad2.IPAddress) Then
+            Dim descLower, ifaceLower
+            descLower = LCase(ad2.Description)
+            ifaceLower = LCase(ifaceName)
+            ' Correspondencia exata ou a descricao contem o nome como palavra (nao como parte de vEthernet)
+            If descLower = ifaceLower Or (InStr(1, descLower, ifaceLower, 1) > 0 And InStr(1, descLower, "vEthernet", 1) = 0 And InStr(1, descLower, "virtual", 1) = 0 And InStr(1, descLower, "wsl", 1) = 0 And InStr(1, descLower, "hyper-v", 1) = 0 And InStr(1, descLower, "cloudflare", 1) = 0 And InStr(1, descLower, "default switch", 1) = 0) Then
+                For c2 = 0 To UBound(ad2.IPAddress)
+                    candidate = ad2.IPAddress(c2)
+                    If Left(candidate, 4) <> "127." And Left(candidate, 8) <> "169.254." And InStr(candidate, ":") = 0 Then
+                        foundIP = candidate
+                        Exit For
+                    End If
+                Next
+            End If
+        End If
+        If foundIP <> "" Then Exit For
+    Next
+    If foundIP <> "" Then
+        ip = foundIP
+    Else
+        needAuto = True
+    End If
+ElseIf pref <> "" And pref <> "AUTO" And pref <> "NONE" Then
+    ip = pref
+ElseIf pref <> "NONE" Then
+    needAuto = True
+End If
+
+If needAuto Then
+    bestIP = ""
+    Set adapters = GetObject("winmgmts:").ExecQuery("Select * from Win32_NetworkAdapterConfiguration Where IPEnabled = True")
+    ' Preferir Ethernet/Wi-Fi nao virtuais com IP nao 172.16
+    For Each adapter In adapters
+        If Not IsNull(adapter.IPAddress) Then
+            For i = 0 To UBound(adapter.IPAddress)
+                candidate = adapter.IPAddress(i)
+                If Left(candidate, 4) <> "127." And Left(candidate, 8) <> "169.254." And InStr(candidate, ":") = 0 Then
+                    desc = adapter.Description
+                    If (InStr(1, desc, "Ethernet", 1) > 0 Or InStr(1, desc, "Wi-Fi", 1) > 0 Or InStr(1, desc, "WLAN", 1) > 0) And InStr(1, desc, "vEthernet", 1) = 0 And InStr(1, desc, "WSL", 1) = 0 And InStr(1, desc, "Hyper-V", 1) = 0 And InStr(1, desc, "Cloudflare", 1) = 0 And InStr(1, desc, "Default", 1) = 0 Then
+                        If Left(candidate, 7) <> "172.16." Then
+                            bestIP = candidate
+                            Exit For
+                        End If
+                    End If
+                End If
+            Next
+        End If
+        If bestIP <> "" Then Exit For
+    Next
+    ' Fallback: primeiro nao 172.16 nao virtual
+    If bestIP = "" Then
+        For Each adapter In adapters
+            If Not IsNull(adapter.IPAddress) Then
+                For i = 0 To UBound(adapter.IPAddress)
+                    candidate = adapter.IPAddress(i)
+                    If Left(candidate, 4) <> "127." And Left(candidate, 8) <> "169.254." And Left(candidate, 7) <> "172.16." And InStr(candidate, ":") = 0 Then
+                        desc = adapter.Description
+                        If InStr(1, desc, "vEthernet", 1) = 0 And InStr(1, desc, "WSL", 1) = 0 And InStr(1, desc, "Hyper-V", 1) = 0 And InStr(1, desc, "Cloudflare", 1) = 0 And InStr(1, desc, "Default", 1) = 0 Then
+                            bestIP = candidate
+                            Exit For
+                        End If
+                    End If
+                Next
+            End If
+            If bestIP <> "" Then Exit For
+        Next
+    End If
+    ' Fallback final: primeiro disponivel
+    If bestIP = "" Then
+        For Each adapter In adapters
+            If Not IsNull(adapter.IPAddress) Then
+                For i = 0 To UBound(adapter.IPAddress)
+                    candidate = adapter.IPAddress(i)
+                    If Left(candidate, 4) <> "127." And Left(candidate, 8) <> "169.254." And InStr(candidate, ":") = 0 Then
+                        bestIP = candidate
+                        Exit For
+                    End If
+                Next
+            End If
+            If bestIP <> "" Then Exit For
+        Next
+    End If
+    ip = bestIP
+End If
+
+
+
+If texto <> "" Then
+    If Len(texto) > 39 Then texto = Left(texto, 39)
+    ipExibir = texto
+ElseIf ip <> "" Then
+    If Left(ip, 7) = "172.16." Then
+        parts = Split(ip, ".")
+        ipExibir = "IP: " & parts(2) & "." & parts(3)
+    Else
+        ipExibir = ip
+    End If
+    If Len(ipExibir) > 39 Then ipExibir = Left(ipExibir, 39)
+Else
+    ipExibir = ""
+End If
+
+Set wsh = CreateObject("WScript.Shell")
+If ipExibir = "" Then
+    wsh.RegWrite "HKCU\Control Panel\International\sTimeFormat", "HH:mm", "REG_SZ"
+    wsh.RegWrite "HKCU\Control Panel\International\sShortTime", "HH:mm", "REG_SZ"
+Else
+    wsh.RegWrite "HKCU\Control Panel\International\sTimeFormat", "HH:mm '" & ipExibir & "'", "REG_SZ"
+    wsh.RegWrite "HKCU\Control Panel\International\sShortTime", "HH:mm '" & ipExibir & "'", "REG_SZ"
+End If
+"@
+                $vbs | Out-File -FilePath "$dir\Atualizar-IpRelogio.vbs" -Encoding ASCII
+                Write-Host "  Script VBS criado em $dir\Atualizar-IpRelogio.vbs" -ForegroundColor $C.M
+                $taskName = "kbp_atualiza_ip"
+                $xmlPath = "$dir\task.xml"
+                $scriptPath = "$dir\Atualizar-IpRelogio.ps1"
+                $xml = @"
+<?xml version="1.0" encoding="UTF-16"?>
+<Task version="1.2" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
+  <RegistrationInfo>
+    <Description>T! SOS - Informe IP Relogio</Description>
+  </RegistrationInfo>
+  <Triggers>
+    <LogonTrigger>
+      <Enabled>true</Enabled>
+    </LogonTrigger>
+    <TimeTrigger>
+      <Repetition>
+        <Interval>$intervalo</Interval>
+      </Repetition>
+      <StartBoundary>2020-01-01T00:00:00</StartBoundary>
+      <Enabled>true</Enabled>
+    </TimeTrigger>
+  </Triggers>
+  <Principals>
+    <Principal id="Author">
+      <LogonType>InteractiveToken</LogonType>
+      <RunLevel>HighestAvailable</RunLevel>
+    </Principal>
+  </Principals>
+  <Settings>
+    <MultipleInstancesPolicy>IgnoreNew</MultipleInstancesPolicy>
+    <DisallowStartIfOnBatteries>false</DisallowStartIfOnBatteries>
+    <StopIfGoingOnBatteries>false</StopIfGoingOnBatteries>
+    <AllowHardTerminate>true</AllowHardTerminate>
+    <StartWhenAvailable>true</StartWhenAvailable>
+    <RunOnlyIfNetworkAvailable>false</RunOnlyIfNetworkAvailable>
+    <AllowStartOnDemand>true</AllowStartOnDemand>
+    <Enabled>true</Enabled>
+    <Hidden>true</Hidden>
+    <RunOnlyIfIdle>false</RunOnlyIfIdle>
+    <WakeToRun>false</WakeToRun>
+    <ExecutionTimeLimit>PT72H</ExecutionTimeLimit>
+    <Priority>7</Priority>
+  </Settings>
+  <Actions Context="Author">
+    <Exec>
+      <Command>wscript.exe</Command>
+      <Arguments>"$dir\Atualizar-IpRelogio.vbs"</Arguments>
+    </Exec>
+  </Actions>
+</Task>
+"@
+                $xml | Out-File -FilePath $xmlPath -Encoding Unicode
+                try {
+                    schtasks /delete /tn $taskName /f 2>$null | Out-Null
+                    $out = schtasks /create /tn $taskName /xml $xmlPath /f 2>&1
+                    if ($LASTEXITCODE -eq 0) {
+                        Write-Host "  Tarefa agendada '$taskName' criada (logon e a cada 4h)." -ForegroundColor $C.M
+                    } else {
+                        Write-Host "  Erro ao criar tarefa: $out" -ForegroundColor $C.E
+                    }
+                } catch {
+                    Write-Host "  Erro ao criar tarefa: $($_.Exception.Message)" -ForegroundColor $C.E
+                }
+                if (-not (Test-Path "$dir\config.txt")) {
+                    "AUTO" | Out-File -FilePath "$dir\config.txt" -Encoding ASCII -NoNewline
+                }
+                P
+            }
+            "5" {
+                $dir = "C:\dti\informeIp"
+                if (Test-Path "$dir\Atualizar-IpRelogio.ps1") {
+                    Write-Host "  Script: OK ($dir\Atualizar-IpRelogio.ps1)" -ForegroundColor $C.M
+                } else { Write-Host "  Script: ausente" -ForegroundColor $C.E }
+                $task = Get-ScheduledTask -TaskName "kbp_atualiza_ip" -ErrorAction SilentlyContinue
+                if ($task) { Write-Host "  Tarefa agendada: $($task.State)" -ForegroundColor $C.M } else { Write-Host "  Tarefa agendada: ausente" -ForegroundColor $C.E }
+                if (Test-Path "$dir\config.txt") { Write-Host "  Config: $(Get-Content "$dir\config.txt")" -ForegroundColor $C.I }
+                P
+            }
+            "6" {
+                $txt = Read-Host "  Texto a exibir no relógio (ex: seu nome)"
+                if ($txt) {
+                    $txt = $txt.Trim()
+                    if ($txt.Length -gt 39) { $txt = $txt.Substring(0,39) }
+                    Set-ItemProperty -Path 'HKCU:\Control Panel\International' -Name 'sTimeFormat' -Value "HH:mm ' $txt'"
+                    Set-ItemProperty -Path 'HKCU:\Control Panel\International' -Name 'sShortTime' -Value "HH:mm ' $txt'"
+                    Write-Host "  Texto '$txt' definido no relógio." -ForegroundColor $C.M
+                    $dir = "C:\dti\informeIp"
+                    if (Test-Path $dir) { "TEXT:$txt" | Out-File -FilePath "$dir\config.txt" -Encoding ASCII -NoNewline }
+                    if (Confirmar "Reiniciar o Explorer agora para aplicar? (recomendado)") {
+                        try {
+                            Stop-Process -Name explorer -Force -ErrorAction SilentlyContinue
+                            Start-Sleep -Seconds 2
+                            $exp = "$env:SystemRoot\explorer.exe"
+                            for ($r = 1; $r -le 5; $r++) {
+                                try { Start-Process $exp; break } catch { Start-Sleep -Seconds 2 }
+                            }
+                        } catch {
+                            Write-Host "  Não foi possível reiniciar o Explorer automaticamente." -ForegroundColor $C.A
+                            Write-Host "  Reinicie o computador ou abra o Gerenciador de Tarefas e inicie 'explorer.exe'." -ForegroundColor $C.A
+                        }
+                    } else {
+                        Write-Host "  Reinicie o Explorer manualmente (Ctrl+Shift+Esc > Arquivo > Executar nova tarefa > explorer.exe)" -ForegroundColor $C.A
+                        Write-Host "  ou reinicie o PC para ver o texto no relógio." -ForegroundColor $C.A
+                    }
+                }
+                P
+            }
+            "0" { return }
+            default { Write-Host "  Opção inválida." -ForegroundColor $C.E; Start-Sleep 1 }
+        }
+    } while ($true)
+}
+
+# =============================================================================
 # MENU PRINCIPAL
 # =============================================================================
 function Menu-Principal {
@@ -1688,10 +2101,11 @@ function Menu-Principal {
         Write-Host "  18. Utilidades Rápidas               (ping, msinfo32, msconfig, calc)" -ForegroundColor $C.M
         Write-Host "  19. Winget                           (usuário comum)" -ForegroundColor $C.M
         Write-Host "  20. Instalação de Programas          (Winget, perfis)" -ForegroundColor $C.M
+        Write-Host "  21. Informe IP no Relógio do Windows (IP na bandeja)" -ForegroundColor $C.M
         Write-Host ""
         Write-Host "   0. Sair" -ForegroundColor $C.E
         Write-Host ""
-        switch (Expandir-Selecao (Read-Host "  Opção [2,3,10 | TODOS | ENTER=todos | 0 sair]") @("1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","teste")) {
+        switch (Expandir-Selecao (Read-Host "  Opção [2,3,10 | TODOS | ENTER=todos | 0 sair]") @("1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","teste")) {
 
 
         
@@ -1718,6 +2132,7 @@ function Menu-Principal {
             "18" { Menu-Utilidades }
             "19" { Menu-Winget }
         "20" { Menu-Instalacao }
+        "21" { Menu-InformeIP }
             "0"  {
                 Write-Host "`n  Encerrando T! SOS Sistemas Ferramenta Técnica..." -ForegroundColor $C.A
                 Log "Sessão encerrada pelo usuario."
