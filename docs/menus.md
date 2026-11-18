@@ -98,6 +98,11 @@ em drives externos, MRT.
   2 = teclado/interativo, 3 = rede, 4 = batch, 5 = serviço, 7 = desbloqueio,
   10 = RDP (RemoteInteractive), 11 = cache do logon. Falha de leitura = aviso,
   sem erro fatal.
+- **Opção 7 (ID 4624 tipo 10, RDP)**: últimos logons remotos bem-sucedidos
+  com quantidade configurável (ENTER = 10, ou informe qualquer número);
+  mesmo visual da opção 2 — data, nome da conta, endereço de rede (IP de
+  origem, `Properties[18]`; tipo de logon em `Properties[8]`) e tipo
+  decodificado (10 = RDP). Falha de leitura = aviso, sem erro fatal.
 - Conexões RDP ativas (porta 3389) e análise completa combinada.
 - **Antivírus real** (opções 11–18, em vez do placebo do `.bat` clássico):
   status do Defender (`Get-MpComputerStatus`), atualização de assinaturas
