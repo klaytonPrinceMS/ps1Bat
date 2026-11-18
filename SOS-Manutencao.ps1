@@ -1252,7 +1252,7 @@ function Menu-SegInfo {
         Cab "12. SEGURANÇA DA INFORMAÇÃO - AUDITORIA E ANTIVÍRUS"
         Write-Host "  -- Auditoria de eventos --------------------------------" -ForegroundColor $C.H
         Write-Host "  1. Processos suspeitos (sem path, alta CPU/handles)" -ForegroundColor $C.M
-        Write-Host "  2. Tentativas de logon com falha (força bruta - ID 4625)" -ForegroundColor $C.M
+        Write-Host "  2. Falhas de logon (ID 4625): últimos N, tipo de logon e IP" -ForegroundColor $C.M
         Write-Host "  3. Criação de contas de usuario (ID 4720)" -ForegroundColor $C.M
         Write-Host "  4. Alterações em grupos privilegiados (ID 4728)" -ForegroundColor $C.M
         Write-Host "  5. Alterações e redefinições de senha (ID 4723/4724)" -ForegroundColor $C.M
@@ -1273,7 +1273,15 @@ function Menu-SegInfo {
         Write-Host "  0. Voltar" -ForegroundColor $C.I
         switch (Expandir-Selecao (Read-Host "`n  Opção [2,3,10 | TODOS | ENTER=todas | 0 volta]") @("1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18")) {
             "1"  { Verificar-Processos-Suspeitos }
-            "2"  { Run "Tentativas de logon com falha (ID 4625)..." "Busca os últimos 50 eventos de falha de autenticação. Muitas falhas seguidas do mesmo IP ou conta indicam ataque de força bruta ou password spraying. Investigue se houver padrão." @('Get-WinEvent -FilterHashtable @{LogName="Security"; Id=4625} -MaxEvents 50 -EA SilentlyContinue | Select-Object @{N="Data";E={$_.TimeCreated}},@{N="Conta";E={$_.Properties[5].Value}},@{N="IP_Origem";E={$_.Properties[18].Value}} | Format-Table -AutoSize') -PS -Win }
+            "2"  {
+                $qtd = Read-Host "  Quantas falhas de logon exibir? (ENTER = 10)"
+                if ([string]::IsNullOrWhiteSpace($qtd)) { $qtd = "10" }
+                elseif ($qtd -notmatch '^\d+$') { Write-Host "  Quantidade inválida; usando 10." -ForegroundColor $C.E; $qtd = "10" }
+                elseif ([int]$qtd -lt 1) { Write-Host "  Mínimo 1; usando 1." -ForegroundColor $C.E; $qtd = "1" }
+                if (Confirmar "Consulta os últimos $qtd eventos de falha de autenticação (ID 4625) no log Security. Apenas leitura; nada é alterado no sistema. Exibe data, conta, endereço de rede (IP de origem) e tipo de logon (2=teclado/interativo, 3=rede, 4=batch/agendada, 5=serviço, 7=desbloqueio, 8=cleartext, 9=novas credenciais, 10=RDP, 11=cache).") {
+                    Run "Tentativas de logon com falha (ID 4625) - últimos $qtd..." "Busca os últimos $qtd eventos de falha de autenticação. Muitas falhas seguidas da mesma conta ou do mesmo IP indicam ataque de força bruta ou password spraying. Investigue se houver padrão." @('Get-WinEvent -FilterHashtable @{LogName="Security"; Id=4625} -MaxEvents ' + $qtd + ' -EA SilentlyContinue | Select-Object @{N="Data";E={$_.TimeCreated}},@{N="Conta";E={$_.Properties[5].Value}},@{N="Tipo_Logon";E={switch ($_.Properties[10].Value) {2 {"2 - Interactive (teclado)"} 3 {"3 - Network (rede)"} 4 {"4 - Batch (agendada)"} 5 {"5 - Service"} 7 {"7 - Unlock"} 8 {"8 - NetworkCleartext"} 9 {"9 - NewCredentials"} 10 {"10 - RemoteInteractive (RDP)"} 11 {"11 - CachedInteractive"} default {"desconhecido"}}}},@{N="IP_Origem";E={$_.Properties[19].Value}} | Format-Table -AutoSize') -PS -Win
+                }
+            }
             "3"  { Run "Criação de contas de usuario (ID 4720)..." "Verifica os últimos 20 eventos de criação de conta local. Contas criadas sem autorização podem indicar comprometimento do sistema ou acesso não autorizado com privilégios elevados." @('Get-WinEvent -FilterHashtable @{LogName="Security"; Id=4720} -MaxEvents 20 -EA SilentlyContinue | Select-Object @{N="Data";E={$_.TimeCreated}},@{N="Nova_Conta";E={$_.Properties[0].Value}},@{N="Criado_Por";E={$_.Properties[4].Value}} | Format-Table -AutoSize') -PS -Win }
             "4"  { Run "Alterações em grupos privilegiados (ID 4728)..." "Verifica adições a grupos de segurança privilegiados como Administradores. Alterações não autorizadas podem indicar escalação de privilégios ou movimento lateral de um invasor." @('Get-WinEvent -FilterHashtable @{LogName="Security"; Id=4728} -MaxEvents 20 -EA SilentlyContinue | Select-Object @{N="Data";E={$_.TimeCreated}},@{N="Membro_Adicionado";E={$_.Properties[0].Value}},@{N="Grupo";E={$_.Properties[2].Value}},@{N="Por";E={$_.Properties[4].Value}} | Format-Table -AutoSize') -PS -Win }
             "5"  { Run "Alterações de senha (ID 4723/4724)..." "Verifica eventos de alteração de senha (4723 = usuario muda propria senha, 4724 = admin redefine senha de outro). Alterações não autorizadas indicam comprometimento ou acesso indevido." @('Get-WinEvent -FilterHashtable @{LogName="Security"; Id=4723,4724} -MaxEvents 20 -EA SilentlyContinue | Select-Object @{N="Data";E={$_.TimeCreated}},@{N="Conta_Alvo";E={$_.Properties[0].Value}},@{N="Alterado_Por";E={$_.Properties[4].Value}},Id | Format-Table -AutoSize') -PS -Win }

@@ -92,6 +92,12 @@ em drives externos, MRT.
 - IDs auditados: 4625 (falha de logon), 4720 (criação de conta), 4728
   (grupos privilegiados), 4723/4724 (senhas), 1102 (**limpeza de log —
   altamente suspeito**), 4624 tipo 10 (RDP), 4624/4634 (logon/logoff).
+- **Opção 2 (ID 4625)**: últimas falhas de logon com quantidade configurável
+  (ENTER = 10, ou informe qualquer número); exibe data, nome da conta,
+  endereço de rede (IP de origem) e tipo de logon decodificado:
+  2 = teclado/interativo, 3 = rede, 4 = batch, 5 = serviço, 7 = desbloqueio,
+  10 = RDP (RemoteInteractive), 11 = cache do logon. Falha de leitura = aviso,
+  sem erro fatal.
 - Conexões RDP ativas (porta 3389) e análise completa combinada.
 - **Antivírus real** (opções 11–18, em vez do placebo do `.bat` clássico):
   status do Defender (`Get-MpComputerStatus`), atualização de assinaturas
