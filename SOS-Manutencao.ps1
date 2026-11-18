@@ -2009,7 +2009,7 @@ End If
                     schtasks /delete /tn $taskName /f 2>$null | Out-Null
                     $out = schtasks /create /tn $taskName /xml $xmlPath /f 2>&1
                     if ($LASTEXITCODE -eq 0) {
-                        Write-Host "  Tarefa agendada '$taskName' criada (logon e a cada 4h)." -ForegroundColor $C.M
+                        Write-Host "  Tarefa agendada '$taskName' criada (logon e a cada $intervalo)." -ForegroundColor $C.M
                     } else {
                         Write-Host "  Erro ao criar tarefa: $out" -ForegroundColor $C.E
                     }
