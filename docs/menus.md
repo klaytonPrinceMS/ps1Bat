@@ -104,6 +104,28 @@ em drives externos, MRT.
   origem, `Properties[18]`; tipo de logon em `Properties[8]`) e tipo
   decodificado (10 = RDP). Falha de leitura = aviso, sem erro fatal.
 - Conexões RDP ativas (porta 3389) e análise completa combinada.
+- **Auditoria de contas e acessos** (opções 19–21): inventário de usuários
+  locais e grupo Administradores, contas inativas/senha sem expiração
+  (`Get-LocalUser`) e permissões ACL em diretórios.
+- **Antivírus e endpoint** (opções 22–24): exclusões do Defender
+  (`Get-MpPreference` — ExclusionPath/ExclusionProcess), status do BitLocker
+  (`Get-BitLockerVolume`) e auditoria de firewall (`Get-NetFirewallProfile`,
+  `Get-NetFirewallRule`).
+- **Rede e superfície de ataque** (opções 25–28): portas abertas e conexões
+  ativas (`Get-NetTCPConnection`, `Get-NetUDPEndpoint`), teste de conectividade
+  para RDP 3389 / SMB 445 / WinRM 5985 (`Test-NetConnection`), protocolos
+  legados (SMBv1, TLS 1.0/1.1) e compartilhamentos de rede (`Get-SmbShare`).
+- **Persistência e integridade** (opções 29–33): itens de inicialização
+  (`Run` HKLM/HKCU, `Win32_StartupCommand`, `ScheduledTask`), serviços com
+  caminhos suspeitos em %TEMP%/AppData (`Win32_Service`), assinatura digital
+  de executáveis (`Get-AuthenticodeSignature`), hash SHA256 (`Get-FileHash`) e
+  coleta de evidências forense com timestamp (`Export-Csv`, `Compress-Archive`).
+- **Conformidade e hardening** (opções 34–39): patches (`Get-HotFix`),
+  baseline CIS/STIG (`secedit /export`, `auditpol`, `Get-ExecutionPolicy`),
+  políticas de senha (`net accounts`), Script Block Logging (evento 4104 —
+  **habilita a chave de registro** `ScriptBlockLogging`), eventos de conta
+  4722/4738/4732 e membros de grupos privilegiados do AD (requer módulo
+  ActiveDirectory/RSAT; sem ele a opção avisa e não falha).
 - **Antivírus real** (opções 11–18, em vez do placebo do `.bat` clássico):
   status do Defender (`Get-MpComputerStatus`), atualização de assinaturas
   (`Update-MpSignature`), scan rápido e completo (`Start-MpScan`),
