@@ -15,7 +15,10 @@ Cadeia completa: `INÍCIO → Fixar-Janela → Garantir-Admin (UAC) → SPLASH +
 (SID S-1-5-32-544, máx. 3 tentativas) → AUTENTICADO? → Menu-Principal`. Abaixo dela, os
 21 módulos em 5 grupos (Manutenção 1–9 · Rede 10 · Segurança 11–12 · Diagnóstico 13–15 ·
 Sistema 16–21), o motor de execução (`Run → Desc → Confirmar → Execução → Log`, log em
-`%TEMP%\SOS_Manutencao.log`) e as proteções/auditoria. O vetor editável fica em
+`%TEMP%\SOS_Manutencao.log`) e as proteções/auditoria. A seção final resume as
+opções e submenus criados no Menu 12: contas/endpoint (19–24),
+rede/forense (25–33), hardening (34–39) e o submenu de USB/pendrives
+(opção 40, com 22 ações). O vetor editável fica em
 `docs/assets/fluxograma.svg` (neste site: [assets/fluxograma.svg](assets/fluxograma.svg)).
 
 O Menu 12 inclui o submenu de **drives USB e pendrives** (opção 40): ao entrar,

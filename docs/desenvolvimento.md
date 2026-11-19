@@ -84,10 +84,14 @@ Arquivos: `mkdocs.yml` (navegação), `docs/` (páginas em Markdown).
 Ao adicionar um menu ao script, documente-o em `docs/menus.md` e atualize
 a tabela de menus do `README.md`.
 
-O fluxograma de execução fica em `docs/assets/fluxograma.{svg,png}`. Ao alterar a
-cadeia de entrada (`Fixar-Janela → Garantir-Admin → Autenticar → Menu-Principal`), os
-grupos de menus ou o motor de execução, edite também o SVG — o PNG é gerado a partir
-dele.
+O fluxograma de execução fica em `docs/assets/fluxograma.{svg,png}` (canvas
+1920×1660). Ao alterar a cadeia de entrada
+(`Fixar-Janela → Garantir-Admin → Autenticar → Menu-Principal`), os grupos de
+menus, o motor de execução ou as opções do Menu 12, edite também o SVG — o PNG
+é gerado a partir dele, mantendo as mesmas dimensões do `viewBox`. A seção
+final `MENU 12 · OPÇÕES E SUBMENUS CRIADOS` resume os blocos 19–24 (contas e
+endpoint), 25–33 (rede e forense), 34–39 (hardening) e 40 (USB/pendrives);
+atualize-a quando entrarem novas opções.
 
 ## Publicação (GitHub Pages)
 

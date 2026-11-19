@@ -37,7 +37,15 @@ def test_fluxograma_reflete_estado_atual():
     png = (ROOT / "docs/assets/fluxograma.png").read_bytes()
     assert png[:8] == b"\x89PNG\r\n\x1a\n", "fluxograma.png nao e PNG valido"
     assert len(png) > 10000, "fluxograma.png vazio ou invalido"
-    assert "usb/pendrives (op. 40)" in svg.lower(), "SVG sem o submenu USB"
+    import struct
+    larg, alt = struct.unpack(">II", png[16:24])
+    assert (larg, alt) == (1920, 1660), f"PNG {larg}x{alt} diferente do viewBox do SVG"
+    for trecho in ("MENU 12 · OPÇÕES E SUBMENUS CRIADOS", "19-21 · CONTAS",
+                   "25-28 · REDE", "34-39 · HARDENING", "40 · USB / PENDRIVES",
+                   "22 pipeline"):
+        assert trecho.lower() in svg.lower(), f"SVG sem o resumo: {trecho}"
+    assert 'viewBox="0 0 1920 1660"' in svg, "viewBox nao expandido para o resumo"
+    assert "usb/pendrives" in svg.lower(), "SVG sem o submenu USB"
     assert "pytest em tests/" in svg, "SVG sem a referencia ao pytest"
     assert "27 testes" not in svg, "SVG com contagem de testes desatualizada"
     assert "bom + crlf" in svg.lower(), "SVG sem a trava de encoding"
