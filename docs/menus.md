@@ -126,6 +126,46 @@ em drives externos, MRT.
   **habilita a chave de registro** `ScriptBlockLogging`), eventos de conta
   4722/4738/4732 e membros de grupos privilegiados do AD (requer módulo
   ActiveDirectory/RSAT; sem ele a opção avisa e não falha).
+- **Opção 40 — Drives USB e pendrives**: submenu dedicado a mídias removíveis.
+  Ao entrar, lista automaticamente discos USB (`Get-Disk`, `BusType = USB`)
+  e volumes removíveis (`Get-Volume`, `DriveType = Removable`) com modelo,
+  tamanho e estado. Opções que agem sobre um pendrive pedem a letra e exibem
+  modelo/tamanho para confirmação antes da execução; itens globais (histórico,
+  eventos, políticas) não exigem mídia conectada.
+
+  - **Inventário** (1–4): discos USB conectados; volumes removíveis e letras;
+    histórico de pendrives em `HKLM:\SYSTEM\CurrentControlSet\Enum\USBSTOR`
+    (modelo + serial, útil para forense); dispositivos USB/HID presentes
+    (`Get-PnpDevice`, classes `USB`, `DiskDrive`, `HIDClass`, `Keyboard`) para
+    detectar dispositivos que se passam por teclado (BadUSB).
+  - **Auditoria e monitoramento** (5–8): eventos de conexão/remoção do log
+    `Microsoft-Windows-DriverFrameworks-UserMode/Operational` (IDs
+    2003/2100/2101 — o log é habilitado se estiver desligado); auditoria
+    Plug and Play (evento 6416) e armazenamento removível (evento 4663) via
+    `auditpol`; monitoramento em tempo real com
+    `Register-CimIndicationEvent` em `Win32_VolumeChangeEvent` (EventType 2 =
+    inserção, 3 = remoção), registrando cada evento no log com timestamp;
+    `Q` encerra o monitor.
+  - **Bloqueio e controle** (9–14): `USBSTOR\Start = 4` (mouse/teclado
+    continuam funcionando); `WriteProtect = 1`; política equivalente à GPO
+    (`RemovableStorageDevices\{53f5630d-...}` com `Deny_Write`/`Deny_Execute`);
+    `NoDriveTypeAutoRun = 255` e `NoAutoplayfornonVolume = 1`;
+    desabilitar dispositivo USB específico via `Disable-PnpDevice`;
+    `Set-Disk -IsReadOnly $true` em um disco USB confirmado.
+  - **Criptografia** (15–16): BitLocker To Go (`Enable-BitLocker` XtsAes256
+    com protetor por senha + chave de recuperação) e
+    `FVE\RDVDenyWriteAccess = 1` para permitir gravação apenas em mídias
+    protegidas.
+  - **Análise e higienização** (17–20): `Start-MpScan -ScanType CustomScan`
+    com `DisableRemovableDriveScanning = $false`; busca de `autorun.inf`,
+    executáveis, scripts, atalhos `.lnk` e arquivos ocultos/de sistema;
+    hash SHA256 (`Get-FileHash`) e assinatura digital
+    (`Get-AuthenticodeSignature`) de binários; sanitização irreversível com
+    `Format-Volume -Full` + `cipher /w` (exige digitar `APAGAR`).
+  - **Reversão e pipeline** (21–22): item 21 restaura os valores originais
+    de registro salvos antes dos bloqueios 9–12
+    (`%TEMP%\SOS_USB_Rollback.txt`); item 22 executa o fluxo detectar →
+    identificar → escanear → listar suspeitos → registrar tudo no log.
 - **Antivírus real** (opções 11–18, em vez do placebo do `.bat` clássico):
   status do Defender (`Get-MpComputerStatus`), atualização de assinaturas
   (`Update-MpSignature`), scan rápido e completo (`Start-MpScan`),

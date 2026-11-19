@@ -71,6 +71,23 @@ def test_menu_contexto_marca():
     assert '"DTI - ' not in bloco, "restou rotulo DTI no menu de contexto"
 
 
+def test_menu_usb_drives_dispatch_e_opcoes():
+    texto = (ROOT / "SOS-Manutencao.ps1").read_text(encoding="utf-8")
+    assert "function Menu-UsbDrives" in texto
+    seg = texto.split("function Menu-SegInfo", 1)[1].split("\nfunction ", 1)[0]
+    assert '"40" { Menu-UsbDrives }' in seg, "submenu USB nao despachado pelo Menu 12"
+    bloco = texto.split("function Menu-UsbDrives", 1)[1].split("\n# ===", 1)[0]
+    for n in range(1, 23):
+        assert f'"{n}" {{' in bloco, f"opcao {n} ausente"
+    for trecho in ("Get-Disk", "Get-Volume", "USBSTOR", "Get-PnpDevice",
+                   "Register-CimIndicationEvent", "auditpol", "WriteProtect",
+                   "RDVDenyWriteAccess", "Start-MpScan", "Get-FileHash",
+                   "cipher /w", "Restore-UsbRollback"):
+        assert trecho in bloco, f"controle ausente no submenu USB: {trecho}"
+    assert "function Save-UsbRollback" in texto, "sem gravacao de rollback"
+    assert "function Set-UsbRegistryValue" in texto, "sem captura do valor original"
+
+
 def test_multiselecao_todos_os_menus():
     import re
     texto = (ROOT / "SOS-Manutencao.ps1").read_text(encoding="utf-8")

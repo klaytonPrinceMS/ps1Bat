@@ -20,7 +20,7 @@
     10. Rede e DNS                       (TCP/IP reset, flush, tracert, IP estático)
     SEGURANÇA:
     11. Segurança e Permissões           (ICACLS, takeown, USB, Firewall, ExecPolicy)
-    12. Segurança da Informação          (auditoria, Defender, MRT, RDP)
+    12. Segurança da Informação          (auditoria, Defender, MRT, RDP, USB/pendrives)
     DIAGNÓSTICO E TESTES:
     13. Diagnóstico Avançado             (processos, eventos, WinSAT, hardware, wmic)
     14. Placa de Vídeo e Monitor         (dxdiag, DCOM, GPU reset)
@@ -1292,8 +1292,9 @@ function Menu-SegInfo {
         Write-Host "  37. PowerShell Script Block Logging" -ForegroundColor $C.M
         Write-Host "  38. Eventos de conta (4722/4738/4732)" -ForegroundColor $C.M
         Write-Host "  39. Grupos privilegiados no AD" -ForegroundColor $C.M
+        Write-Host "  40. Drives USB e pendrives (listar, auditar, bloquear)" -ForegroundColor $C.M
         Write-Host "  0. Voltar" -ForegroundColor $C.I
-        switch (Expandir-Selecao (Read-Host "`n  Opção [2,3,10 | TODOS | ENTER=todas | 0 volta]") @("1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39")) {
+        switch (Expandir-Selecao (Read-Host "`n  Opção [2,3,10 | TODOS | ENTER=todas | 0 volta]") @("1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40")) {
             "1"  { Verificar-Processos-Suspeitos }
             "2"  {
                 $qtd = Read-Host "  Quantas falhas de logon exibir? (ENTER = 10)"
@@ -1350,8 +1351,444 @@ function Menu-SegInfo {
             "37" { Run "Script Block Logging (PowerShell)..." "Habilita o log de blocos de script (evento 4104) e consulta os ultimos registros. ALTERA configuracao do sistema (registro) para habilitar o log." @('if (-not (Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell\ScriptBlockLogging")) { New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell\ScriptBlockLogging" -Force | Out-Null }; Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell\ScriptBlockLogging" -Name "EnableScriptBlockLogging" -Value 1 -Type DWord -Force; Get-WinEvent -FilterHashtable @{LogName="Microsoft-Windows-PowerShell/Operational"; Id=4104} -MaxEvents 10 -EA SilentlyContinue | Select-Object @{N="Data";E={$_.TimeCreated.ToString("dd/MM/yyyy HH:mm:ss")}},@{N="Trecho";E={$_.Message.Substring(0,[Math]::Min(60,$_.Message.Length))}} | Format-List') -PS -Win }
             "38" { Run "Eventos de conta (4722/4738/4732)..." "Complementa a deteccao de contas: 4722 (conta habilitada), 4738 (conta alterada), 4732 (membro adicionado a grupo local). Apenas leitura." @('Get-WinEvent -FilterHashtable @{LogName="Security"; Id=4722,4738,4732} -MaxEvents 30 -EA SilentlyContinue | Select-Object @{N="Data";E={$_.TimeCreated.ToString("dd/MM/yyyy HH:mm:ss")}},@{N="ID";E={$_.Id}},@{N="Alvo";E={$_.Properties[0].Value}},@{N="Por";E={$_.Properties[4].Value}} | Format-List') -PS -Win }
             "39" { Run "Grupos privilegiados no AD..." "Lista membros de Domain Admins/Enterprise Admins (requer modulo ActiveDirectory/RSAT). Apenas leitura." @('try { Import-Module ActiveDirectory -EA Stop; Get-ADGroupMember "Domain Admins" -Recursive | Select-Object Name, SamAccountName, ObjectClass | Format-Table -AutoSize; Write-Host ""; Get-ADGroupMember "Enterprise Admins" -Recursive | Select-Object Name, SamAccountName | Format-Table -AutoSize } catch { Write-Host "Modulo ActiveDirectory indisponivel (instale RSAT-AD-PowerShell) ou maquina sem dominio." }') -PS -Win }
+            "40" { Menu-UsbDrives }
             "0"  { return }
             default { Write-Host "  Opção inválida." -ForegroundColor $C.E; Start-Sleep 1 }
+        }
+    } while ($true)
+}
+
+# =============================================================================
+# MENU 40: DRIVES USB E PENDRIVES (AUDITORIA E CONTROLE)
+# =============================================================================
+# Rotinas auxiliares de rollback: guardam o valor original do registro antes
+# de qualquer bloqueio (itens 9 a 12) para permitir reversao pelo item 21.
+$script:UsbRollbackFile = "$env:TEMP\SOS_USB_Rollback.txt"
+
+function Save-UsbRollback {
+    param([string]$Chave, [string]$Nome, $ValorOriginal)
+    if ($null -eq $ValorOriginal) { $ValorOriginal = "(ausente)" }
+    "$Chave|$Nome|$ValorOriginal" | Out-File -Append -FilePath $script:UsbRollbackFile -Encoding UTF8
+    Log "Rollback salvo: $Chave\$Nome = $ValorOriginal"
+}
+
+function Set-UsbRegistryValue {
+    param([string]$Chave, [string]$Nome, $Valor, [string]$Tipo = "DWord")
+    if (-not (Test-Path $Chave)) { New-Item -Path $Chave -Force | Out-Null }
+    $item = Get-Item -Path $Chave -EA SilentlyContinue
+    $atual = $null
+    if ($item -and ($item.GetValueNames() -contains $Nome)) { $atual = $item.GetValue($Nome) }
+    Save-UsbRollback $Chave $Nome $atual
+    Set-ItemProperty -Path $Chave -Name $Nome -Value $Valor -Type $Tipo -Force
+}
+
+function Restore-UsbRollback {
+    if (-not (Test-Path $script:UsbRollbackFile)) {
+        Write-Host "  Nenhum rollback registrado nesta maquina." -ForegroundColor $C.E
+        return
+    }
+    $linhas = @(Get-Content $script:UsbRollbackFile -EA SilentlyContinue | Where-Object { "$_".Trim() -ne "" })
+    if ($linhas.Count -eq 0) {
+        Write-Host "  Arquivo de rollback vazio." -ForegroundColor $C.E
+        return
+    }
+    Write-Host "  Restaurando $($linhas.Count) valor(es) original(is)..."
+    foreach ($l in $linhas) {
+        $p = "$l" -split '\|', 3
+        if ($p.Count -lt 3) { continue }
+        $chave = $p[0]; $nome = $p[1]; $valor = $p[2]
+        try {
+            if (-not (Test-Path $chave)) { New-Item -Path $chave -Force | Out-Null }
+            if ($valor -eq "(ausente)") {
+                Remove-ItemProperty -Path $chave -Name $nome -EA SilentlyContinue
+            } else {
+                Set-ItemProperty -Path $chave -Name $nome -Value $valor -Type DWord -Force
+            }
+            Write-Host "  OK: $chave\$nome = $valor" -ForegroundColor $C.M
+            Log "Rollback aplicado: $chave\$nome = $valor"
+        } catch {
+            Write-Host "  Falha em $chave\$nome : $_" -ForegroundColor $C.E
+        }
+    }
+    Move-Item -Path $script:UsbRollbackFile -Destination "$script:UsbRollbackFile.done" -Force -EA SilentlyContinue
+}
+
+function Menu-UsbDrives {
+    # -- Helpers locais -------------------------------------------------------
+    function Mostrar-InventarioUSB {
+        Write-Host "  == DISCOS USB CONECTADOS ==================================" -ForegroundColor $C.H
+        $discos = @(Get-Disk -EA SilentlyContinue | Where-Object BusType -eq 'USB')
+        if ($discos.Count -gt 0) {
+            $discos | Select-Object Number,
+                @{N='Modelo';E={$_.FriendlyName}},
+                @{N='TamanhoGB';E={[math]::Round($_.Size / 1GB, 2)}},
+                OperationalStatus, BusType | Format-Table -AutoSize
+        } else { Write-Host "  (nenhum disco USB detectado)" -ForegroundColor $C.I }
+        Write-Host "  == VOLUMES REMOVIVEIS / PENDRIVES =========================" -ForegroundColor $C.H
+        $vols = @(Get-Volume -EA SilentlyContinue | Where-Object DriveType -eq 'Removable')
+        if ($vols.Count -gt 0) {
+            $vols | Select-Object DriveLetter, FileSystemLabel,
+                @{N='TamanhoGB';E={[math]::Round($_.Size / 1GB, 2)}},
+                FileSystem, DriveType | Format-Table -AutoSize
+        } else { Write-Host "  (nenhum volume removivel detectado)" -ForegroundColor $C.I }
+        Write-Host ""
+    }
+
+    function Selecionar-Pendrive {
+        param([string]$Acao = "a operacao")
+        $vols = @(Get-Volume -EA SilentlyContinue | Where-Object { $_.DriveType -eq 'Removable' -and $_.DriveLetter })
+        if ($vols.Count -eq 0) {
+            Write-Host "  Nenhum pendrive com letra atribuida encontrado." -ForegroundColor $C.E
+            return $null
+        }
+        Write-Host "  Pendrives disponiveis:" -ForegroundColor $C.H
+        $vols | Select-Object DriveLetter, FileSystemLabel,
+            @{N='TamanhoGB';E={[math]::Round($_.Size / 1GB, 2)}} | Format-Table -AutoSize
+        $entrada = (Read-Host "  Letra da unidade para $Acao (ENTER=cancelar)").Trim().TrimEnd(':').ToUpper()
+        if (-not $entrada) { return $null }
+        $vol = $vols | Where-Object DriveLetter -eq ([char]$entrada[0]) | Select-Object -First 1
+        if (-not $vol) {
+            Write-Host "  A letra $entrada nao corresponde a um volume removivel." -ForegroundColor $C.E
+            return $null
+        }
+        $disco = @(Get-Partition -DriveLetter $entrada -EA SilentlyContinue | Get-Disk -EA SilentlyContinue)[0]
+        $modelo = if ($disco) { $disco.FriendlyName } else { $vol.FileSystemLabel }
+        $tamanho = if ($disco) { "{0:N2} GB" -f ($disco.Size / 1GB) } else { "{0:N2} GB" -f ($vol.Size / 1GB) }
+        Write-Host "  ALVO: ${entrada}: | $modelo | $tamanho" -ForegroundColor $C.A
+        $ok = Read-Host "  Confirma $Acao em ${entrada}:? (s/N)"
+        if ($ok -notmatch '^(?i:s|sim)$') {
+            Write-Host "  Cancelado." -ForegroundColor $C.A
+            return $null
+        }
+        Log "Alvo confirmado: ${entrada}: $modelo $tamanho ($Acao)"
+        return $entrada
+    }
+
+    do {
+        Cab "40. DRIVES USB E PENDRIVES"
+        Mostrar-InventarioUSB
+        Write-Host "  -- Inventario e identificacao ------------------------------" -ForegroundColor $C.H
+        Write-Host "   1. Listar discos USB conectados (numero, tamanho, estado)"
+        Write-Host "   2. Listar volumes removiveis e letras atribuidas"
+        Write-Host "   3. Historico de pendrives ja conectados (USBSTOR)"
+        Write-Host "   4. Dispositivos USB e HID presentes (BadUSB)"
+        Write-Host "  -- Auditoria e monitoramento -------------------------------" -ForegroundColor $C.H
+        Write-Host "   5. Eventos de conexao/remocao (DFU 2003/2100/2101)"
+        Write-Host "   6. Auditoria Plug and Play (evento 6416)"
+        Write-Host "   7. Auditoria armazenamento removivel (evento 4663)"
+        Write-Host "   8. Monitoramento em tempo real (insercao/remocao)"
+        Write-Host "  -- Bloqueio e controle de acesso ---------------------------" -ForegroundColor $C.H
+        Write-Host "   9. Desabilitar driver USBSTOR (bloqueio total)"
+        Write-Host "  10. Forcar modo somente leitura (WriteProtect)"
+        Write-Host "  11. Politica de acesso a discos removiveis (GPO)"
+        Write-Host "  12. Desabilitar AutoRun e AutoPlay"
+        Write-Host "  13. Desabilitar dispositivo USB especifico"
+        Write-Host "  14. Disco USB especifico em modo somente leitura"
+        Write-Host "  -- Criptografia e protecao de dados ------------------------" -ForegroundColor $C.H
+        Write-Host "  15. Criptografar pendrive (BitLocker To Go)"
+        Write-Host "  16. Exigir criptografia para gravar em pendrives"
+        Write-Host "  -- Analise e higienizacao ----------------------------------" -ForegroundColor $C.H
+        Write-Host "  17. Varredura do pendrive com o Defender"
+        Write-Host "  18. Procurar arquivos suspeitos e ocultos"
+        Write-Host "  19. Hash SHA256 e assinatura digital dos executaveis"
+        Write-Host "  20. Sanitizacao segura de pendrives"
+        Write-Host "  -- Reversao e pipeline -------------------------------------" -ForegroundColor $C.H
+        Write-Host "  21. Restaurar bloqueios (rollback dos itens 9 a 12)"
+        Write-Host "  22. Pipeline: detectar, escanear, listar e registrar em log"
+        Write-Host "   0. Voltar" -ForegroundColor $C.I
+        switch (Expandir-Selecao (Read-Host "`n  Opcao [1..22 | TODOS | ENTER=todas | 0 volta]") @("1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","0")) {
+            "1" {
+                $discos = @(Get-Disk -EA SilentlyContinue | Where-Object BusType -eq 'USB')
+                if ($discos.Count -gt 0) {
+                    $discos | Select-Object Number,
+                        @{N='Modelo';E={$_.FriendlyName}},
+                        @{N='TamanhoGB';E={[math]::Round($_.Size / 1GB, 2)}},
+                        OperationalStatus, BusType | Format-Table -AutoSize
+                } else { Write-Host "  Nenhum disco USB encontrado." -ForegroundColor $C.E }
+                P
+            }
+            "2" {
+                $vols = @(Get-Volume -EA SilentlyContinue | Where-Object DriveType -eq 'Removable')
+                if ($vols.Count -gt 0) {
+                    $vols | Select-Object DriveLetter, FileSystemLabel,
+                        @{N='TamanhoGB';E={[math]::Round($_.Size / 1GB, 2)}},
+                        FileSystem, DriveType | Format-Table -AutoSize
+                } else { Write-Host "  Nenhum volume removivel encontrado." -ForegroundColor $C.E }
+                P
+            }
+            "3" {
+                $chave = "HKLM:\SYSTEM\CurrentControlSet\Enum\USBSTOR"
+                if (Test-Path $chave) {
+                    $hist = @(Get-ChildItem "$chave\*\*" -EA SilentlyContinue | ForEach-Object {
+                        [pscustomobject]@{
+                            Modelo = (Get-ItemProperty -Path $_.PSPath -Name FriendlyName -EA SilentlyContinue).FriendlyName
+                            Serial = $_.PSChildName
+                        }
+                    })
+                    if ($hist.Count -gt 0) {
+                        $hist | Select-Object Modelo, Serial | Format-Table -AutoSize
+                        Write-Host "  Total de dispositivos no historico: $($hist.Count)" -ForegroundColor $C.I
+                    } else { Write-Host "  Nenhum historico de pendrives encontrado." -ForegroundColor $C.E }
+                } else { Write-Host "  Chave USBSTOR nao encontrada." -ForegroundColor $C.E }
+                P
+            }
+            "4" {
+                $disp = @(Get-PnpDevice -PresentOnly -EA SilentlyContinue | Where-Object { $_.Class -in 'USB','DiskDrive','HIDClass','Keyboard' })
+                if ($disp.Count -gt 0) {
+                    $disp | Select-Object Status, Class, FriendlyName, InstanceId | Format-Table -AutoSize -Wrap
+                } else { Write-Host "  Nenhum dispositivo USB/HID presente." -ForegroundColor $C.E }
+                P
+            }
+            "5" {
+                $log = 'Microsoft-Windows-DriverFrameworks-UserMode/Operational'
+                try {
+                    $estado = wevtutil gl $log 2>&1 | Out-String
+                    if ($estado -match 'enabled:\s*false') {
+                        Write-Host "  Log DFU desabilitado. Habilitando..." -ForegroundColor $C.A
+                        wevtutil sl $log /e:true 2>&1 | Out-Null
+                        Log "Log $log habilitado"
+                    }
+                } catch { Write-Host "  Nao foi possivel consultar/habilitar o log: $_" -ForegroundColor $C.E }
+                $ev = @(Get-WinEvent -FilterHashtable @{LogName=$log; Id=2003,2100,2101} -MaxEvents 30 -EA SilentlyContinue)
+                if ($ev.Count -gt 0) {
+                    $ev | Select-Object @{N='Data';E={$_.TimeCreated.ToString('dd/MM/yyyy HH:mm:ss')}},
+                        @{N='ID';E={$_.Id}},
+                        @{N='Mensagem';E={$_.Message.Substring(0, [Math]::Min(90, $_.Message.Length))}} |
+                        Format-Table -AutoSize -Wrap
+                } else { Write-Host "  Nenhum evento 2003/2100/2101 encontrado." -ForegroundColor $C.E }
+                P
+            }
+            "6" {
+                Write-Host "  Habilitando auditoria de Plug and Play (evento 6416)..."
+                auditpol /set /subcategory:"Plug and Play Events" /success:enable
+                Log "Auditpol: Plug and Play Events /success:enable"
+                Write-Host "  Auditoria aplicada. Eventos em Security/6416." -ForegroundColor $C.M
+                P
+            }
+            "7" {
+                Write-Host "  Habilitando auditoria de armazenamento removivel (evento 4663)..."
+                auditpol /set /subcategory:"Removable Storage" /success:enable /failure:enable
+                Log "Auditpol: Removable Storage /success:enable /failure:enable"
+                Write-Host "  Auditoria aplicada. Eventos em Security/4663." -ForegroundColor $C.M
+                P
+            }
+            "8" {
+                $src = "VolChange"
+                try {
+                    if (-not (Get-EventSubscriber -SourceIdentifier $src -EA SilentlyContinue)) {
+                        Register-CimIndicationEvent -ClassName Win32_VolumeChangeEvent -SourceIdentifier $src -EA Stop
+                        Log "Monitoramento Win32_VolumeChangeEvent iniciado"
+                    }
+                    Write-Host "  Monitorando insercao/remocao. Pressione Q para parar e voltar." -ForegroundColor $C.A
+                    while ($true) {
+                        $evs = @(Get-Event -SourceIdentifier $src -EA SilentlyContinue)
+                        foreach ($ev in $evs) {
+                            $tipo = switch ($ev.SourceEventArgs.NewEvent.EventType) {
+                                2 { "INSERCAO" }
+                                3 { "REMOCAO" }
+                                default { "OUTRO" }
+                            }
+                            $unidade = $ev.SourceEventArgs.NewEvent.DriveName
+                            $msg = "Volume $tipo - $unidade - " + $ev.TimeGenerated.ToString('dd/MM/yyyy HH:mm:ss')
+                            Write-Host "  $msg" -ForegroundColor $C.M
+                            Log $msg
+                            Remove-Event -EventIdentifier $ev.EventIdentifier -EA SilentlyContinue
+                        }
+                        if ($Host.UI.RawUI.KeyAvailable) {
+                            $key = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+                            if ($key.Character -in 'q','Q') { break }
+                        }
+                        Start-Sleep -Milliseconds 400
+                    }
+                } catch {
+                    Write-Host "  Falha no monitoramento: $_" -ForegroundColor $C.E
+                } finally {
+                    Unregister-Event -SourceIdentifier $src -EA SilentlyContinue
+                }
+                P
+            }
+            "9" {
+                Write-Host "  Desabilitando driver de armazenamento USB (USBSTOR Start=4)..."
+                Set-UsbRegistryValue 'HKLM:\SYSTEM\CurrentControlSet\Services\USBSTOR' 'Start' 4
+                Write-Host "  USBSTOR bloqueado. Mouse e teclado continuam funcionando." -ForegroundColor $C.M
+                Write-Host "  Para reverter: item 21 ou Start=3." -ForegroundColor $C.A
+                P
+            }
+            "10" {
+                Write-Host "  Forcando modo somente leitura (WriteProtect=1)..."
+                Set-UsbRegistryValue 'HKLM:\SYSTEM\CurrentControlSet\Control\StorageDevicePolicies' 'WriteProtect' 1
+                Write-Host "  Leitura permitida; gravacao em removiveis bloqueada." -ForegroundColor $C.M
+                P
+            }
+            "11" {
+                Write-Host "  Aplicando politica de acesso a discos removiveis (equivalente a GPO)..."
+                $p = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\RemovableStorageDevices\{53f5630d-b6bf-11d0-94f2-00a0c91efb8b}'
+                Set-UsbRegistryValue $p 'Deny_Write' 1
+                Set-UsbRegistryValue $p 'Deny_Execute' 1
+                Write-Host "  Deny_Write e Deny_Execute aplicados." -ForegroundColor $C.M
+                P
+            }
+            "12" {
+                Write-Host "  Desabilitando AutoRun e AutoPlay..."
+                $e = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer'
+                Set-UsbRegistryValue $e 'NoDriveTypeAutoRun' 255
+                Set-UsbRegistryValue $e 'NoAutoplayfornonVolume' 1
+                Write-Host "  AutoRun/AutoPlay desabilitados." -ForegroundColor $C.M
+                P
+            }
+            "13" {
+                $devs = @(Get-PnpDevice -Class DiskDrive -EA SilentlyContinue | Where-Object { $_.FriendlyName -like '*USB*' })
+                if ($devs.Count -eq 0) {
+                    Write-Host "  Nenhum disco USB para desabilitar." -ForegroundColor $C.E
+                } else {
+                    $devs | Select-Object Status, FriendlyName, InstanceId | Format-Table -AutoSize -Wrap
+                    $alvo = Read-Host "  Cole um trecho do InstanceId do dispositivo (ENTER=cancelar)"
+                    if ($alvo) {
+                        $sel = $devs | Where-Object { $_.InstanceId -like "*$alvo*" } | Select-Object -First 1
+                        if ($sel) {
+                            Write-Host "  ALVO: $($sel.FriendlyName) | $($sel.InstanceId)" -ForegroundColor $C.A
+                            $ok = Read-Host "  Confirma desabilitar? (s/N)"
+                            if ($ok -match '^(?i:s|sim)$') {
+                                Disable-PnpDevice -InstanceId $sel.InstanceId -Confirm:$false -EA Stop
+                                Write-Host "  Dispositivo desabilitado. Para reverter: Enable-PnpDevice." -ForegroundColor $C.M
+                                Log "PnP desabilitado: $($sel.InstanceId)"
+                            }
+                        } else { Write-Host "  Dispositivo nao encontrado." -ForegroundColor $C.E }
+                    }
+                }
+                P
+            }
+            "14" {
+                $discos = @(Get-Disk -EA SilentlyContinue | Where-Object BusType -eq 'USB')
+                if ($discos.Count -eq 0) { Write-Host "  Nenhum disco USB encontrado." -ForegroundColor $C.E }
+                else {
+                    $discos | Select-Object Number, FriendlyName, @{N='TamanhoGB';E={[math]::Round($_.Size / 1GB, 2)}}, OperationalStatus | Format-Table -AutoSize
+                    $num = Read-Host "  Numero do disco USB (ENTER=cancelar)"
+                    if ($num -match '^\d+$') {
+                        $sel = $discos | Where-Object Number -eq ([int]$num) | Select-Object -First 1
+                        if ($sel) {
+                            Write-Host "  ALVO: disco $($sel.Number) | $($sel.FriendlyName) | $([math]::Round($sel.Size / 1GB, 2)) GB" -ForegroundColor $C.A
+                            $ok = Read-Host "  Confirma modo somente leitura? (s/N)"
+                            if ($ok -match '^(?i:s|sim)$') {
+                                Set-Disk -Number $sel.Number -IsReadOnly $true
+                                Write-Host "  Disco $($sel.Number) em somente leitura. Reverter com -IsReadOnly `$false." -ForegroundColor $C.M
+                                Log "Disco USB $($sel.Number) definido como somente leitura"
+                            }
+                        } else { Write-Host "  Disco nao encontrado." -ForegroundColor $C.E }
+                    }
+                }
+                P
+            }
+            "15" {
+                $d = Selecionar-Pendrive "criptografar com BitLocker To Go"
+                if ($d) {
+                    $senha = Read-Host -AsSecureString "Senha do BitLocker"
+                    try {
+                        Enable-BitLocker -MountPoint "${d}:" -EncryptionMethod XtsAes256 -PasswordProtector -Password $senha -EA Stop
+                        Add-BitLockerKeyProtector -MountPoint "${d}:" -RecoveryPasswordProtector -EA Stop
+                        Get-BitLockerVolume -MountPoint "${d}:" | Select-Object MountPoint, EncryptionStatus, ProtectionStatus | Format-List
+                        Write-Host "  Guarde a chave de recuperacao em local seguro." -ForegroundColor $C.A
+                        Log "BitLocker To Go habilitado em ${d}:"
+                    } catch { Write-Host "  Erro: $_" -ForegroundColor $C.E }
+                }
+                P
+            }
+            "16" {
+                Write-Host "  Exigindo criptografia para gravar em pendrives (RDVDenyWriteAccess=1)..."
+                Set-UsbRegistryValue 'HKLM:\SOFTWARE\Policies\Microsoft\FVE' 'RDVDenyWriteAccess' 1
+                Write-Host "  Somente midias protegidas por BitLocker poderao ser gravadas." -ForegroundColor $C.M
+                P
+            }
+            "17" {
+                $d = Selecionar-Pendrive "verificar com o Defender"
+                if ($d) {
+                    try {
+                        Set-MpPreference -DisableRemovableDriveScanning $false -EA Stop
+                        Start-MpScan -ScanType CustomScan -ScanPath "${d}:\" -EA Stop
+                        $ameacas = @(Get-MpThreatDetection -EA SilentlyContinue)
+                        if ($ameacas.Count -gt 0) {
+                            $ameacas | Select-Object @{N='Data';E={$_.InitialDetectionTime.ToString('dd/MM/yyyy HH:mm:ss')}}, ThreatID, Resources | Format-List
+                        } else { Write-Host "  Nenhuma ameaca detectada." -ForegroundColor $C.M }
+                        Log "Defender CustomScan concluido em ${d}:"
+                    } catch { Write-Host "  Erro: $_" -ForegroundColor $C.E }
+                }
+                P
+            }
+            "18" {
+                $d = Selecionar-Pendrive "procurar arquivos suspeitos"
+                if ($d) {
+                    $padrao = 'autorun.inf,*.exe,*.scr,*.vbs,*.js,*.lnk,*.ps1,*.bat,*.cmd,*.pif,*.com'
+                    $suspeitos = @(Get-ChildItem "${d}:\" -Recurse -Force -Include $padrao -EA SilentlyContinue)
+                    $ocultos = @(Get-ChildItem "${d}:\" -Recurse -Force -EA SilentlyContinue | Where-Object { $_.Attributes -match 'Hidden|System' })
+                    if ($suspeitos.Count -gt 0) {
+                        $suspeitos | Select-Object FullName, @{N='Criacao';E={$_.CreationTime.ToString('dd/MM/yyyy HH:mm:ss')}}, Attributes | Format-Table -AutoSize -Wrap
+                    } else { Write-Host "  Nenhum arquivo com extensao suspeita." -ForegroundColor $C.M }
+                    if ($ocultos.Count -gt 0) {
+                        Write-Host "  Arquivos ocultos/de sistema: $($ocultos.Count)" -ForegroundColor $C.A
+                        $ocultos | Select-Object -First 50 FullName, Attributes | Format-Table -AutoSize -Wrap
+                    }
+                    Log "Varredura de arquivos suspeitos em ${d}: concluida"
+                }
+                P
+            }
+            "19" {
+                $d = Selecionar-Pendrive "calcular hashes e assinaturas"
+                if ($d) {
+                    Write-Host "  Calculando hashes SHA256 (ate 100 arquivos)..."
+                    $arquivos = @(Get-ChildItem "${d}:\" -Recurse -File -EA SilentlyContinue | Select-Object -First 100)
+                    if ($arquivos.Count -gt 0) {
+                        $arquivos | Get-FileHash -Algorithm SHA256 -EA SilentlyContinue | Select-Object Hash, Path | Format-Table -AutoSize -Wrap
+                    }
+                    Write-Host "  Verificando assinatura de binarios..."
+                    $bins = @(Get-ChildItem "${d}:\" -Recurse -Include *.exe,*.dll -File -EA SilentlyContinue)
+                    if ($bins.Count -gt 0) {
+                        $bins | Get-AuthenticodeSignature -EA SilentlyContinue | Where-Object Status -ne 'Valid' |
+                            Select-Object Status, Path | Format-Table -AutoSize -Wrap
+                    } else { Write-Host "  Nenhum binario encontrado." -ForegroundColor $C.M }
+                    Log "Hashes e assinaturas coletados em ${d}:"
+                }
+                P
+            }
+            "20" {
+                $d = Selecionar-Pendrive "SANITIZAR (APAGAR TUDO)"
+                if ($d) {
+                    Write-Host "  ATENCAO: apagamento IRREVERSIVEL em ${d}:!" -ForegroundColor $C.E
+                    $ok = Read-Host "  Digite APAGAR para confirmar"
+                    if ($ok -eq 'APAGAR') {
+                        try {
+                            $vol = Get-Volume -DriveLetter $d -EA Stop
+                            Format-Volume -DriveLetter $d -FileSystem NTFS -Full -Force -Confirm:$false -EA Stop | Out-Null
+                            cipher /w:"${d}:\" 2>&1 | Out-Null
+                            Write-Host "  ${d}: sanitizado (formato NTFS + cipher /w)." -ForegroundColor $C.M
+                            Log "Pendrive ${d}: sanitizado (cipher /w)"
+                        } catch { Write-Host "  Erro: $_" -ForegroundColor $C.E }
+                    } else { Write-Host "  Cancelado." -ForegroundColor $C.A }
+                }
+                P
+            }
+            "21" {
+                Restore-UsbRollback
+                P
+            }
+            "22" {
+                Write-Host "  Pipeline: detectar -> identificar -> escanear -> listar -> logar" -ForegroundColor $C.H
+                $d = Selecionar-Pendrive "o pipeline completo"
+                if ($d) {
+                    $vol = Get-Volume -DriveLetter $d -EA SilentlyContinue
+                    $disco = @(Get-Partition -DriveLetter $d -EA SilentlyContinue | Get-Disk -EA SilentlyContinue)[0]
+                    Write-Host ("  ALVO DETECTADO: {0}: | {1} | {2:N2} GB" -f $d, $(if ($disco) { $disco.FriendlyName } else { $vol.FileSystemLabel }), $(if ($disco) { $disco.Size } else { $vol.Size })/1GB) -ForegroundColor $C.A
+                    try { Set-MpPreference -DisableRemovableDriveScanning $false -EA SilentlyContinue; Start-MpScan -ScanType CustomScan -ScanPath "${d}:\" -EA Stop } catch { Write-Host "  Scan falhou: $_" -ForegroundColor $C.E }
+                    $suspeitos = @(Get-ChildItem "${d}:\" -Recurse -Force -Include 'autorun.inf,*.exe,*.scr,*.vbs,*.js,*.lnk,*.ps1' -EA SilentlyContinue)
+                    Write-Host "  Arquivos suspeitos: $($suspeitos.Count)" -ForegroundColor $C.A
+                    if ($suspeitos.Count -gt 0) { $suspeitos | Select-Object -First 30 FullName, Attributes | Format-Table -AutoSize -Wrap }
+                    $logTxt = "PIPELINE ${d}: modelo=$(if ($disco) { $disco.FriendlyName } else { 'n/d' }) tamanhoGB=$([math]::Round($(if ($disco) { $disco.Size } else { $vol.Size })/1GB,2)) suspeitos=$($suspeitos.Count) em $(Get-Date -f 'dd/MM/yyyy HH:mm:ss')"
+                    Log $logTxt
+                    Write-Host "  Resultado registrado no log: $($APP.Log)" -ForegroundColor $C.M
+                }
+                P
+            }
+            "0" { return }
+            default { Write-Host "  Opcao invalida." -ForegroundColor $C.E; Start-Sleep 1 }
         }
     } while ($true)
 }
