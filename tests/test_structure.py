@@ -86,6 +86,16 @@ def test_menu_usb_drives_dispatch_e_opcoes():
         assert trecho in bloco, f"controle ausente no submenu USB: {trecho}"
     assert "function Save-UsbRollback" in texto, "sem gravacao de rollback"
     assert "function Set-UsbRegistryValue" in texto, "sem captura do valor original"
+    assert "$d:" not in bloco, "use ${d}: para interpolacao de letra de unidade"
+
+
+def test_ps1_utf8_bom_crlf():
+    raw = (ROOT / "SOS-Manutencao.ps1").read_bytes()
+    assert raw.startswith(b"\xef\xbb\xbf"), "PS1 sem BOM UTF-8 (obrigatorio no PS 5.1)"
+    corpo = raw.decode("utf-8-sig")
+    crlf = corpo.count("\r\n")
+    lf = corpo.count("\n")
+    assert crlf > 0 and lf == crlf, f"quebras inconsistentes: CRLF={crlf} LF={lf}"
 
 
 def test_multiselecao_todos_os_menus():

@@ -18,6 +18,11 @@ Sistema 16–21), o motor de execução (`Run → Desc → Confirmar → Execuç
 `%TEMP%\SOS_Manutencao.log`) e as proteções/auditoria. O vetor editável fica em
 `docs/assets/fluxograma.svg` (neste site: [assets/fluxograma.svg](assets/fluxograma.svg)).
 
+O Menu 12 inclui o submenu de **drives USB e pendrives** (opção 40): ao entrar,
+lista discos USB e volumes removíveis automaticamente e oferece 22 ações de
+inventário, auditoria, bloqueio, criptografia, análise e higienização, com
+confirmação de modelo/tamanho e rollback dos bloqueios.
+
 ## Início rápido
 
 ```powershell

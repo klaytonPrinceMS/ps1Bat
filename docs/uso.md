@@ -49,5 +49,11 @@ Novas ações privilegiadas devem chamar `Log` da mesma forma.
   `explorer.exe` em loop numa janela separada — feche a janela para parar.
 - Menu 19 (Winget): **sempre não-elevado** (`-SemAdmin`). O `Run` abre uma
   nova janela CMD independente para interação. Não altere para modo elevado.
+- Menu 12, opção 40 (USB/pendrives): a listagem de discos/volumes é
+  automática ao entrar. Ações sobre uma mídia pedem a letra e exibem
+  modelo/tamanho para confirmação; a sanitização exige digitar `APAGAR`.
+  Bloqueios de registro (9 a 12) salvam o valor original e têm **rollback**
+  pela opção 21. Não execute bloqueios ou formatação em máquina de produção
+  sem validar antes em VM.
 - Rede/IP estático: máscara automática `172.16.x.x → 255.255.0.0` e
   `192.168.x.x → 255.255.255.0`; DNS usa o gateway por padrão.

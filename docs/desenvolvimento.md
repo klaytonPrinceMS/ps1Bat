@@ -55,24 +55,20 @@ python main.py run     # abre o menu do SOS-Manutencao.ps1 (Windows + admin)
 ```
 
 `tests/` trava versão consistente, marca limpa, estrutura (funções e
-dispatch dos 21 menus), padrão bilíngue da docs e as travas de segurança
-(kill de explorer só no teste de monitor, firewall-off e remoção de driver
-com confirmação, instrução de recuperação da barra).
+dispatch dos 21 menus + submenu de USB do Menu 12), encoding do PS1 (UTF-8
+com BOM e CRLF), cobertura documental das opções novas, padrão bilíngue da
+docs e as travas de segurança (kill de explorer só no teste de monitor,
+firewall-off e remoção de driver com confirmação, instrução de recuperação
+da barra).
 
-## Testes
+## Validação manual
 
-Não há suíte automatizada. Validação:
-
-1. Sintaxe (sem executar nada):
-   ```powershell
-   $t = $null; $e = $null
-   [System.Management.Automation.Language.Parser]::ParseFile('SOS-Manutencao.ps1', [ref]$t, [ref]$e) | Out-Null
-   $e.Count
-   ```
-   Esperado: `0`.
-2. Manual, em máquina/VM Windows descartável: navegar até o menu alterado
-   e conferir textos/fluxo. **Não** executar stress, CHKDSK, DISM/SFC,
-   alterações de registro ou Firewall como verificação.
+Além do harness, em máquina/VM Windows descartável: navegar até o menu
+alterado e conferir textos/fluxo. **Não** executar stress, CHKDSK, DISM/SFC,
+alterações de registro, sanitização de pendrive ou Firewall como verificação.
+Para o submenu USB (Menu 12, opção 40), conferir a listagem automática de
+discos/volumes ao entrar, a confirmação com modelo/tamanho antes das ações
+destrutivas e o rollback (opção 21) após os bloqueios 9 a 12.
 
 ## Documentação (este site)
 
