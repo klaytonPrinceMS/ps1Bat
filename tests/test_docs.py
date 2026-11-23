@@ -39,13 +39,16 @@ def test_fluxograma_reflete_estado_atual():
     assert len(png) > 10000, "fluxograma.png vazio ou invalido"
     import struct
     larg, alt = struct.unpack(">II", png[16:24])
-    assert (larg, alt) == (1920, 1660), f"PNG {larg}x{alt} diferente do viewBox do SVG"
-    for trecho in ("MENU 12 · OPÇÕES E SUBMENUS CRIADOS", "19-21 · CONTAS",
-                   "25-28 · REDE", "34-39 · HARDENING", "40 · USB / PENDRIVES",
-                   "22 pipeline"):
-        assert trecho.lower() in svg.lower(), f"SVG sem o resumo: {trecho}"
-    assert 'viewBox="0 0 1920 1660"' in svg, "viewBox nao expandido para o resumo"
-    assert "usb/pendrives" in svg.lower(), "SVG sem o submenu USB"
+    assert (larg, alt) == (1920, 1320), f"PNG {larg}x{alt} diferente do viewBox do SVG"
+    assert 'viewBox="0 0 1920 1320"' in svg, "viewBox do SVG nao e 1920x1320"
+    assert "MENU 12 · OPÇÕES E SUBMENUS CRIADOS" not in svg, "SVG ainda tem secao nova do Menu 12"
+    # Resumo compacto dentro do proprio card do Menu 12 (grupo SEGURANCA)
+    sec12 = svg.split('12</tspan> · Segurança da Informação', 1)[1].split("<!-- ===== GRUPO 4", 1)[0]
+    for trecho in ("1-18 processos", "4624 RDP", "19-21 contas", "22-24 endpoint",
+                   "25-28 rede", "29-33 forense", "34-39 hardening",
+                   "40 USB/pendrives · 22 ações", "rollback · pipeline",
+                   "auditoria: quem · onde · tipo"):
+        assert trecho.lower() in sec12.lower(), f"card do Menu 12 sem o resumo: {trecho}"
     assert "pytest em tests/" in svg, "SVG sem a referencia ao pytest"
     assert "27 testes" not in svg, "SVG com contagem de testes desatualizada"
     assert "bom + crlf" in svg.lower(), "SVG sem a trava de encoding"

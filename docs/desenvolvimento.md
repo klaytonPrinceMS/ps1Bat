@@ -85,13 +85,14 @@ Ao adicionar um menu ao script, documente-o em `docs/menus.md` e atualize
 a tabela de menus do `README.md`.
 
 O fluxograma de execução fica em `docs/assets/fluxograma.{svg,png}` (canvas
-1920×1660). Ao alterar a cadeia de entrada
+1920×1320). Ao alterar a cadeia de entrada
 (`Fixar-Janela → Garantir-Admin → Autenticar → Menu-Principal`), os grupos de
-menus, o motor de execução ou as opções do Menu 12, edite também o SVG — o PNG
-é gerado a partir dele, mantendo as mesmas dimensões do `viewBox`. A seção
-final `MENU 12 · OPÇÕES E SUBMENUS CRIADOS` resume os blocos 19–24 (contas e
-endpoint), 25–33 (rede e forense), 34–39 (hardening) e 40 (USB/pendrives);
-atualize-a quando entrarem novas opções.
+menus ou o motor de execução, edite também o SVG — o PNG é gerado a partir dele,
+mantendo as mesmas dimensões do `viewBox`. O resumo das opções do Menu 12 fica
+**dentro do próprio card `12 · Segurança da Informação`**: blocos 1–18,
+19–24 (contas e endpoint), 25–33 (rede e forense), 34–39 (hardening) e 40
+(USB/pendrives, 22 ações). Atualize esse card quando entrarem novas opções —
+não crie uma seção separada.
 
 ## Publicação (GitHub Pages)
 
