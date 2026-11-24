@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sos-manutencao-harness"
-version = "v2.1.261118"
+version = "v2.1.261124"
 description = "Harness Python (testes estaticos e execucao) da ferramenta T! SOS Sistemas"
 authors = ["T! SOS Sistemas"]
 readme = "README.md"

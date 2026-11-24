@@ -30,7 +30,7 @@
   <!-- ===== TITULO ===== -->
   <text x="960" y="88" text-anchor="middle" font-size="56" font-weight="800" fill="#eef2f9">T! SOS SISTEMAS</text>
   <text x="960" y="122" text-anchor="middle" font-size="19" font-weight="700" letter-spacing="6" fill="#9fb0c6">FLUXOGRAMA DE EXECUÇÃO</text>
-  <text x="960" y="150" text-anchor="middle" font-size="15" fill="#66778d">Ferramenta técnica de manutenção · Windows 10/11 · PowerShell 5.1 · entrada v2.1.261118</text>
+  <text x="960" y="150" text-anchor="middle" font-size="15" fill="#66778d">Ferramenta técnica de manutenção · Windows 10/11 · PowerShell 5.1 · entrada v2.1.261124</text>
   <line x1="600" y1="168" x2="1320" y2="168" stroke="#e5484d" stroke-width="2.5"/>
 
   <!-- ===== CADEIA DE ENTRADA ===== -->
@@ -222,6 +222,6 @@
 
   <!-- ===== RODAPE ===== -->
   <line x1="600" y1="1246" x2="1320" y2="1246" stroke="#31435b" stroke-width="1.5"/>
-  <text x="960" y="1272" text-anchor="middle" font-size="12.5" fill="#66778d">T! SOS Sistemas · v2.1.261118 · github.com/klaytonPrinceMS/ps1Bat</text>
+  <text x="960" y="1272" text-anchor="middle" font-size="12.5" fill="#66778d">T! SOS Sistemas · v2.1.261124 · github.com/klaytonPrinceMS/ps1Bat</text>
   <text x="960" y="1292" text-anchor="middle" font-size="11" fill="#4d5a6e">fluxograma extraído do código-fonte (headers MENU · Autenticar · Run · Verificar-Processos-Suspeitos) · docs: README.md · docs/</text>
 </svg>

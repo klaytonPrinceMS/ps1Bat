@@ -1,7 +1,7 @@
 ﻿#Requires -Version 5.1
 <#
 ==============================================================================
-  T! SOS SISTEMAS - FERRAMENTA TÉCNICA DE MANUTENÇÃO  v2.1.261118
+  T! SOS SISTEMAS - FERRAMENTA TÉCNICA DE MANUTENÇÃO  v2.1.261124
   T! SOS Sistemas
   Autores: Anderson / Prince, K.B
 
@@ -47,7 +47,7 @@ $OutputEncoding            = [System.Text.Encoding]::UTF8
 
 # ── CONFIGURAÇÕES GLOBAIS ─────────────────────────────────────────────────────
 $APP = @{
-    Nome    = "T! SOS Sistemas - Manutenção Técnica  v2.1.261118"
+    Nome    = "T! SOS Sistemas - Manutenção Técnica  v2.1.261124"
     Org     = "T! SOS Sistemas"
     Log     = "$env:TEMP\SOS_Manutencao.log"
     MaxAuth = 3
@@ -147,18 +147,7 @@ function Expandir-Selecao {
 # ── TELA INICIAL (caveira do script clássico KlaytonBuenoPrince.bat) ─────────
 # Exibida uma única vez na entrada pelo Show-Splash. Não usar no Cab.
 $script:Splash = @'
-                        ...----....
-                    ..-:"''         ''"-..
-                 .-'                      '-.
-               .'              .     .       '.
-             .'   .          .    .      .    .''.
-           .'  .    .       .   .   .     .   . ..:.
-         .' .   . . .      .   .   . ..  .   . ....::.
-        ..   .   .      .  .    .     .  ..  . ....:IA.
-      .:  .   .    .    .  .  .    .. .  .. .. ....:IA.
-      .: .   .   ..   .    .     . . .. . ... ....:.:VHA.
       '..  .  .. .   .       .  . .. . .. . .....:.::IHHB.
-     .:. .  . .  . .   .  .  . . . ...:.:... .......:HIHMM.
     .:.... .   . ."::"'.. .   .  . .:.:.:II;,. .. ..:IHIMMA
     ':.:..  ..::IHHHHHI::. . .  ...:.::::.,,,. . ....VIMMHM
    .:::I. .M Klayton .III::. .:...,:IIHHHHHHMMMHHL:. . VMMMM
@@ -166,15 +155,12 @@ $script:Splash = @'
   :..V.:IVHH Prince HHHHGB... . .:VPHHMHMHMFASHHHMHMMHI.:VMMI
   ::V..:VIHHHHHHMMMHHHHHH. .   .I":IIMHHRSGSEGBDHMMHHHAPI:WMM
   ::". .:.HHHHHHHHMMHHHHHI.  . .:..I:MHMHMHMMMMMJHMHMM:':H:WM
-  :: . :.::IIHHHHHHMMHHHHV  .ABA.:.:IMHHMHMHMMHMHMMH:'. .IHWW
   '.  ..:..:.:IHHHHHMMHV" .AVMHMA.:.'VHMMMMHHHHHV:' .  :IHWV
    :.  .:...:".:.:TPP"   .AVMMHMMA.:. "VMMHHHP.:... .. :IVAI
   .:.   '... .:"'   .   ..HMMMHMMMA::. ."VHHI:::....  .:IHW'
-  ...  .  . ..:IIPPIH: ..HMMMI.MMMV:I:.  .:ILLH:.. ...:I:IM
 : .   .'"' .:.V". .. .  :HMMM:IMMMI::I. ..:HHIIPPHI::'.P:HM.
 :.  .  .  .. ..:.. .    :AMMM IMMMM..:...:IV":T::I::.".:IHIMA
 'V:.. .. . .. .  .  .   'VMMV..VMMV :....:V:.:..:....::IHHHMH
-  "IHH:.II:.. .:. .  . . . " :HB"" . . ..PI:.::.:::..:IHHMMV"
    :IP""HHII:.  .  .    . . .'V:. . . ..:IH:.:.::IHIHHMMMMM"
    :V:. VIMA:I..  .     .  . .. . .  .:.I:I:..:IHHHHMMHHMMM
    :"VI:.VWMA::. .:      .   .. .:. ..:.I::.:IVHHHMMMHMMMMI
@@ -182,7 +168,6 @@ $script:Splash = @'
    :..VIHIHMMMI...::.,:.,:!"I:!"I!"I!"V:AI:VAMMMMMMHMMMMMM'
    ':.:HIHIMHHA:tisossistemas@gmail.com"HPHIMMMMHHMHMMMMMV
    ':.:HIHIMHHA:"!!"I.:AXXXVVXXXXXXXA:."HPHIMMMMHHMHMMMMMV
-     V:H:I:MA:W'I :AXXXIXII:IIIISSSSSSXXA.I.VMMMHMHMMMMMM
        'I::IVA ASSSSXSSSSBBSBMBSSSSSSBBMMMBS.VVMMHIMM'"'
         I:: VPAIMSSSSSSSSSBSSSMMBSSSBBMMMMXXI:MMHIMMI
        .I::. "H:XIIXBBMMMMMMMMMMMMMMMMMBXIXXMMPHIIMM'
@@ -190,11 +175,9 @@ $script:Splash = @'
        :::I:.  .VSSSS TEMOS A MORTE SSSBMMB:MI:..:MM
        ::.I:.  ':"SSSSSSSISISSXIIXSSSSBMMB:AHI:..MMM.
        ::.I:. . ..:"BBSSSSSSSSSSSSBBBMMMB:AHHI::.HMMI
-       :..::.  . ..::":BBBBBSSBBBMMMB:MMMMHHII::IHHMI
        ':.I:... ....:IHHHHHMMMMMMMMMMMMMMMHHIIIIHMMV"
          "V:. ..:...:.IHHHMMMMMMMMMMMMMMMMHHHMHHMHP'
           ':. .:::.:.::III::IHHHHMMMMMHMHMMHHHHM"
-            "::....::.:::..:..::IIIIIHHHHMMMHHMV"
               "::.::.. .. .  ...:::IIHHMMMMHMV"
                 "V::... . .I::IHHMMV"'
                   '"VHVHHHAHHHHMMV:"'
@@ -290,68 +273,151 @@ function Get-StatusAdmin {
     } catch { return $null }
 }
 
+function Get-UsuariosAdminLocal {
+    # Lista nomes curtos de contas locais/usuários no grupo Administradores (SID S-1-5-32-544).
+    try {
+        $grupo = Get-LocalGroup -SID 'S-1-5-32-544' -ErrorAction Stop
+        $membros = @(Get-LocalGroupMember -Group $grupo.Name -ErrorAction Stop)
+        $nomes = @()
+        foreach ($m in $membros) {
+            $classe = "$($m.ObjectClass)"
+            if ($classe -and $classe -notmatch '(?i)^user$') { continue }
+            $nome = (($m.Name -split '\\')[-1]).Trim()
+            if ($nome -and ($nomes -notcontains $nome)) { $nomes += $nome }
+        }
+        return @($nomes | Sort-Object)
+    } catch { return @() }
+}
+
 function Autenticar {
+
     Cab
+
     Write-Host $script:Splash -ForegroundColor Red
-    Write-Host ""
-    $agora = Get-Date
-    Write-Host "  Data: $($agora.ToString('dd/MM/yyyy'))  Hora: $($agora.ToString('HH:mm'))" -ForegroundColor $C.H
-    Write-Host "  !!! AUTENTICAÇÃO DE SEGURANÇA OBRIGATÓRIA !!!" -ForegroundColor $C.A
-    Write-Host ""
-    Write-Host "  Por segurança, confirme a senha de administrador deste" -ForegroundColor $C.I
-    Write-Host "  computador antes de acessar as ferramentas do T! SOS Sistemas." -ForegroundColor $C.I
-    Write-Host "  Todas as ações ficam registradas em log de auditoria." -ForegroundColor $C.H
+
     Write-Host ""
 
+    $agora = Get-Date
+
+    Write-Host "  Data: $($agora.ToString('dd/MM/yyyy'))  Hora: $($agora.ToString('HH:mm'))  Ações registradas em log" -ForegroundColor $C.H
+
+
+
     $def = $env:USERNAME
+
     $stDef = Get-StatusAdmin $def
+
     if ($stDef -eq $true) {
+
         Write-Host "  Sessão atual: '$def' (conta ADMINISTRADORA neste PC)." -ForegroundColor $C.M
+
     } elseif ($stDef -eq $false) {
+
         Write-Host "  Sessão atual: '$def' (NÃO e administradora neste PC)." -ForegroundColor $C.E
+
         Write-Host "  Informe um usuario que seja administrador para continuar." -ForegroundColor $C.A
+
+    } else {
+
+        Write-Host "  Sessão atual: '$def'." -ForegroundColor $C.I
+
     }
-    Write-Host "  Pressione ENTER para autenticar como '$def'." -ForegroundColor $C.I
-    Write-Host "  Para usar outra conta, digite o nome de login dela." -ForegroundColor $C.I
+
+    Write-Host ""
+
+    Write-Host "  !!! AUTENTICAÇÃO DE SEGURANÇA OBRIGATÓRIA !!!" -ForegroundColor $C.A
+
+    Write-Host ""
+
+    Write-Host "  Por segurança, confirme a senha de administrador deste" -ForegroundColor $C.I
+
+    Write-Host "  computador antes de acessar as ferramentas do T! SOS Sistemas." -ForegroundColor $C.I
+
+    Write-Host ""
+
+    $admins = @(Get-UsuariosAdminLocal)
+    if ($admins.Count -eq 0) { $admins = @($def) }
+    for ($a = 0; $a -lt $admins.Count; $a++) {
+        $n = $a + 1
+        Write-Host "  $n- $($admins[$a])" -ForegroundColor $C.I
+    }
     Write-Host ""
 
     for ($i = 1; $i -le $APP.MaxAuth; $i++) {
         Write-Host "  Tentativa $i de $($APP.MaxAuth):" -ForegroundColor $C.I
         $usr = Read-Host "  Usuario [Enter = $def]"
-        if ([string]::IsNullOrWhiteSpace($usr)) { $usr = $def }
+        $usrTxt = "$usr".Trim()
+        if ([string]::IsNullOrWhiteSpace($usrTxt)) {
+            $usr = $def
+        } elseif ($usrTxt -match '^\d+$') {
+            $idx = [int]$usrTxt - 1
+            if ($idx -ge 0 -and $idx -lt $admins.Count) { $usr = $admins[$idx] }
+            else { $usr = $usrTxt }
+        } else {
+            $usr = $usrTxt
+        }
+
+
 
         $st = Get-StatusAdmin $usr
+
         if ($st -eq $true) {
+
             Write-Host "  Conta '$usr' confirmada como ADMINISTRADORA." -ForegroundColor $C.M
+
         } elseif ($st -eq $false) {
+
             Write-Host "  [ERRO] '$usr' NÃO e administrador local. Tente outro usuario." -ForegroundColor $C.E
+
             Log "Tentativa com usuario não-administrador - $usr (tentativa $i)" "AVISO"
+
             Write-Host ""
+
             continue
+
         }
+
+
 
         $pwd = Read-Host "  Senha de administrador para '$usr'" -AsSecureString
 
+
+
         if (Validar-Credencial $usr $pwd) {
+
             Write-Host "`n  [OK] Autenticado com sucesso! Bem-vindo, $usr." -ForegroundColor $C.M
+
             Log "Autenticação bem-sucedida - Usuario: $usr"
+
             Start-Sleep 1; return
+
         }
 
+
+
         Write-Host "  [ERRO] Credenciais incorretas." -ForegroundColor $C.E
+
         Log "Falha de autenticação - $usr (tentativa $i)" "AVISO"
+
         Write-Host ""
+
     }
 
+
+
     Write-Host "  Limite de tentativas atingido. Encerrando por segurança." -ForegroundColor $C.E
+
     Log "Acesso bloqueado após $($APP.MaxAuth) tentativas." "ERRO"
+
     Start-Sleep 2; exit 1
+
 }
 
 function Fixar-Janela {
     # Dimensiona a janela em PIXELS (94% da largura e 90% da altura uteis do
-    # monitor onde a janela esta), convertendo para colunas/linhas pelo tamanho
-    # da fonte atual do console. Assim cabe em tela pequena ou vertical.
+    # monitor onde a janela esta, +1 cm na altura, ~38 px @96 DPI), convertendo
+    # para colunas/linhas pelo tamanho da fonte atual do console. Assim cabe em
+    # tela pequena ou vertical.
     # Trava a largura (sem rolagem horizontal) e desabilita os botoes
     # maximizar/minimizar. Roda primeiro na entrada (vale tambem apos a
     # auto-elevacao, que reabre o script em nova janela).
@@ -376,6 +442,7 @@ namespace SOS {
     [DllImport("user32.dll")] public static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
     [DllImport("kernel32.dll", SetLastError=true)] public static extern IntPtr GetStdHandle(int nStdHandle);
     [DllImport("kernel32.dll", SetLastError=true)] public static extern bool GetCurrentConsoleFontEx(IntPtr hConsoleOutput, bool bMaximumWindow, ref CONSOLE_FONT_INFOEX info);
+    [DllImport("kernel32.dll", SetLastError=true)] public static extern bool SetCurrentConsoleFontEx(IntPtr hConsoleOutput, bool bMaximumWindow, ref CONSOLE_FONT_INFOEX info);
   }
 }' -ErrorAction Stop
         $hwnd = [SOS.JanelaFixa]::GetConsoleWindow()
@@ -388,8 +455,9 @@ namespace SOS {
         if (-not [SOS.JanelaFixa]::GetCurrentConsoleFontEx([SOS.JanelaFixa]::GetStdHandle(-11), $false, [ref]$info)) { return }
         $fx = [Math]::Max($info.dwFontSize.X, 4)
         $fy = [Math]::Max($info.dwFontSize.Y, 4)
+        $cm1px = [int][Math]::Round(96 / 2.54) # 1 cm ~ 38 px em 96 DPI
         $cols = [Math]::Floor($area.Width * 0.94 / $fx)
-        $rows = [Math]::Floor($area.Height * 0.90 / $fy)
+        $rows = [Math]::Floor(([Math]::Min([double]$area.Height, ($area.Height * 0.90) + $cm1px)) / $fy)
         $cols = [Math]::Min(160, [Math]::Max(80, $cols))
         $rows = [Math]::Min(70, [Math]::Max(30, $rows))
         $raw = $Host.UI.RawUI

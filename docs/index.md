@@ -1,7 +1,7 @@
 # T! SOS Sistemas — Ferramenta Técnica de Manutenção
 
-> **EN:** Interactive Windows maintenance toolkit by T! SOS Sistemas. Current version **v2.1.261118**, single script: `SOS-Manutencao.ps1` (PowerShell 5.1).
-> **PT:** Ferramenta interativa de manutenção para Windows do T! SOS Sistemas. Versão atual **v2.1.261118**, script único: `SOS-Manutencao.ps1` (PowerShell 5.1).
+> **EN:** Interactive Windows maintenance toolkit by T! SOS Sistemas. Current version **v2.1.261124**, single script: `SOS-Manutencao.ps1` (PowerShell 5.1).
+> **PT:** Ferramenta interativa de manutenção para Windows do T! SOS Sistemas. Versão atual **v2.1.261124**, script único: `SOS-Manutencao.ps1` (PowerShell 5.1).
 
 Toda a lógica vive em funções `Menu-*` despachadas pelo `Menu-Principal`.
 O comentário de cabeçalho do `SOS-Manutencao.ps1` (linhas 1–36) é a lista oficial de

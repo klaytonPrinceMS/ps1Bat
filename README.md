@@ -5,7 +5,7 @@
 > **EN:** Every menu accepts multi-select: type `2,3,10`, ranges like `1-3`, `TODOS`, or press ENTER to run all options in sequence (`0` goes back).
 > **PT:** Todos os menus aceitam seleção múltipla: digite `2,3,10`, intervalos como `1-3`, `TODOS` ou pressione ENTER para executar todas as opções em sequência (`0` volta).
 
-Versão atual: **v2.1.261118**.
+Versão atual: **v2.1.261124**.
 
 ## Fluxograma de execução
 
