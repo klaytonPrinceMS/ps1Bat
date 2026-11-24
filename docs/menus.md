@@ -180,7 +180,14 @@ do sistema, `eventvwr`, `perfmon /rel`, `systeminfo`, inventário WMI
 (CPU/RAM/disco/placa-mãe), WinSAT (formal e por componente), programas
 (`wmic product`), hotfixes (`wmic qfe`), `bcdedit`, `perfmon /report`,
 serviços por processo (`tasklist /svc`, ex: descobrir o que roda
-dentro de cada `svchost.exe`).
+dentro de cada `svchost.exe`). A opção 18 mostra o último boot
+(`Win32_OperatingSystem.LastBootUpTime`), o tempo ligado e a hora local via
+`Format-List`, verifica reboot pendente (CBS, Windows Update,
+`PendingFileRenameOperations` e `PackagesPending`) e consulta os eventos de
+boot/shutdown do System: `1074` (User32), `6005`, `6006`, `6008` e `109`
+(Kernel-Power). O usuário escolhe um ID específico (ou `TODOS`/Enter para
+todos) e a quantidade (1–200, Enter = 20); os eventos são exibidos com
+`Format-List` e data/hora em `dd/MM/yyyy HH:mm:ss`.
 
 ## 14. Placa de Vídeo e Monitor (dxdiag, DCOM, GPU)
 

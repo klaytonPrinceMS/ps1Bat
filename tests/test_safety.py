@@ -141,6 +141,10 @@ def test_novas_opcoes_diagnostico():
     assert '"12"' in discos and "chkdsk C:" in discos, "opcao 12 do CHKDSK leitura ausente"
     diag = texto.split("function Menu-Diagnostico", 1)[1].split("function Menu-Video", 1)[0]
     assert '"17"' in diag and "tasklist /fi" in diag, "opcao 17 tasklist ausente"
+    assert '"18"' in diag and "LastBootUpTime" in diag, "opcao 18 boot ausente"
+    assert "RebootPending" in diag and "PendingFileRenameOperations" in diag
+    assert "Kernel-Power" in diag and "1074" in diag and "6008" in diag
+    assert 'Format-List' in diag.split('"18"', 1)[1], "opcao 18 deve usar Format-List"
     energia = texto.split("function Menu-Energia", 1)[1].split("function Menu-Memoria", 1)[0]
     assert '"9"' in energia and "Win32_Battery" in energia, "opcao 9 bateria ausente"
 

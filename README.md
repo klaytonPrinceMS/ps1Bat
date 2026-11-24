@@ -52,7 +52,7 @@ Na inicialização, a ordem é fixa:
 | 10 | Rede e DNS | reset TCP/IP/Winsock, flush DNS, `tracert`, IP estático |
 | 11 | Segurança e Permissões | ICACLS, `takeown`, USB, Firewall, Execution Policy |
 | 12 | Segurança da Informação | auditoria de eventos, antivírus (Defender, MRT), RDP, usuários/permissões, rede/superfície de ataque, persistência, hardening, drives USB/pendrives |
-| 13 | Diagnóstico Avançado | processos, eventos, WinSAT, hardware, `wmic` |
+| 13 | Diagnóstico Avançado | processos, eventos, boot/reboot, WinSAT, hardware, `wmic` |
 | 14 | Placa de Vídeo e Monitor | `dxdiag`, DCOM, GPU |
 | 15 | Testes | CPU, velocidade, monitor |
 | 16 | Identidade do Sistema | renomear PC, nome de conta local, IP estático |

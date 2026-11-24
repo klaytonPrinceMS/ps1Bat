@@ -855,8 +855,9 @@ function Menu-Diagnostico {
         Write-Host "  15. Informações de boot (bcdedit)" -ForegroundColor $C.M
         Write-Host "  16. Relatório de desempenho (perfmon)" -ForegroundColor $C.M
         Write-Host " 17. Serviços por processo (tasklist /svc)" -ForegroundColor $C.M
+        Write-Host "  18. Último boot, tempo ligado e reboot pendente" -ForegroundColor $C.M
         Write-Host "   0. Voltar" -ForegroundColor $C.I
-        switch (Expandir-Selecao (Read-Host "`n  Opção [2,3,10 | TODOS | ENTER=todas | 0 volta]") @("1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17")) {
+        switch (Expandir-Selecao (Read-Host "`n  Opção [2,3,10 | TODOS | ENTER=todas | 0 volta]") @("1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18")) {
             "1"  {
                 Write-Host "`n  Top 10 processos por CPU:" -ForegroundColor $C.A
                 Get-Process | Sort-Object CPU -Descending | Select-Object -First 10 `
@@ -914,6 +915,68 @@ function Menu-Diagnostico {
                 $img = Read-Host "  Nome do executável (Enter = chrome.exe)"
                 if ([string]::IsNullOrWhiteSpace($img)) { $img = "chrome.exe" }
                 Run "Serviços em '$img'..." "Lista os serviços hospedados no processo informado. Útil para descobrir qual serviço está por trás de um svchost.exe com alto consumo, por exemplo." @("tasklist /fi `"imagename eq $img`" /svc") -Win
+            }
+            "18" {
+                Write-Host "`n  Boot e reinicialização:" -ForegroundColor $C.A
+                try {
+                    $os   = Get-CimInstance Win32_OperatingSystem -ErrorAction Stop
+                    $boot = $os.ConvertToDateTime($os.LastBootUpTime)
+                    $up   = (Get-Date) - $boot
+                    $upTxt = "{0}d {1}h {2}min" -f $up.Days, $up.Hours, $up.Minutes
+                    [PSCustomObject]@{
+                        'Último boot'    = $boot.ToString("dd/MM/yyyy HH:mm:ss")
+                        'Tempo ligado'   = $upTxt
+                        'Hora local'     = $os.ConvertToDateTime($os.LocalDateTime).ToString("dd/MM/yyyy HH:mm:ss")
+                    } | Format-List
+                } catch {
+                    Write-Host "  Falha ao consultar boot: $_" -ForegroundColor $C.E
+                }
+                $chaves = @(
+                    'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing\RebootPending',
+                    'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update\RebootRequired'
+                ) | Where-Object { Test-Path $_ }
+                $renames = (Get-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager' -EA SilentlyContinue).PendingFileRenameOperations
+                $cbs = Test-Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing\PackagesPending'
+                if ($chaves -or $renames -or $cbs) {
+                    Write-Host "  Reboot pendente: SIM" -ForegroundColor $C.A
+                    if ($chaves)  { $chaves | ForEach-Object { Write-Host "    - $_" -ForegroundColor $C.H } }
+                    if ($renames) { Write-Host "    - PendingFileRenameOperations ($($renames.Count) entradas)" -ForegroundColor $C.H }
+                    if ($cbs)     { Write-Host "    - CBS PackagesPending" -ForegroundColor $C.H }
+                } else {
+                    Write-Host "  Reboot pendente: NÃO" -ForegroundColor $C.I
+                }
+
+                Write-Host "`n  Eventos de boot/shutdown (Kernel-Power):" -ForegroundColor $C.A
+                Write-Host "  1074 = desligamento/reinicio pedido · 6005 = log iniciado"
+                Write-Host "  6006 = log encerrado · 6008 = desligamento inesperado · 109 = boot do kernel"
+                $idsValidos = @("1074","6005","6006","6008","109")
+                do {
+                    $idTxt = Expandir-Selecao (Read-Host "  ID [1074,6005,6006,6008,109 | TODOS | ENTER=todos]") $idsValidos
+                } while ($idTxt.Count -eq 0)
+                $ids = @($idTxt | ForEach-Object { [int]$_ })
+
+                $qtdTxt = Read-Host "  Quantidade de eventos (ENTER = 20, max. 200)"
+                if ([string]::IsNullOrWhiteSpace($qtdTxt)) { $qtdTxt = "20" }
+                $qtd = 0
+                if (-not [int]::TryParse($qtdTxt, [ref]$qtd) -or $qtd -lt 1 -or $qtd -gt 200) {
+                    Write-Host "  Quantidade invalida. Usando 20." -ForegroundColor $C.E
+                    $qtd = 20
+                }
+                try {
+                    # 1074 e gravado pelo provedor User32; os demais, pelo Kernel-Power.
+                    $filtros = @()
+                    if ($ids -contains 1074) { $filtros += @{LogName='System'; ProviderName='User32'; ID=1074} }
+                    $idsKP = @($ids | Where-Object { $_ -ne 1074 })
+                    if ($idsKP.Count -gt 0) { $filtros += @{LogName='System'; ProviderName='Microsoft-Windows-Kernel-Power'; ID=$idsKP} }
+                    Get-WinEvent -FilterHashtable $filtros -MaxEvents $qtd -ErrorAction Stop |
+                        Sort-Object TimeCreated -Descending |
+                        Select-Object -First $qtd |
+                        Select-Object @{N='TimeCreated';E={$_.TimeCreated.ToString("dd/MM/yyyy HH:mm:ss")}}, Id, Message |
+                        Format-List
+                } catch {
+                    Write-Host "  Nenhum evento encontrado ou falha na consulta: $_" -ForegroundColor $C.E
+                }
+                P
             }
             "0"  { return }
             default { Write-Host "  Opção inválida." -ForegroundColor $C.E; Start-Sleep 1 }
