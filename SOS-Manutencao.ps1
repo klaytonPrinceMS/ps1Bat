@@ -908,10 +908,12 @@ function Menu-Diagnostico {
         Write-Host "   2. Top 10 processos por uso de RAM" -ForegroundColor $C.M
         Write-Host "   3. Servicos em execução" -ForegroundColor $C.M
         Write-Host "   4. Servicos parados" -ForegroundColor $C.M
+        Write-Host ""
         Write-Host "  -- Eventos e Erros ---------------------------------------" -ForegroundColor $C.H
         Write-Host "   5. Últimos 10 erros críticos do sistema" -ForegroundColor $C.M
         Write-Host "   6. Abrir Visualizador de Eventos" -ForegroundColor $C.M
         Write-Host "   7. Histórico de confiabilidade do sistema" -ForegroundColor $C.M
+        Write-Host ""
         Write-Host "  -- Hardware e Sistema ------------------------------------" -ForegroundColor $C.H
         Write-Host "   8. Informações completas do sistema (systeminfo)" -ForegroundColor $C.M
         Write-Host "   9. Hardware via WMI (CPU, RAM, disco, placa-mae)" -ForegroundColor $C.M
@@ -922,7 +924,7 @@ function Menu-Diagnostico {
         Write-Host "  14. Atualizações instaladas (wmic qfe)" -ForegroundColor $C.M
         Write-Host "  15. Informações de boot (bcdedit)" -ForegroundColor $C.M
         Write-Host "  16. Relatório de desempenho (perfmon)" -ForegroundColor $C.M
-        Write-Host " 17. Serviços por processo (tasklist /svc)" -ForegroundColor $C.M
+        Write-Host "  17. Serviços por processo (tasklist /svc)" -ForegroundColor $C.M
         Write-Host "  18. Último boot, tempo ligado e reboot pendente" -ForegroundColor $C.M
         Write-Host "   0. Voltar" -ForegroundColor $C.I
         switch (Expandir-Selecao (Read-Host "`n  Opção [2,3,10 | TODOS | ENTER=todas | 0 volta]") @("1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18")) {
@@ -962,9 +964,9 @@ function Menu-Diagnostico {
             "11" { Run "WinSAT Formal (benchmark completo)..." "Executa a avaliação completa de desempenho do Windows para todos os componentes (CPU, RAM, disco, graficos). Dura 5-10 minutos. Os resultados ficam disponíveis na opção 10." @("winsat formal") -Win }
             "12" {
                 L; Cab "WINSAT - BENCHMARK POR COMPONENTE"
-                Write-Host "  1. CPU       2. RAM       3. Disco C:  4. 3D/DirectX"
-                Write-Host "  5. DWM/Interface         6. Recursos do SO"
-                Write-Host "  0. Voltar"
+                Write-Host "   1. CPU       2. RAM       3. Disco C:  4. 3D/DirectX"
+                Write-Host "   5. DWM/Interface         6. Recursos do SO"
+                Write-Host "   0. Voltar"
                 switch (Expandir-Selecao (Read-Host "`n  Opção [2,3,10 | TODOS | ENTER=todas | 0 volta]") @("1","2","3","4","5","6")) {
                     "1" { Run "WinSAT CPU..." "Mede o desempenho do processador em operacoes matematicas e de compressao." @("winsat cpu") -Win }
                     "2" { Run "WinSAT RAM..." "Mede a largura de banda e latência da memória RAM." @("winsat mem") -Win }
@@ -1387,7 +1389,8 @@ function Menu-SegInfo {
         Write-Host "  7. Logons RDP remotos (ID 4624 tipo 10): últimos N, tipo de logon e IP" -ForegroundColor $C.M
         Write-Host "  8. Histórico de logons e logoffs" -ForegroundColor $C.M
         Write-Host "  9. Conexões RDP ativas na rede (porta 3389)" -ForegroundColor $C.M
-        Write-Host " 10. Análise completa de segurança (todos os eventos)" -ForegroundColor $C.A
+        Write-Host "  10. Análise completa de segurança (todos os eventos)" -ForegroundColor $C.A
+        Write-Host ""
         Write-Host "  -- Antivírus (Defender + MRT) --------------------------" -ForegroundColor $C.H
         Write-Host "  11. Status do Windows Defender" -ForegroundColor $C.M
         Write-Host "  12. Atualizar assinaturas do Defender" -ForegroundColor $C.M
@@ -1397,25 +1400,30 @@ function Menu-SegInfo {
         Write-Host "  16. Ameaças em quarentena / histórico" -ForegroundColor $C.M
         Write-Host "  17. MRT - verificação completa com remoção" -ForegroundColor $C.M
         Write-Host "  18. MRT - verificação completa (só relata)" -ForegroundColor $C.M
+        Write-Host ""
         Write-Host "  -- Auditoria de contas e acessos ----------------------" -ForegroundColor $C.H
         Write-Host "  19. Usuários locais e grupo Administradores" -ForegroundColor $C.M
         Write-Host "  20. Contas inativas / senha sem expiração" -ForegroundColor $C.M
         Write-Host "  21. Permissões em pastas (ACL)" -ForegroundColor $C.M
+        Write-Host ""
         Write-Host "  -- Antivírus e endpoint -------------------------------" -ForegroundColor $C.H
         Write-Host "  22. Exclusões do antivírus (Defender)" -ForegroundColor $C.M
         Write-Host "  23. Status do BitLocker" -ForegroundColor $C.M
         Write-Host "  24. Firewall do Windows (auditoria)" -ForegroundColor $C.M
+        Write-Host ""
         Write-Host "  -- Rede e superfície de ataque ------------------------" -ForegroundColor $C.H
         Write-Host "  25. Portas abertas e conexões ativas" -ForegroundColor $C.M
         Write-Host "  26. Teste de conectividade (portas críticas)" -ForegroundColor $C.M
         Write-Host "  27. Protocolos legados (SMBv1, TLS)" -ForegroundColor $C.M
         Write-Host "  28. Compartilhamentos de rede" -ForegroundColor $C.M
+        Write-Host ""
         Write-Host "  -- Persistência e integridade -------------------------" -ForegroundColor $C.H
         Write-Host "  29. Itens de inicialização e persistência" -ForegroundColor $C.M
         Write-Host "  30. Serviços com caminhos suspeitos" -ForegroundColor $C.M
         Write-Host "  31. Assinatura digital de executáveis" -ForegroundColor $C.M
         Write-Host "  32. Hash de arquivos (SHA256)" -ForegroundColor $C.M
         Write-Host "  33. Coleta de evidências forenses (triagem)" -ForegroundColor $C.M
+        Write-Host ""
         Write-Host "  -- Conformidade e hardening ---------------------------" -ForegroundColor $C.H
         Write-Host "  34. Patches e atualizações pendentes" -ForegroundColor $C.M
         Write-Host "  35. Baseline de hardening (CIS/STIG)" -ForegroundColor $C.M
@@ -1603,11 +1611,13 @@ function Menu-UsbDrives {
         Write-Host "   2. Listar volumes removiveis e letras atribuidas"
         Write-Host "   3. Historico de pendrives ja conectados (USBSTOR)"
         Write-Host "   4. Dispositivos USB e HID presentes (BadUSB)"
+        Write-Host ""
         Write-Host "  -- Auditoria e monitoramento -------------------------------" -ForegroundColor $C.H
         Write-Host "   5. Eventos de conexao/remocao (DFU 2003/2100/2101)"
         Write-Host "   6. Auditoria Plug and Play (evento 6416)"
         Write-Host "   7. Auditoria armazenamento removivel (evento 4663)"
         Write-Host "   8. Monitoramento em tempo real (insercao/remocao)"
+        Write-Host ""
         Write-Host "  -- Bloqueio e controle de acesso ---------------------------" -ForegroundColor $C.H
         Write-Host "   9. Desabilitar driver USBSTOR (bloqueio total)"
         Write-Host "  10. Forcar modo somente leitura (WriteProtect)"
@@ -1615,14 +1625,17 @@ function Menu-UsbDrives {
         Write-Host "  12. Desabilitar AutoRun e AutoPlay"
         Write-Host "  13. Desabilitar dispositivo USB especifico"
         Write-Host "  14. Disco USB especifico em modo somente leitura"
+        Write-Host ""
         Write-Host "  -- Criptografia e protecao de dados ------------------------" -ForegroundColor $C.H
         Write-Host "  15. Criptografar pendrive (BitLocker To Go)"
         Write-Host "  16. Exigir criptografia para gravar em pendrives"
+        Write-Host ""
         Write-Host "  -- Analise e higienizacao ----------------------------------" -ForegroundColor $C.H
         Write-Host "  17. Varredura do pendrive com o Defender"
         Write-Host "  18. Procurar arquivos suspeitos e ocultos"
         Write-Host "  19. Hash SHA256 e assinatura digital dos executaveis"
         Write-Host "  20. Sanitizacao segura de pendrives"
+        Write-Host ""
         Write-Host "  -- Reversao e pipeline -------------------------------------" -ForegroundColor $C.H
         Write-Host "  21. Restaurar bloqueios (rollback dos itens 9 a 12)"
         Write-Host "  22. Pipeline: detectar, escanear, listar e registrar em log"
@@ -1938,18 +1951,22 @@ function Menu-Registro {
         Write-Host "   3. Desativar Aero Shake (agitar janela para minimizar tudo)" -ForegroundColor $C.M
         Write-Host "   4. Reduzir delay do menu Iniciar (400ms --> 20ms)" -ForegroundColor $C.M
         Write-Host "   5. Reduzir delay de startup do Explorer" -ForegroundColor $C.M
+        Write-Host ""
         Write-Host "  -- Servicos do Sistema ---------------------------------------" -ForegroundColor $C.H
         Write-Host "   6. Desativar SuperFetch/SysMain (útil para SSDs)" -ForegroundColor $C.M
         Write-Host "   7. Desativar PowerThrottling (remove limite de energia do CPU)" -ForegroundColor $C.M
         Write-Host "   8. Desativar limpeza do pagefile no shutdown" -ForegroundColor $C.M
+        Write-Host ""
         Write-Host "  -- Pesquisa e Notificações -----------------------------------" -ForegroundColor $C.H
         Write-Host "   9. Desativar busca na internet pela barra de pesquisa" -ForegroundColor $C.M
         Write-Host "  10. Desativar notificações de balão" -ForegroundColor $C.M
         Write-Host "  11. Desativar Focus Assist (modo foco automático)" -ForegroundColor $C.M
         Write-Host "  12. Desativar instalação silenciosa de apps (Microsoft Store)" -ForegroundColor $C.M
+        Write-Host ""
         Write-Host "  -- Telemetria e Privacidade ----------------------------------" -ForegroundColor $C.H
         Write-Host "  13. Desativar Telemetria do Windows (DataCollection)" -ForegroundColor $C.M
         Write-Host "  14. Instruções para desativar algoritmo de Nagle (latência)" -ForegroundColor $C.M
+        Write-Host ""
         Write-Host "  -- Em lote ---------------------------------------------------" -ForegroundColor $C.H
         Write-Host "  15. APLICAR TODOS os ajustes (executa do 1 ao 13)" -ForegroundColor $C.A
         Write-Host "  16. RESTAURAR TODOS (desfaz do 1 ao 13, volta ao padrão)" -ForegroundColor $C.M
@@ -2173,6 +2190,7 @@ function Menu-Contexto {
         Write-Host "  -- Menu clássico do Windows 11 -------------------------" -ForegroundColor $C.H
         Write-Host "   1. Ativar menu clássico (restaura o antigo)" -ForegroundColor $C.M
         Write-Host "   2. Desativar menu clássico (volta ao moderno)" -ForegroundColor $C.M
+        Write-Host ""
         Write-Host "  -- Atalhos T! SOS no menu ------------------------------" -ForegroundColor $C.H
         Write-Host "   3. Adicionar atalhos (Chrome, Firefox, travas, Explorer)" -ForegroundColor $C.M
         Write-Host "   4. Remover atalhos T! SOS" -ForegroundColor $C.M
@@ -2714,15 +2732,19 @@ function Menu-Principal {
         Write-Host "   7. Memória RAM                      (diagnóstico, info)" -ForegroundColor $C.M
         Write-Host "   8. Atualização do Windows           (PSWindowsUpdate)" -ForegroundColor $C.M
         Write-Host "   9. Ajustes de Desempenho            (Registro do Windows)" -ForegroundColor $C.M
+        Write-Host ""
         Write-Host "  -- REDE ------------------------------------------------" -ForegroundColor $C.H
         Write-Host "  10. Rede e DNS                       (TCP/IP, flush, IP estático)" -ForegroundColor $C.M
+        Write-Host ""
         Write-Host "  -- SEGURANÇA -------------------------------------------" -ForegroundColor $C.H
         Write-Host "  11. Segurança e Permissões           (ICACLS, USB, Firewall)" -ForegroundColor $C.M
         Write-Host "  12. Segurança da Informação          (antivírus, auditoria)" -ForegroundColor $C.M
+        Write-Host ""
         Write-Host "  -- DIAGNÓSTICO E TESTES -------------------------------" -ForegroundColor $C.H
         Write-Host "  13. Diagnóstico Avançado             (processos, WinSAT, hardware)" -ForegroundColor $C.M
         Write-Host "  14. Placa de Vídeo e Monitor         (dxdiag, DCOM, GPU)" -ForegroundColor $C.M
         Write-Host "  15. Testes                           (CPU, velocidade, monitor)" -ForegroundColor $C.M
+        Write-Host ""
         Write-Host "  -- SISTEMA E CONFIGURAÇÃO ----------------------------" -ForegroundColor $C.H
         Write-Host "  16. Identidade do Sistema            (PC, usuário, IP)" -ForegroundColor $C.M
         Write-Host "  17. Menu de Contexto                 (clássico Win11, atalhos)" -ForegroundColor $C.M
